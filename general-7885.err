@@ -1,0 +1,23 @@
+/cluster/raid/home/zhivar.sourati/anaconda3/envs/prototex/lib/python3.9/site-packages/transformers/optimization.py:306: FutureWarning: This implementation of AdamW is deprecated and will be removed in a future version. Use the PyTorch implementation torch.optim.AdamW instead, or set `no_deprecation_warning=True` to disable this warning
+  warnings.warn(
+  0%|          | 0/3 [00:00<?, ?batches/s]  0%|          | 0/3 [00:00<?, ?batches/s]
+Traceback (most recent call last):
+  File "/cluster/raid/home/zhivar.sourati/ProtoTEx/main.py", line 115, in <module>
+    main()
+  File "/cluster/raid/home/zhivar.sourati/ProtoTEx/main.py", line 80, in main
+    train_ProtoTEx_w_neg(
+  File "/cluster/raid/home/zhivar.sourati/ProtoTEx/training.py", line 193, in train_ProtoTEx_w_neg
+    val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(val_dl,model)
+  File "/cluster/raid/home/zhivar.sourati/ProtoTEx/utils.py", line 112, in evaluate
+    for batch in loader:
+  File "/cluster/raid/home/zhivar.sourati/anaconda3/envs/prototex/lib/python3.9/site-packages/tqdm/std.py", line 1195, in __iter__
+    for obj in iterable:
+  File "/cluster/raid/home/zhivar.sourati/anaconda3/envs/prototex/lib/python3.9/site-packages/torch/utils/data/dataloader.py", line 530, in __next__
+    data = self._next_data()
+  File "/cluster/raid/home/zhivar.sourati/anaconda3/envs/prototex/lib/python3.9/site-packages/torch/utils/data/dataloader.py", line 570, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "/cluster/raid/home/zhivar.sourati/anaconda3/envs/prototex/lib/python3.9/site-packages/torch/utils/data/_utils/fetch.py", line 52, in fetch
+    return self.collate_fn(data)
+  File "/cluster/raid/home/zhivar.sourati/ProtoTEx/preprocess.py", line 129, in collate_fn
+    torch.LongTensor([i[2] for i in batch]))
+ValueError: too many dimensions 'str'
