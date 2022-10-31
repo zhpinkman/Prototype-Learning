@@ -2,11 +2,12 @@ import numpy as np
 import torch
 from transformers.optimization import AdamW
 from tqdm.notebook import tqdm
+from args import args
 
 
 ## Custom modules
 from utils import EarlyStopping, print_logs, evaluate
-from models import ProtoTEx, SimpleProtoTex
+from models import ProtoTEx
 
 ## Save paths
 MODELPATH = "Models/"
@@ -14,155 +15,62 @@ LOGSPATH = "Logs/"
 
 #### Training and eval functions
 
-def train_simple_ProtoTEx(
-    train_dl, 
-    val_dl, 
-    test_dl,
-    num_prototypes,
-    train_dataset_len,
-    modelname="0406_simpleprotobart_onlyclass_lp1_lp2_fntrained_20_train_nomask_protos",
-):
-    torch.cuda.empty_cache()        
-    model=SimpleProtoTex(num_prototypes=num_prototypes).cuda()
-    torch.cuda.empty_cache()
-    
-    save_path=MODELPATH+modelname
-    logs_path=LOGSPATH+modelname    
+import torch as th
+import math
 
-    optim=AdamW(model.parameters(),lr=3e-5,weight_decay=0.01,eps=1e-8)
-    f=open(logs_path,"w")
-    f.writelines([""])
-    f.close()
-    epoch=-1
-    val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(val_dl,model)
-    print_logs(logs_path,"VAL SCORES",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
-    val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(train_dl,model)
-    print_logs(logs_path,"TRAIN SCORES",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
-    es=EarlyStopping(-np.inf,patience=7,path=save_path,save_epochwise=False)
-    n_iters=500
-    for epoch in range(n_iters):
-        total_loss=0
-        model.train()
-        model.set_encoder_status(status=True)
-        model.set_decoder_status(status=False)
-        model.set_protos_status(status=True)
-        model.set_classfn_status(status=True)
-        classfn_loss,rc_loss,l_p1,l_p2,l_p3=[0]*5
-        train_loader = tqdm(train_dl, total=len(train_dl), unit="batches",desc="training")
-        for batch in train_loader:
-            input_ids,attn_mask,y=batch
-            classfn_out,loss=model(input_ids,attn_mask,y,use_decoder=0,use_classfn=1,
-                                   use_rc=0,use_p1=1,use_p2=1,rc_loss_lamb=1.0,p1_lamb=1.0,
-                                   p2_lamb=1.0)
-            optim.zero_grad()
-            loss[0].backward()
-            optim.step()
-            classfn_out=None
-            loss=None
-        total_loss=total_loss/train_dataset_len
-        val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(train_dl,model)
-        print_logs(logs_path,"TRAIN SCORES",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
-        es.activate(mac_val_f1)
-        val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(val_dl,model)
-        print_logs(logs_path,"VAL SCORES",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
-        es(np.mean(mac_val_f1),epoch,model)
-        if es.early_stop:
-            break
-        if es.improved:
-            """
-            Below using "val_" prefix but the dl is that of test.
-            """
-            val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(test_dl,model)
-            print_logs(logs_path,"TEST SCORES",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
-        elif (epoch+1)%5==0:
-            """
-            Below using "val_" prefix but the dl is that of test.
-            """
-            val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(test_dl,model)
-            print_logs(logs_path,"TEST SCORES (not the best ones)",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
+class Sampler(object):
+    """Base class for all Samplers.
+    Every Sampler subclass has to provide an __iter__ method, providing a way
+    to iterate over indices of dataset elements, and a __len__ method that
+    returns the length of the returned iterators.
+    """
 
+    def __init__(self, data_source):
+        pass
 
-def train_simple_ProtoTEx_adv(
-        train_dl, 
-        val_dl, 
-        test_dl,
-        train_dataset_len,
-        num_prototypes, 
-        num_pos_prototypes,
-        modelname="0406_simpleprotobart_onlyclass_lp1_lp2_fntrained_20_train_nomask_protos"
-        ):
-    torch.cuda.empty_cache()
-    model=ProtoTEx(num_prototypes, num_pos_prototypes).cuda()
-    model.set_prototypes(do_random=True)
-    optim=AdamW(model.parameters(),lr=3e-5,weight_decay=0.01,eps=1e-8)
-    save_path=MODELPATH+modelname
-    logs_path=LOGSPATH+modelname
-    f=open(logs_path,"w")
-    
-    f.writelines([""])
-    f.close()
-    epoch=-1
-    val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(val_dl,model)
-    print_logs(logs_path,"VAL SCORES",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
-    val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(train_dl,model)
-    print_logs(logs_path,"TRAIN SCORES",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
-    es=EarlyStopping(-np.inf,patience=7,path=save_path,save_epochwise=False)
-    n_iters=500
-    for epoch in range(n_iters):
-        total_loss=0
-        model.train()
-        model.set_encoder_status(status=False)
-        model.set_decoder_status(status=False)
-        model.set_protos_status(status=True)
-        model.set_classfn_status(status=True)
-        classfn_loss,rc_loss,l_p1,l_p2,l_p3=[0]*5
-        train_loader = tqdm(train_dl, total=len(train_dl), unit="batches",desc="training")
-        for batch in train_loader:
-            input_ids,attn_mask,y=batch
-            classfn_out,loss=model(input_ids,attn_mask,y,use_decoder=0,use_classfn=1,
-                                use_rc=0,use_p1=1,use_p2=1,use_p3=0,rc_loss_lamb=1.0,p1_lamb=1.0,
-                                p2_lamb=1.0,p3_lamb=0)
-            total_loss+=loss[0].detach().item()
-            classfn_loss+=loss[1].detach().item()
-            rc_loss+=loss[2].detach().item()
-            l_p1+=loss[3].detach().item()
-            l_p2+=loss[4].detach().item()
-            l_p3+=loss[5].detach().item()
-            optim.zero_grad()
-    #             loss=loss/len(batch)
-            loss[0].backward()
-            optim.step()
-            classfn_out=None
-            loss=None
-    #             torch.cuda.empty_cache()
-        print(classfn_loss,rc_loss,l_p1,l_p2,l_p3)
-        # total_loss=total_loss/len(train_dataset)
-        total_loss=total_loss/train_dataset_len
-        val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(train_dl,model)
-        print_logs(logs_path,"TRAIN SCORES",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
+    def __iter__(self):
+        raise NotImplementedError
 
-        es.activate(mac_val_f1)
-        val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(val_dl,model)
-        print_logs(logs_path,"VAL SCORES",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
+    def __len__(self):
+        raise NotImplementedError
+
+class StratifiedSampler(Sampler):
+    """Stratified Sampling
+    Provides equal representation of target classes in each batch
+    """
+    def __init__(self, class_vector, batch_size):
+        """
+        Arguments
+        ---------
+        class_vector : torch tensor
+            a vector of class labels
+        batch_size : integer
+            batch_size
+        """
+        self.n_splits = int(class_vector.size(0) / batch_size)
+        self.class_vector = class_vector
+
+    def gen_sample_array(self):
+        try:
+            from sklearn.model_selection import StratifiedShuffleSplit
+        except:
+            print('Need scikit-learn for this functionality')
+        import numpy as np
         
-    
-        es(np.mean(mac_val_f1),epoch,model)
-        if es.early_stop:
-            break
-        if es.improved:
-            """
-            Below using "val_" prefix but the dl is that of test.
-            """
-            val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(test_dl,model)
-            print_logs(logs_path,"TEST SCORES",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
-        elif (epoch+1)%5==0:
-            # print_logs(logs_path,"Early Stopping VAL SCORES (not the best)",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
+        s = StratifiedShuffleSplit(n_splits=self.n_splits, test_size=0.5)
+        X = th.randn(self.class_vector.size(0),2).numpy()
+        y = self.class_vector.numpy()
+        s.get_n_splits(X, y)
 
-            """
-            Below using "val_" prefix but the dl is that of test.
-            """
-            val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(test_dl,model)
-            print_logs(logs_path,"Early Stopping TEST SCORES (not the best ones)",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
+        train_index, test_index = next(s.split(X, y))
+        return np.hstack([train_index, test_index])
+
+    def __iter__(self):
+        return iter(self.gen_sample_array())
+
+    def __len__(self):
+        return len(self.class_vector)
+
 
 
 def train_ProtoTEx_w_neg(train_dl,
@@ -181,7 +89,19 @@ def train_ProtoTEx_w_neg(train_dl,
                     p=1, #p=0.75,
                     batchnormlp1=True
                     ).cuda()
-    model.set_prototypes(do_random=True)
+    sampler = StratifiedSampler(
+        class_vector=torch.LongTensor(train_dl.dataset.y), 
+        batch_size=args.num_prototypes
+    )
+    random_data_loader =torch.utils.data.DataLoader(train_dl.dataset,batch_size=args.num_prototypes,
+                                     collate_fn=train_dl.dataset.collate_fn, sampler=sampler)
+    batch = next(iter(random_data_loader))
+    input_ids, attn_mask, y = batch
+    model.set_prototypes(
+        input_ids_pos_rdm = input_ids, 
+        attn_mask_pos_rdm = attn_mask,
+        do_random=True
+    )
     
     optim=AdamW(model.parameters(),lr=3e-5,weight_decay=0.01,eps=1e-8)
     
@@ -190,10 +110,10 @@ def train_ProtoTEx_w_neg(train_dl,
     f=open(logs_path,"w")
     f.writelines([""])
     f.close()
-    val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(val_dl,model)
+    val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy=evaluate(val_dl,model)
     epoch=-1
-    print_logs(logs_path,"VAL SCORES",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
-    es=EarlyStopping(-np.inf,patience=7,path=save_path,save_epochwise=False)
+    print_logs(logs_path,"VAL SCORES",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy)
+    es=EarlyStopping(-np.inf,patience=10,path=save_path,save_epochwise=False)
     n_iters=1000
     gamma=2
     delta=1
@@ -285,11 +205,11 @@ def train_ProtoTEx_w_neg(train_dl,
     #             loss[0].backward()
     #             optim.step()
 
-        val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(train_dl,model)
-        print_logs(logs_path,"TRAIN SCORES",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
+        val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy=evaluate(train_dl,model)
+        print_logs(logs_path,"TRAIN SCORES",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy)
         es.activate(mac_val_f1)
-        val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(val_dl,model)
-        print_logs(logs_path,"VAL SCORES",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)        
+        val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy=evaluate(val_dl,model)
+        print_logs(logs_path,"VAL SCORES",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy)        
 
         es(np.mean(mac_val_f1),epoch,model)
         if es.early_stop:
@@ -298,8 +218,8 @@ def train_ProtoTEx_w_neg(train_dl,
             """
             Below using "val_" prefix but the dl is that of test.
             """
-            val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(test_dl,model)
-            print_logs(logs_path,"TEST SCORES",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
+            val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy=evaluate(test_dl,model)
+            print_logs(logs_path,"TEST SCORES",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy)
 
         elif (iter_+1)%5==0:
             
@@ -308,6 +228,6 @@ def train_ProtoTEx_w_neg(train_dl,
             """
             Below using "val_" prefix but the dl is that of test.
             """
-            val_loss,mac_val_prec,mac_val_rec,mac_val_f1=evaluate(test_dl,model)
-            print_logs(logs_path,"Early Stopping TEST SCORES (not the best ones)",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
+            val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy=evaluate(test_dl,model)
+            print_logs(logs_path,"Early Stopping TEST SCORES (not the best ones)",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy)
 

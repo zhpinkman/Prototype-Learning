@@ -7,3 +7,5 @@
 .Trashes
 __pycache__/
 Models/*
+**/*.err
+**/*.out

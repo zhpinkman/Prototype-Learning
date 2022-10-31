@@ -3,134 +3,21 @@ from pathlib import Path
 import numpy as np
 import torch
 from transformers import BartTokenizer
-# from pytorch_pretrained_bert import BertTokenizer
-
-labels_set={'Appeal_to_Authority',
- 'Appeal_to_fear-prejudice',
- 'Bandwagon',
- 'Black-and-White_Fallacy',
- 'Causal_Oversimplification',
- 'Doubt',
- 'Exaggeration,Minimisation',
- 'Flag-Waving',
- 'Loaded_Language',
- 'Name_Calling,Labeling',
- 'O',
- 'Obfuscation,Intentional_Vagueness,Confusion',
- 'Red_Herring',
- 'Reductio_ad_hitlerum',
- 'Repetition',
- 'Slogans',
- 'Straw_Men',
- 'Thought-terminating_Cliches',
- 'Whataboutism'}
-
-label2index = {
-    'ad hominem': 0,
-    'ad populum': 1,
-    'appeal to emotion': 2,
-    'circular reasoning': 3,
-    'fallacy of credibility': 4,
-    'fallacy of extension': 5,
-    'fallacy of logic': 6,
-    'fallacy of relevance': 7,
-    'false causality': 8,
-    'false dilemma': 9,
-    'faulty generalization': 10,
-    'intentional': 11
-}
-
-## Additional classes and functions for data preparation for ProtoTexNL
+from args import args, datasets_config
 
 def create_labels(dataset):
         temp=[ set(i)-set("O") for d in dataset[1] for i in d]
         return [ next(iter(i)) if len(i)>0 else "O"  for i in temp]
 
-class BinaryClassDataset(torch.utils.data.Dataset):
-    def __init__(self, x,y,y_txt,tokenizer,it_is_train=1,pos_or_neg=None,fix_seq_len=128,balance=False,
-                 specific_label=None,for_protos=False):
-#         temp=tokenizer(x)
-#         self.input_ids,self.attention_mask=temp["input_ids"],temp["attention_mask"]
-        self.x=[]
-        self.attn_mask=[]
-        self.labels_mask=[]
-        self.y_txt=[]
-        self.y=[]
-        self.labels_ids={}
-        for i in labels_set:
-            self.labels_ids[i]=len(self.labels_ids)
-        self.y_fine_int=[]
-        it_is_train_proxy=it_is_train
-        for split_sent,y_tags,y_sent in zip(x,y_txt,y):
-            if specific_label is not None and specific_label!=y_sent: continue
-            if pos_or_neg=="pos" and y_sent=="O": continue
-            elif pos_or_neg=="neg" and y_sent!="O": continue                
-            if y_sent=="O":
-                it_is_train=0
-            else:
-                it_is_train=it_is_train_proxy               
-            tmp=tokenizer(split_sent,is_split_into_words=False)["input_ids"]
-            tmp_x=[]
-            tmp_attn=[]
-            tmp_y=[]
-            for i,chunk in enumerate(tmp):
-                if for_protos and y_tags[i]=="O":
-                    continue
-                tmp_y.extend([y_tags[i]]*len(chunk))
-                if y_tags[i]!="O":
-                    mask=1
-                else:
-                    if it_is_train:
-                        mask=0
-                    else:
-                        mask=1
-                tmp_x.extend(chunk[1:-1])
-                tmp_attn.extend([mask]*(len(chunk)-2))
-            tmp_x.append(tokenizer.eos_token_id)
-            tmp_x.insert(0,tokenizer.bos_token_id)
-            tmp_attn.append(tmp_attn[-1])
-            tmp_attn.insert(0,tmp_attn[0])
-            self.x.append(tmp_x)
-            self.attn_mask.append(tmp_attn)
-            self.y_txt.append(tmp_y)
-            self.y.append(1 if y_sent!="O" else 0)
-            self.y_fine_int.append(self.labels_ids[y_sent])
-        for tokid_sent in self.x:
-            tokid_sent.extend([tokenizer.pad_token_id]*(fix_seq_len-len(tokid_sent)))
-        for mask_vec in self.attn_mask:
-            mask_vec.extend([0]*(fix_seq_len-len(mask_vec)))
-#         self.y=[1 if i!="O" else 0 for i in y]
-        if balance:
-            num_pos=np.sum(self.y)
-            assert num_pos<len(self.y_fine_int)//2
-#             print(num_pos,len(self.y))
-            
-            pos_indices=np.random.choice([i for i in range(len(self.y)) if self.y[i]==1],
-                                         size=len(self.y)-2*num_pos,replace=True)
-            self.x.extend([self.x[i] for i in pos_indices])
-            self.y.extend([1 for i in pos_indices])
-            self.y_fine_int.extend([self.y_fine_int[i] for i in pos_indices])
-            self.attn_mask.extend([self.attn_mask[i] for i in pos_indices])
-#         print(np.sum(self.y),len(self.y))
-        self.fix_seq_len=fix_seq_len
-    def __len__(self):
-        return len(self.x)
-    def __getitem__(self, idx):
-        return self.x[idx],self.attn_mask[idx],self.y[idx]
-    def collate_fn(self,batch):        
-        return (torch.LongTensor([i[0] for i in batch]),
-                torch.Tensor([i[1] for i in batch]),
-                torch.LongTensor([i[2] for i in batch]))
-
 
 class CustomNonBinaryClassDataset(torch.utils.data.Dataset):
     def __init__(self, sentences, labels, tokenizer: BartTokenizer,it_is_train=1,pos_or_neg=None,fix_seq_len=128,balance=False,
                  specific_label=None,for_protos=False):
-        inputs = tokenizer(sentences, truncation=True, padding = True, max_length=fix_seq_len)
+        inputs = tokenizer(sentences, truncation=True, padding = 'max_length', max_length=fix_seq_len)
         input_ids = inputs["input_ids"]
         attention_mask = inputs["attention_mask"]
         
-        labels = list(map(lambda x: label2index[x], labels))
+        labels = list(map(lambda x: datasets_config[args.data_dir]["classes"][x], labels))
         
         self.x = input_ids
         self.attn_mask = attention_mask

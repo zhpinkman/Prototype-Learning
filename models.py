@@ -1,134 +1,21 @@
 import torch
 from transformers.optimization import AdamW
 from transformers import BartModel, BartForConditionalGeneration, BartConfig 
+import numpy as np
 
+# torch.manual_seed(0)
+# import random
+# random.seed(0)
 ## Custom modules
 from utils import print_logs
+from args import args, datasets_config
 
-num_classes = 12
-
-
-label2index = {
-    'ad hominem': 0,
-    'ad populum': 1,
-    'appeal to emotion': 2,
-    'circular reasoning': 3,
-    'fallacy of credibility': 4,
-    'fallacy of extension': 5,
-    'fallacy of logic': 6,
-    'fallacy of relevance': 7,
-    'false causality': 8,
-    'false dilemma': 9,
-    'faulty generalization': 10,
-    'intentional': 11
-}
-
-class SimpleBartModel(torch.nn.Module):
-    def __init__(self,n_classes=num_classes):
-        super().__init__()
-        self.bart_encoder_model=BartModel.from_pretrained('facebook/bart-base').encoder
-    
-        self.num_enc_layers=len(self.bart_encoder_model.layers)
-        for (i,x) in enumerate(self.bart_encoder_model.layers):
-            requires_grad=False
-            if i==self.num_enc_layers-1: requires_grad=True
-            for y in x.parameters():
-                y.requires_grad=requires_grad
-        self.bart_out_dim=self.bart_encoder_model.config.d_model
-        self.classfn_model=torch.nn.Linear(self.bart_out_dim,num_classes)
-
-        self.loss_fn=torch.nn.CrossEntropyLoss(reduction="sum")
-
-    def forward(self,input_ids,attn_mask,y,use_decoder=0,use_classfn=1):
-
-        eos_mask = input_ids.eq(2)
-        last_hidden_state=self.bart_encoder_model(input_ids.cuda(),
-                                                  attn_mask.cuda(),
-                                                  output_attentions=False,
-                                                  output_hidden_states=False).last_hidden_state
-        print(last_hidden_state.size())
-        temp=last_hidden_state[eos_mask, :].view(last_hidden_state.size(0), -1, 
-                                             last_hidden_state.size(-1))[:, -1, :]
-
-        classfn_out=self.classfn_model(temp)
-        classfn_loss=self.loss_fn(classfn_out,y.cuda())
-        return classfn_out,classfn_loss 
-
-
-class SimpleProtoTex(torch.nn.Module):
-    def __init__(self,num_prototypes=36, n_classes=num_classes):
-        super().__init__()
-        self.bart_model=BartForConditionalGeneration.from_pretrained('facebook/bart-large')   
-        self.bart_out_dim=self.bart_model.config.d_model
-        self.max_position_embeddings=128
-        self.num_protos=num_prototypes
-        self.prototypes=torch.nn.Parameter(torch.rand(self.num_protos,self.max_position_embeddings,self.bart_out_dim))
-        self.classfn_model=torch.nn.Linear(self.num_protos,num_classes)
-        self.loss_fn=torch.nn.CrossEntropyLoss(reduction="mean")
-        
-        self.set_encoder_status(True)
-        self.set_decoder_status(False)
-        self.set_protos_status(False)
-        self.set_classfn_status(False)
-        
-        self.BNLayer=torch.nn.BatchNorm1d(self.num_protos)
-        
-    def set_encoder_status(self,status=True):
-        self.num_enc_layers=len(self.bart_model.base_model.encoder.layers)
-        for (i,x) in enumerate(self.bart_model.base_model.encoder.layers):
-            requires_grad=False
-            if i==self.num_enc_layers-1: requires_grad=status
-            for y in x.parameters():
-                y.requires_grad=requires_grad
-    def set_decoder_status(self,status=True):
-        self.num_dec_layers=len(self.bart_model.base_model.decoder.layers)
-        for (i,x) in enumerate(self.bart_model.base_model.decoder.layers):
-            requires_grad=False
-            if i==self.num_dec_layers-1: requires_grad=status
-            for y in x.parameters():
-                y.requires_grad=requires_grad
-    def set_classfn_status(self,status=True):
-        self.classfn_model.requires_grad=status
-    def set_protos_status(self,status=True):
-        self.prototypes.requires_grad=status       
-        
-
-    def forward(self,input_ids,attn_mask,y,use_decoder=1,use_classfn=0,use_rc=0,use_p1=0,use_p2=0,rc_loss_lamb=0.95,p1_lamb=0.93,p2_lamb=0.92):
-        batch_size=input_ids.size(0)
-        if use_decoder:
-            labels=input_ids.cuda()+0 
-            labels[labels==self.bart_model.config.pad_token_id]=-100
-            bart_output=self.bart_model(labels,attn_mask.cuda(),labels=labels,
-                                        output_attentions=False,output_hidden_states=False)
-            rc_loss,last_hidden_state=batch_size*bart_output.loss,bart_output.encoder_last_hidden_state
-        else:
-            rc_loss=0
-            last_hidden_state=self.bart_model.base_model.encoder(input_ids.cuda(),attn_mask.cuda(),
-                                                                 output_attentions=False,
-                                                                 output_hidden_states=False).last_hidden_state
-        input_for_classfn,l_p1,l_p2,classfn_out,classfn_loss=None,0,0,None,0
-        if use_classfn or use_p1 or use_p2:
-            input_for_classfn=torch.cdist(last_hidden_state.view(batch_size,-1),
-                                          self.prototypes.view(self.num_protos,-1))
-        if use_p1:
-            l_p1=torch.mean(torch.min(input_for_classfn,dim=0)[0])
-        if use_p2:            
-            l_p2=torch.mean(torch.min(input_for_classfn,dim=1)[0])
-        if use_classfn:
-            classfn_out=self.classfn_model(input_for_classfn).view(batch_size,num_classes)
-            classfn_loss=self.loss_fn(classfn_out,y.cuda())
-        if not use_rc:
-            rc_loss=0
-        total_loss=classfn_loss+rc_loss_lamb*rc_loss+p1_lamb*l_p1+p2_lamb*l_p2
-        # return classfn_out,total_loss 
-        return classfn_out, (total_loss, classfn_loss.detach().cpu(), rc_loss, l_p1,
-                             l_p2)  
 
 class ProtoTEx(torch.nn.Module):
     def __init__(self,
                 num_prototypes, 
                 num_pos_prototypes,
-                n_classes=num_classes,
+                n_classes=len(datasets_config[args.data_dir]["classes"]),
                 bias=True,
                 dropout=False,
                 special_classfn=False,
@@ -147,7 +34,7 @@ class ProtoTEx(torch.nn.Module):
         self.pos_prototypes=torch.nn.Parameter(torch.rand(self.num_pos_protos,self.max_position_embeddings,self.bart_out_dim))
         
 
-        self.classfn_model=torch.nn.Linear(self.num_protos,num_classes,bias=bias)
+        self.classfn_model=torch.nn.Linear(self.num_protos,len(datasets_config[args.data_dir]["classes"]),bias=bias)
         
 #         self.loss_fn=torch.nn.BCEWithLogitsLoss(reduction="mean")
         self.loss_fn=torch.nn.CrossEntropyLoss(reduction="mean")
@@ -161,28 +48,26 @@ class ProtoTEx(torch.nn.Module):
         
         self.dropout=torch.nn.Dropout(p=p)
         self.dobatchnorm=batchnormlp1 ## This flag is actually for instance normalization 
-        self.distance_grounder = torch.zeros(num_classes, self.num_protos).cuda()
-        for i in range(num_classes):
-            self.distance_grounder[i][3*i:3*i + 3] = 1e7
+        self.distance_grounder = torch.zeros(len(datasets_config[args.data_dir]["classes"]), self.num_protos).cuda()
+        # for i in range(len(datasets_config[args.data_dir]["classes"])):
+            # self.distance_grounder[i][np.random.randint(0, self.num_protos, int(self.num_protos / 2))] = 1e7
 
         #TODO: maybe connect some of the layers to some of the prototypes and not fully connected
 
     
-    def set_prototypes(self,do_random=False):
+    def set_prototypes(self,input_ids_pos_rdm, attn_mask_pos_rdm, do_random=False):
         if do_random:
             print("initializing prototypes with xavier init")
             torch.nn.init.xavier_normal_(self.pos_prototypes)
         else:
-            raise NotImplementedError()  
-        # else:
-        #     print("initializing prototypes with encoded outputs")
-        #     self.eval()
-        #     with torch.no_grad():
-        #         self.pos_prototypes=torch.nn.Parameter(
-        #             self.bart_model.base_model.encoder(input_ids_pos_rdm.cuda(),
-        #                                                attn_mask_pos_rdm.cuda(),
-        #                                                output_attentions=False,
-        #                                                output_hidden_states=False).last_hidden_state)
+            print("initializing prototypes with encoded outputs")
+            self.eval()
+            with torch.no_grad():
+                self.pos_prototypes=torch.nn.Parameter(
+                    self.bart_model.base_model.encoder(input_ids_pos_rdm.cuda(),
+                                                       attn_mask_pos_rdm.cuda(),
+                                                       output_attentions=False,
+                                                       output_hidden_states=False).last_hidden_state)
                 
     
     def set_shared_status(self,status=True):
@@ -275,11 +160,11 @@ class ProtoTEx(torch.nn.Module):
             if self.do_dropout:
                 if self.special_classfn:
                     classfn_out = (input_for_classfn@self.classfn_model.weight.t()+
-                                   self.dropout(self.classfn_model.bias.repeat(batch_size,1))).view(batch_size, num_classes)
+                                   self.dropout(self.classfn_model.bias.repeat(batch_size,1))).view(batch_size, len(datasets_config[args.data_dir]["classes"]))
                 else:
-                    classfn_out = self.classfn_model(self.dropout(input_for_classfn)).view(batch_size, num_classes)
+                    classfn_out = self.classfn_model(self.dropout(input_for_classfn)).view(batch_size, len(datasets_config[args.data_dir]["classes"]))
             else:
-                classfn_out = self.classfn_model(input_for_classfn).view(batch_size, num_classes)
+                classfn_out = self.classfn_model(input_for_classfn).view(batch_size, len(datasets_config[args.data_dir]["classes"]))
             classfn_loss = self.loss_fn(classfn_out, y.cuda())
         if not use_rc:
             rc_loss = torch.tensor(0)

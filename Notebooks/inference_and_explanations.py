@@ -27,7 +27,6 @@ print(sys.path)
 # In[4]:
 
 
-from models import SimpleProtoTex
 from models import ProtoTEx
 
 

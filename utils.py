@@ -1,37 +1,19 @@
 import joblib
 import numpy as np
 import collections
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 from transformers.modeling_outputs import BaseModelOutput
 import torch 
 import pandas as pd
 from tqdm import tqdm
 import numpy as np
-
-## Custom modules
-from preprocess import BinaryClassDataset, labels_set
-
-num_classes = 12
-
-label2index = {
-    'ad hominem': 0,
-    'ad populum': 1,
-    'appeal to emotion': 2,
-    'circular reasoning': 3,
-    'fallacy of credibility': 4,
-    'fallacy of extension': 5,
-    'fallacy of logic': 6,
-    'fallacy of relevance': 7,
-    'false causality': 8,
-    'false dilemma': 9,
-    'faulty generalization': 10,
-    'intentional': 11
-}
+from args import args, datasets_config
 
 
-index2label = {v: k for k, v in label2index.items()}
 
-def print_logs(file,info,epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1):
+index2label = {v: k for k, v in datasets_config[args.data_dir]["classes"].items()}
+
+def print_logs(file,info,epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy):
     logs=[]
     s=" ".join((info+" epoch",str(epoch),"Total loss %.4f"%(val_loss),"\n"))
     logs.append(s)
@@ -43,6 +25,9 @@ def print_logs(file,info,epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1):
     logs.append(s)
     print(s)
     s=" ".join((info+" epoch",str(epoch),"F1",str(mac_val_f1),"\n"))
+    logs.append(s)
+    print(s)
+    s = " ".join((info + " epoch", str(epoch), "Accuracy", str(accuracy), "\n"))
     logs.append(s)
     print(s)
 #     print("epoch",epoch,"MICRO val precision %.4f, recall %.4f, f1 %.4f,"%(mic_val_prec,mic_val_rec,mic_val_f1))
@@ -149,9 +134,10 @@ def evaluate(dl,model_new=None,path=None,modelclass=None):
 #             torch.cuda.empty_cache()            
         total_loss=total_loss/total_len
         mac_prec,mac_recall,mac_f1_score,_=precision_recall_fscore_support(np.concatenate(y_true),np.concatenate(y_pred), average = "weighted")
+        accuracy = accuracy_score(np.concatenate(y_true),np.concatenate(y_pred))
 
 
-    return total_loss,mac_prec,mac_recall,mac_f1_score
+    return total_loss,mac_prec,mac_recall,mac_f1_score, accuracy
 
 
 #### Functions for analyzing prototypes 
@@ -193,7 +179,7 @@ def get_best_k_protos_for_batch(dataset, specific_label, tokenizer, model_new=No
                 input_for_classfn= torch.nn.functional.instance_norm(
                     input_for_classfn.view(batch_size,1,model_new.num_protos)).view(batch_size,
                                                                                model_new.num_protos)
-            predicted=torch.argmax(model_new.classfn_model(input_for_classfn).view(batch_size, num_classes),dim=1)
+            predicted=torch.argmax(model_new.classfn_model(input_for_classfn).view(batch_size, len(datasets_config[args.data_dir]["classes"])),dim=1)
             if do_all:
                 temp=torch.topk(input_for_classfn,dim=1,
                                 k=topk,largest=False)
@@ -209,29 +195,6 @@ def get_best_k_protos_for_batch(dataset, specific_label, tokenizer, model_new=No
         best_protos_dists = torch.cat(best_protos_dists,dim=0)
     return best_protos, best_protos_dists
 
-# Obtain the prototype distances
-def get_cooccurence_matrix(model_new=None,model_path=None,model_class=None,
-                          specific_labels=None,topk=3):
-    """
-        get the aggrgated cooccurence matrix of shape num_labels x num_protos
-    """
-    assert (model_new is not None) ^ (model_path is not None)
-    if model_new is None:
-        print("creating new model")
-        model_new=model_class().cuda()
-        model_new.load_state_dict(torch.load(model_path))
-    labels_list=[label for label in labels_set]
-    data=np.zeros((len(labels_list),model_new.num_protos))
-    if specific_labels is not None: labels_list=specific_labels
-    for i,label in enumerate(labels_list):
-        print(label)
-        temp=get_best_k_protos_for_batch(label,model_new=model_new,topk=topk)[0].view(-1).numpy()
-        best_protos_per_label=dict(zip(*np.unique(temp,
-                                        return_counts=True)))
-#         print()
-        for protos_idx in best_protos_per_label:
-            data[i][protos_idx]=best_protos_per_label[protos_idx]
-    return data
 
 def get_bestk_train_data_for_every_proto(train_dataset_eval, model_new=None,top_k=3,return_distances=True):
     """
@@ -269,7 +232,7 @@ def get_bestk_train_data_for_every_proto(train_dataset_eval, model_new=None,top_
                 input_for_classfn= torch.nn.functional.instance_norm(
                     input_for_classfn.view(batch_size,1,model_new.num_protos)).view(batch_size,
                                                                                model_new.num_protos)
-            predicted=torch.argmax(model_new.classfn_model(input_for_classfn).view(batch_size, num_classes),dim=1)
+            predicted=torch.argmax(model_new.classfn_model(input_for_classfn).view(batch_size, len(datasets_config[args.data_dir]["classes"])),dim=1)
             concerned_idxs=torch.nonzero((predicted==y.cuda())).view(-1)
 #             concerned_idxs=torch.nonzero((predicted==y)).view(-1)
             input_for_classfn=input_for_classfn[concerned_idxs]*torch.sqrt(torch.tensor(model_new.bart_out_dim).float())
@@ -325,7 +288,7 @@ def get_distances_for_rdm(train_dataset_eval, model_new=None,return_distances=Tr
                                                                  output_hidden_states=False).last_hidden_state
             input_for_classfn=model_new.one_by_sqrt_bartoutdim* torch.cdist(last_hidden_state.view(batch_size,-1),
                                           all_protos)
-            predicted=torch.argmax(model_new.classfn_model(input_for_classfn).view(batch_size, num_classes),dim=1)
+            predicted=torch.argmax(model_new.classfn_model(input_for_classfn).view(batch_size, len(datasets_config[args.data_dir]["classes"])),dim=1)
             concerned_idxs=torch.nonzero(torch.logical_and(predicted==y.cuda(),y.cuda()==1)).view(-1)
 #             concerned_idxs=torch.nonzero((predicted==y)).view(-1)
             input_for_classfn=input_for_classfn[concerned_idxs]
@@ -334,7 +297,7 @@ def get_distances_for_rdm(train_dataset_eval, model_new=None,return_distances=Tr
         return    
 
 def print_protos(train_dataset, tokenizer, train_ls, which_protos, protos_train_table):
-    df = np.zeros([num_classes, num_classes])
+    df = np.zeros([len(datasets_config[args.data_dir]["classes"]), len(datasets_config[args.data_dir]["classes"])])
     first_prototypes = collections.defaultdict(list)
     for proto_index in which_protos:
         train_ys = []
@@ -351,12 +314,12 @@ def print_protos(train_dataset, tokenizer, train_ls, which_protos, protos_train_
         for i in range(len(train_ys)):
             for j in range(i + 1, len(train_ys)):
                 df[
-                    label2index[train_ys[i]], 
-                    label2index[train_ys[j]]
+                    datasets_config[args.data_dir]["classes"][train_ys[i]], 
+                    datasets_config[args.data_dir]["classes"][train_ys[j]]
                 ] += 1
                 df[
-                    label2index[train_ys[j]], 
-                    label2index[train_ys[i]]
+                    datasets_config[args.data_dir]["classes"][train_ys[j]], 
+                    datasets_config[args.data_dir]["classes"][train_ys[i]]
                 ] += 1
         print(collections.Counter(train_ys))
         
@@ -366,7 +329,7 @@ def print_protos(train_dataset, tokenizer, train_ls, which_protos, protos_train_
     print("cooccurence matrix")
     from matplotlib import pyplot as plt
     import seaborn as sns
-    df = pd.DataFrame(df, index=list(label2index.keys()), columns=list(label2index.keys()))
+    df = pd.DataFrame(df, index=list(datasets_config[args.data_dir]["classes"].keys()), columns=list(datasets_config[args.data_dir]["classes"].keys()))
     _ = plt.figure(figsize = (15, 15))
     sns.heatmap(df, cmap ='RdYlGn', linewidths = 0.30, annot = True)
     plt.savefig("cooc_matrix.png")
@@ -400,44 +363,3 @@ def best_protos_for_test(test_dataset, model_new=None, top_k = 5):
         
     return input_ids[proper_idxs_pos],pos_best_protos
     
-def get_distance_div(train_sents, train_ls, train_y_txt, model_new=None):
-    labels_list=[label for label in labels_set]
-#     labels_list=labels_list[:4]
-    input_ids,attn_mask,y=[],[],[]
-    samples_from_each_label=3
-    num_labels_actual=0
-    for specific_label in labels_list:
-
-        dataset=BinaryClassDataset(train_sents,train_ls,train_y_txt,it_is_train=0,specific_label=specific_label)
-        if len(dataset)<samples_from_each_label: continue
-        dl=torch.utils.data.DataLoader(dataset,batch_size=samples_from_each_label,shuffle=True,collate_fn=dataset.collate_fn)
-        a,b,c=next(iter(dl))
-        input_ids.append(a)
-        attn_mask.append(b)
-        y.append(c)
-        num_labels_actual+=1
-        print(specific_label)
-    input_ids=torch.cat(input_ids,dim=0)
-    attn_mask=torch.cat(attn_mask,dim=0)
-    y=torch.cat(y,dim=0)
-    model_new.eval()
-    with torch.no_grad():
-        all_protos=model_new.pos_prototypes.view(model_new.num_protos,-1)
-        batch_size=input_ids.size(0)
-        last_hidden_state=model_new.bart_model.base_model.encoder(input_ids.cuda(),attn_mask.cuda(),
-                                                             output_attentions=False,
-                                                             output_hidden_states=False).last_hidden_state
-        all_distances=model_new.one_by_sqrt_bartoutdim*torch.cdist(last_hidden_state.view(batch_size,-1),
-                                      all_protos)
-        all_distances_normized=torch.nn.functional.softmax(1./all_distances,dim=1)
-        all_kldiv=[]
-        for i in range(num_labels_actual):
-            p=all_distances_normized[i*samples_from_each_label:(i+1)*samples_from_each_label]
-            p_repeated=p.repeat(num_labels_actual,1)
-#             print(all_distances_normized.size(),p_repeated.size())
-            kldiv=torch.mean(torch.nn.KLDivLoss(reduction="none")(all_distances_normized,p_repeated),dim=-1)
-            kldiv_by_class=torch.mean(kldiv.view(-1,samples_from_each_label),dim=-1)
-            all_kldiv.append(kldiv_by_class)
-    #             predicted=torch.argmax(model_new.classfn_model(input_for_classfn),dim=1)
-    #             concerned_idxs=torch.nonzero((predicted==y.cuda())).view(-1)
-    return torch.stack(all_kldiv,dim=0)
