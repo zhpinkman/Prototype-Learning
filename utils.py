@@ -1,7 +1,7 @@
 import joblib
 import numpy as np
 import collections
-from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+from sklearn.metrics import precision_recall_fscore_support, accuracy_score, classification_report
 from transformers.modeling_outputs import BaseModelOutput
 import torch 
 import pandas as pd
@@ -135,6 +135,8 @@ def evaluate(dl,model_new=None,path=None,modelclass=None):
         total_loss=total_loss/total_len
         mac_prec,mac_recall,mac_f1_score,_=precision_recall_fscore_support(np.concatenate(y_true),np.concatenate(y_pred), average = "weighted")
         accuracy = accuracy_score(np.concatenate(y_true),np.concatenate(y_pred))
+        print(f"LABELS: {np.unique(np.concatenate(y_true))}")
+        print(f"classification_report:\n{classification_report(np.concatenate(y_true),np.concatenate(y_pred), labels=np.unique(np.concatenate(y_true)))}")
 
 
     return total_loss,mac_prec,mac_recall,mac_f1_score, accuracy

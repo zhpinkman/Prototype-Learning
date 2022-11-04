@@ -16,6 +16,7 @@ class ProtoTEx(torch.nn.Module):
                 num_prototypes, 
                 num_pos_prototypes,
                 n_classes=len(datasets_config[args.data_dir]["classes"]),
+                class_weights=None,
                 bias=True,
                 dropout=False,
                 special_classfn=False,
@@ -30,14 +31,20 @@ class ProtoTEx(torch.nn.Module):
         self.max_position_embeddings=128
         self.num_protos=num_prototypes
         self.num_pos_protos=num_pos_prototypes
+        self.num_neg_protos=self.num_protos-self.num_pos_protos
         
         self.pos_prototypes=torch.nn.Parameter(torch.rand(self.num_pos_protos,self.max_position_embeddings,self.bart_out_dim))
+        if self.num_neg_protos>0:
+            self.neg_prototypes=torch.nn.Parameter(torch.rand(self.num_neg_protos,self.max_position_embeddings,self.bart_out_dim))
         
 
         self.classfn_model=torch.nn.Linear(self.num_protos,len(datasets_config[args.data_dir]["classes"]),bias=bias)
         
 #         self.loss_fn=torch.nn.BCEWithLogitsLoss(reduction="mean")
-        self.loss_fn=torch.nn.CrossEntropyLoss(reduction="mean")
+        if class_weights:
+            self.loss_fn=torch.nn.CrossEntropyLoss(weight=torch.Tensor(class_weights), reduction="mean")
+        else:
+            self.loss_fn=torch.nn.CrossEntropyLoss(reduction="mean")
         
 #         self.set_encoder_status(False)
 #         self.set_decoder_status(False)
@@ -49,8 +56,11 @@ class ProtoTEx(torch.nn.Module):
         self.dropout=torch.nn.Dropout(p=p)
         self.dobatchnorm=batchnormlp1 ## This flag is actually for instance normalization 
         self.distance_grounder = torch.zeros(len(datasets_config[args.data_dir]["classes"]), self.num_protos).cuda()
-        # for i in range(len(datasets_config[args.data_dir]["classes"])):
+        for i in range(len(datasets_config[args.data_dir]["classes"])):
             # self.distance_grounder[i][np.random.randint(0, self.num_protos, int(self.num_protos / 2))] = 1e7
+            if self.num_neg_protos>0 and i==0:
+                self.distance_grounder[0][self.num_pos_protos:] = 1e7
+            self.distance_grounder[i][:self.num_pos_protos] = 1e7
 
         #TODO: maybe connect some of the layers to some of the prototypes and not fully connected
 
@@ -59,6 +69,7 @@ class ProtoTEx(torch.nn.Module):
         if do_random:
             print("initializing prototypes with xavier init")
             torch.nn.init.xavier_normal_(self.pos_prototypes)
+            torch.nn.init.xavier_normal_(self.neg_prototypes)
         else:
             print("initializing prototypes with encoded outputs")
             self.eval()
@@ -93,8 +104,9 @@ class ProtoTEx(torch.nn.Module):
 
     def set_protos_status(self,pos_or_neg=None,status=True):
         if pos_or_neg=="pos" or pos_or_neg is None:
-            self.pos_prototypes.requires_grad=status       
-
+            self.pos_prototypes.requires_grad=status
+        if pos_or_neg=="neg" or pos_or_neg is None:
+            self.neg_prototypes.requires_grad=status
         
 
     def forward(self, input_ids, attn_mask, y, use_decoder=1, use_classfn=0, use_rc=0, use_p1=0, use_p2=0,
@@ -126,7 +138,7 @@ class ProtoTEx(torch.nn.Module):
                                                                                 torch.tensor(0), torch.tensor(0), None,
                                                                                 torch.tensor(0))
         if use_classfn or use_p1 or use_p2 or use_p3:
-            all_protos = self.pos_prototypes
+            all_protos = torch.cat((self.neg_prototypes, self.pos_prototypes), dim=0)
             if use_classfn or use_p1 or use_p2:
                 if not self.dobatchnorm:
                     ## TODO: This loss function is not ignoring the padded part of the sequence; Get element-wise distane and then multiply with the mask 
@@ -141,7 +153,7 @@ class ProtoTEx(torch.nn.Module):
             if use_p1 or use_p2:
                 ## This part is for seggregating training of negative and positive prototypes 
                 distance_mask = self.distance_grounder[y.cuda()]
-                input_for_classfn_masked = input_for_classfn+distance_mask
+                input_for_classfn_masked = input_for_classfn + distance_mask
                 if random_mask_for_distanceMat:
                     random_mask=torch.bernoulli(torch.ones_like(input_for_classfn_masked)*
                                                 random_mask_for_distanceMat).bool()

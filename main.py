@@ -81,7 +81,8 @@ def main():
             val_dl = val_dl,
             test_dl = test_dl,
             num_prototypes=args.num_prototypes, 
-            num_pos_prototypes=args.num_pos_prototypes
+            num_pos_prototypes=args.num_pos_prototypes,
+            modelname=args.modelname
         )
    
 if __name__ == '__main__':

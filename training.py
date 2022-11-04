@@ -85,7 +85,7 @@ def train_ProtoTEx_w_neg(train_dl,
                     num_pos_prototypes=num_pos_prototypes,
                     bias=False, 
                     dropout=False, 
-                    special_classfn=True, # special_classfn=False, ## apply dropouonly on bias 
+                    special_classfn=True, # special_classfn=False, ## apply dropout only on bias 
                     p=1, #p=0.75,
                     batchnormlp1=True
                     ).cuda()
