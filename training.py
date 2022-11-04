@@ -78,11 +78,13 @@ def train_ProtoTEx_w_neg(train_dl,
                         test_dl,
                         num_prototypes, 
                         num_pos_prototypes,
+                        class_weights=None,
                         modelname="0408_NegProtoBart_protos_xavier_large_bs20_20_woRat_noReco_g2d_nobias_nodrop_cu1_PosUp_normed"
                         ):
     torch.cuda.empty_cache()
     model=ProtoTEx(num_prototypes=num_prototypes, 
                     num_pos_prototypes=num_pos_prototypes,
+                    class_weights=class_weights,
                     bias=False, 
                     dropout=False, 
                     special_classfn=True, # special_classfn=False, ## apply dropout only on bias 

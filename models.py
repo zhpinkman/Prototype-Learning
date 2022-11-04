@@ -42,6 +42,7 @@ class ProtoTEx(torch.nn.Module):
         
 #         self.loss_fn=torch.nn.BCEWithLogitsLoss(reduction="mean")
         if class_weights:
+            print("Using class weights for cross entropy loss...")
             self.loss_fn=torch.nn.CrossEntropyLoss(weight=torch.Tensor(class_weights), reduction="mean")
         else:
             self.loss_fn=torch.nn.CrossEntropyLoss(reduction="mean")
