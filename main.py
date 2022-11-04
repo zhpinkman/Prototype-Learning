@@ -27,7 +27,9 @@ def main():
     ## preprocess the propaganda dataset loaded in the data folder. Original dataset can be found here
     ## https://propaganda.math.unipd.it/fine-grained-propaganda-emnlp.html
 
-    tokenizer = BartTokenizer.from_pretrained("facebook/bart-large")
+    tokenizer = BartTokenizer.from_pretrained(
+        "ynie/bart-large-snli_mnli_fever_anli_R1_R2_R3-nli"
+    )
 
     train_df = pd.read_csv(os.path.join(args.data_dir, "train.csv"))
     dev_df = pd.read_csv(os.path.join(args.data_dir, "val.csv"))
@@ -85,15 +87,19 @@ def main():
     )
 
     if args.model == "ProtoTEx":
-        print("ProtoTEx best model: {0}, {1}".format(args.num_prototypes, args.num_pos_prototypes))
+        print(
+            "ProtoTEx best model: {0}, {1}".format(
+                args.num_prototypes, args.num_pos_prototypes
+            )
+        )
         train_ProtoTEx_w_neg(
-            train_dl =  train_dl,
-            val_dl = val_dl,
-            test_dl = test_dl,
+            train_dl=train_dl,
+            val_dl=val_dl,
+            test_dl=test_dl,
             num_prototypes=args.num_prototypes,
             num_pos_prototypes=args.num_pos_prototypes,
             class_weights=class_weight_vect,
-            modelname=args.modelname
+            modelname=args.modelname,
         )
 
 

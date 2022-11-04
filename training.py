@@ -18,6 +18,7 @@ LOGSPATH = "Logs/"
 import torch as th
 import math
 
+
 class Sampler(object):
     """Base class for all Samplers.
     Every Sampler subclass has to provide an __iter__ method, providing a way
@@ -34,10 +35,12 @@ class Sampler(object):
     def __len__(self):
         raise NotImplementedError
 
+
 class StratifiedSampler(Sampler):
     """Stratified Sampling
     Provides equal representation of target classes in each batch
     """
+
     def __init__(self, class_vector, batch_size):
         """
         Arguments
@@ -54,11 +57,11 @@ class StratifiedSampler(Sampler):
         try:
             from sklearn.model_selection import StratifiedShuffleSplit
         except:
-            print('Need scikit-learn for this functionality')
+            print("Need scikit-learn for this functionality")
         import numpy as np
-        
+
         s = StratifiedShuffleSplit(n_splits=self.n_splits, test_size=0.5)
-        X = th.randn(self.class_vector.size(0),2).numpy()
+        X = th.randn(self.class_vector.size(0), 2).numpy()
         y = self.class_vector.numpy()
         s.get_n_splits(X, y)
 
@@ -72,57 +75,69 @@ class StratifiedSampler(Sampler):
         return len(self.class_vector)
 
 
-
-def train_ProtoTEx_w_neg(train_dl,
-                        val_dl,
-                        test_dl,
-                        num_prototypes, 
-                        num_pos_prototypes,
-                        class_weights=None,
-                        modelname="0408_NegProtoBart_protos_xavier_large_bs20_20_woRat_noReco_g2d_nobias_nodrop_cu1_PosUp_normed"
-                        ):
+def train_ProtoTEx_w_neg(
+    train_dl,
+    val_dl,
+    test_dl,
+    num_prototypes,
+    num_pos_prototypes,
+    class_weights=None,
+    modelname="0408_NegProtoBart_protos_xavier_large_bs20_20_woRat_noReco_g2d_nobias_nodrop_cu1_PosUp_normed",
+):
     torch.cuda.empty_cache()
-    model=ProtoTEx(num_prototypes=num_prototypes, 
-                    num_pos_prototypes=num_pos_prototypes,
-                    class_weights=class_weights,
-                    bias=False, 
-                    dropout=False, 
-                    special_classfn=True, # special_classfn=False, ## apply dropout only on bias 
-                    p=1, #p=0.75,
-                    batchnormlp1=True
-                    ).cuda()
+    model = ProtoTEx(
+        num_prototypes=num_prototypes,
+        num_pos_prototypes=num_pos_prototypes,
+        class_weights=class_weights,
+        bias=False,
+        dropout=False,
+        special_classfn=True,  # special_classfn=False, ## apply dropout only on bias
+        p=1,  # p=0.75,
+        batchnormlp1=True,
+    ).cuda()
     sampler = StratifiedSampler(
-        class_vector=torch.LongTensor(train_dl.dataset.y), 
-        batch_size=args.num_prototypes
+        class_vector=torch.LongTensor(train_dl.dataset.y),
+        batch_size=args.num_prototypes,
     )
-    random_data_loader =torch.utils.data.DataLoader(train_dl.dataset,batch_size=args.num_prototypes,
-                                     collate_fn=train_dl.dataset.collate_fn, sampler=sampler)
+    random_data_loader = torch.utils.data.DataLoader(
+        train_dl.dataset,
+        batch_size=args.num_prototypes,
+        collate_fn=train_dl.dataset.collate_fn,
+        sampler=sampler,
+    )
     batch = next(iter(random_data_loader))
     input_ids, attn_mask, y = batch
     model.set_prototypes(
-        input_ids_pos_rdm = input_ids, 
-        attn_mask_pos_rdm = attn_mask,
-        do_random=True
+        input_ids_pos_rdm=input_ids, attn_mask_pos_rdm=attn_mask, do_random=True
     )
-    
-    optim=AdamW(model.parameters(),lr=3e-5,weight_decay=0.01,eps=1e-8)
-    
-    save_path=MODELPATH+modelname
-    logs_path=LOGSPATH+modelname
-    f=open(logs_path,"w")
+
+    optim = AdamW(model.parameters(), lr=3e-5, weight_decay=0.01, eps=1e-8)
+
+    save_path = MODELPATH + modelname
+    logs_path = LOGSPATH + modelname
+    f = open(logs_path, "w")
     f.writelines([""])
     f.close()
-    val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy=evaluate(val_dl,model)
-    epoch=-1
-    print_logs(logs_path,"VAL SCORES",epoch,val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy)
-    es=EarlyStopping(-np.inf,patience=10,path=save_path,save_epochwise=False)
-    n_iters=1000
-    gamma=2
-    delta=1
-    kappa=1
-    p1_lamb=0.9
-    p2_lamb=0.9
-    p3_lamb=0.9
+    val_loss, mac_val_prec, mac_val_rec, mac_val_f1, accuracy = evaluate(val_dl, model)
+    epoch = -1
+    print_logs(
+        logs_path,
+        "VAL SCORES",
+        epoch,
+        val_loss,
+        mac_val_prec,
+        mac_val_rec,
+        mac_val_f1,
+        accuracy,
+    )
+    es = EarlyStopping(-np.inf, patience=10, path=save_path, save_epochwise=False)
+    n_iters = 1000
+    gamma = 2
+    delta = 1
+    kappa = 1
+    p1_lamb = 0.9
+    p2_lamb = 0.9
+    p3_lamb = 0.9
     for iter_ in range(n_iters):
         total_loss = 0
         """
@@ -139,19 +154,34 @@ def train_ProtoTEx_w_neg(train_dl,
         model.set_protos_status(status=True)
         model.set_classfn_status(status=False)
         model.set_shared_status(status=True)
-    #     print("\n after gamma")
-    #     for n,w in model.named_parameters():
-    #         if w.requires_grad: print(n)
+        #     print("\n after gamma")
+        #     for n,w in model.named_parameters():
+        #         if w.requires_grad: print(n)
         for epoch in range(delta):
-            train_loader = tqdm(train_dl, total=len(train_dl), unit="batches", desc="delta training")
+            train_loader = tqdm(
+                train_dl, total=len(train_dl), unit="batches", desc="delta training"
+            )
             for batch in train_loader:
                 input_ids, attn_mask, y = batch
-    #             print(y)
-                classfn_out, loss = model(input_ids, attn_mask, y, use_decoder=0, use_classfn=0,
-                                        use_rc=0, use_p1=1, use_p2=0, use_p3=0,
-                                        rc_loss_lamb=1.0, p1_lamb=p1_lamb, p2_lamb=p2_lamb,
-                                        p3_lamb=p3_lamb,distmask_lp1=1,distmask_lp2=1,
-                                        random_mask_for_distanceMat=None)
+                #             print(y)
+                classfn_out, loss = model(
+                    input_ids,
+                    attn_mask,
+                    y,
+                    use_decoder=0,
+                    use_classfn=0,
+                    use_rc=0,
+                    use_p1=1,
+                    use_p2=0,
+                    use_p3=0,
+                    rc_loss_lamb=1.0,
+                    p1_lamb=p1_lamb,
+                    p2_lamb=p2_lamb,
+                    p3_lamb=p3_lamb,
+                    distmask_lp1=1,
+                    distmask_lp2=1,
+                    random_mask_for_distanceMat=None,
+                )
                 # total_loss += loss[0].detach().item()
                 optim.zero_grad()
                 loss[0].backward()
@@ -169,67 +199,123 @@ def train_ProtoTEx_w_neg(train_dl,
         model.set_protos_status(status=False)
         model.set_classfn_status(status=True)
         model.set_shared_status(status=True)
-    #     print("\n after gamma")
-    #     for n,w in model.named_parameters():
-    #         if w.requires_grad: print(n)
+        #     print("\n after gamma")
+        #     for n,w in model.named_parameters():
+        #         if w.requires_grad: print(n)
         for epoch in range(gamma):
-            train_loader = tqdm(train_dl, total=len(train_dl), unit="batches", desc="gamma training")
+            train_loader = tqdm(
+                train_dl, total=len(train_dl), unit="batches", desc="gamma training"
+            )
             for batch in train_loader:
                 input_ids, attn_mask, y = batch
-                classfn_out, loss = model(input_ids, attn_mask, y, use_decoder=0, use_classfn=1,
-                                        use_rc=0, use_p1=0, use_p2=1,
-                                        rc_loss_lamb=1., p1_lamb=p1_lamb,p2_lamb=p2_lamb,
-                                        distmask_lp1 = 1, distmask_lp2 = 1)
+                classfn_out, loss = model(
+                    input_ids,
+                    attn_mask,
+                    y,
+                    use_decoder=0,
+                    use_classfn=1,
+                    use_rc=0,
+                    use_p1=0,
+                    use_p2=1,
+                    rc_loss_lamb=1.0,
+                    p1_lamb=p1_lamb,
+                    p2_lamb=p2_lamb,
+                    distmask_lp1=1,
+                    distmask_lp2=1,
+                )
                 optim.zero_grad()
                 loss[0].backward()
                 optim.step()
-    #     """
-    #     During Kappa, we only want to improve the reconstruction perf.
-    #     Only Decoder is  trainable
-    #     """
-    #     model.train()
-    #     model.set_encoder_status(status=False)
-    #     model.set_decoder_status(status=True)
-    #     model.set_protos_status(status=False)
-    #     model.set_classfn_status(status=False)
-    #     for epoch in range(kappa):
-    #         train_loader = tqdm(train_dl, total=len(train_dl), unit="batches", desc="delta training")
-    #         for batch in train_loader:
-    #             input_ids, attn_mask, y = batch
-    # #             print(y)
-    #             classfn_out, loss = model(input_ids, attn_mask, y, use_decoder=1, use_classfn=0,
-    #                                       use_rc=1, use_p1=0, use_p2=0, use_p3=0,
-    #                                       rc_loss_lamb=1.0, p1_lamb=p1_lamb, p2_lamb=p2_lamb,
-    #                                       p3_lamb=p3_lamb,distmask_lp1=1,distmask_lp2=1,
-    #                                       random_mask_for_distanceMat=None)
-    #             # total_loss += loss[0].detach().item()
-    #             optim.zero_grad()
-    #             loss[0].backward()
-    #             optim.step()
+        #     """
+        #     During Kappa, we only want to improve the reconstruction perf.
+        #     Only Decoder is  trainable
+        #     """
+        #     model.train()
+        #     model.set_encoder_status(status=False)
+        #     model.set_decoder_status(status=True)
+        #     model.set_protos_status(status=False)
+        #     model.set_classfn_status(status=False)
+        #     for epoch in range(kappa):
+        #         train_loader = tqdm(train_dl, total=len(train_dl), unit="batches", desc="delta training")
+        #         for batch in train_loader:
+        #             input_ids, attn_mask, y = batch
+        # #             print(y)
+        #             classfn_out, loss = model(input_ids, attn_mask, y, use_decoder=1, use_classfn=0,
+        #                                       use_rc=1, use_p1=0, use_p2=0, use_p3=0,
+        #                                       rc_loss_lamb=1.0, p1_lamb=p1_lamb, p2_lamb=p2_lamb,
+        #                                       p3_lamb=p3_lamb,distmask_lp1=1,distmask_lp2=1,
+        #                                       random_mask_for_distanceMat=None)
+        #             # total_loss += loss[0].detach().item()
+        #             optim.zero_grad()
+        #             loss[0].backward()
+        #             optim.step()
 
-        val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy=evaluate(train_dl,model)
-        print_logs(logs_path,"TRAIN SCORES",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy)
+        val_loss, mac_val_prec, mac_val_rec, mac_val_f1, accuracy = evaluate(
+            train_dl, model
+        )
+        print_logs(
+            logs_path,
+            "TRAIN SCORES",
+            iter_,
+            val_loss,
+            mac_val_prec,
+            mac_val_rec,
+            mac_val_f1,
+            accuracy,
+        )
         es.activate(mac_val_f1)
-        val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy=evaluate(val_dl,model)
-        print_logs(logs_path,"VAL SCORES",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy)        
+        val_loss, mac_val_prec, mac_val_rec, mac_val_f1, accuracy = evaluate(
+            val_dl, model
+        )
+        print_logs(
+            logs_path,
+            "VAL SCORES",
+            iter_,
+            val_loss,
+            mac_val_prec,
+            mac_val_rec,
+            mac_val_f1,
+            accuracy,
+        )
 
-        es(np.mean(mac_val_f1),epoch,model)
+        es(np.mean(mac_val_f1), epoch, model)
         if es.early_stop:
             break
         if es.improved:
             """
             Below using "val_" prefix but the dl is that of test.
             """
-            val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy=evaluate(test_dl,model)
-            print_logs(logs_path,"TEST SCORES",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy)
+            val_loss, mac_val_prec, mac_val_rec, mac_val_f1, accuracy = evaluate(
+                test_dl, model
+            )
+            print_logs(
+                logs_path,
+                "TEST SCORES",
+                iter_,
+                val_loss,
+                mac_val_prec,
+                mac_val_rec,
+                mac_val_f1,
+                accuracy,
+            )
 
-        elif (iter_+1)%5==0:
-            
-            # print_logs(logs_path,"Early Stopping VAL SCORES (not the best ones)",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)        
-            
+        elif (iter_ + 1) % 5 == 0:
+
+            # print_logs(logs_path,"Early Stopping VAL SCORES (not the best ones)",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
+
             """
             Below using "val_" prefix but the dl is that of test.
             """
-            val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy=evaluate(test_dl,model)
-            print_logs(logs_path,"Early Stopping TEST SCORES (not the best ones)",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1, accuracy)
-
+            val_loss, mac_val_prec, mac_val_rec, mac_val_f1, accuracy = evaluate(
+                test_dl, model
+            )
+            print_logs(
+                logs_path,
+                "Early Stopping TEST SCORES (not the best ones)",
+                iter_,
+                val_loss,
+                mac_val_prec,
+                mac_val_rec,
+                mac_val_f1,
+                accuracy,
+            )
