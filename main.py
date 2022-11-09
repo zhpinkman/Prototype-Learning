@@ -13,6 +13,7 @@ import pathlib
 from args import args, bad_classes, datasets_config
 import pandas as pd
 from sklearn.utils.class_weight import compute_class_weight
+import random
 
 ## Custom modules
 from preprocess import CustomNonBinaryClassDataset
@@ -59,6 +60,12 @@ def main():
     dev_labels = dev_df[datasets_config[args.data_dir]["features"]["label"]].tolist()
     test_labels = test_df[datasets_config[args.data_dir]["features"]["label"]].tolist()
 
+    # Shuffle train dataset
+    train_artifacts = list(zip(train_sentences, train_labels))
+    random.seed(42)
+    random.shuffle(train_artifacts)
+    train_sentences, train_labels = zip(*train_artifacts)
+
     train_dataset = CustomNonBinaryClassDataset(
         sentences=train_sentences, labels=train_labels, tokenizer=tokenizer
     )
@@ -100,6 +107,7 @@ def main():
             num_pos_prototypes=args.num_pos_prototypes,
             class_weights=class_weight_vect,
             modelname=args.modelname,
+            model_checkpoint=args.model_checkpoint
         )
 
 

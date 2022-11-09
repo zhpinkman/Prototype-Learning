@@ -83,6 +83,7 @@ def train_ProtoTEx_w_neg(
     num_pos_prototypes,
     class_weights=None,
     modelname="0408_NegProtoBart_protos_xavier_large_bs20_20_woRat_noReco_g2d_nobias_nodrop_cu1_PosUp_normed",
+    model_checkpoint=None
 ):
     torch.cuda.empty_cache()
     model = ProtoTEx(
@@ -93,8 +94,23 @@ def train_ProtoTEx_w_neg(
         dropout=False,
         special_classfn=True,  # special_classfn=False, ## apply dropout only on bias
         p=1,  # p=0.75,
-        batchnormlp1=True,
+        batchnormlp1=True
     ).cuda()
+    if model_checkpoint:
+        print(f"Loading model checkpoint: {model_checkpoint}")
+        pretrained_dict = torch.load(model_checkpoint)
+        del pretrained_dict['pos_prototypes']
+        if 'neg_prototypes' in pretrained_dict:
+            del pretrained_dict['neg_prototypes']
+        del pretrained_dict['classfn_model.weight']
+        del pretrained_dict['loss_fn.weight']
+        
+        # Fiter out unneccessary keys
+        model_dict = model.state_dict()
+        # filtered_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
+        model_dict.update(pretrained_dict)
+        model.load_state_dict(model_dict)
+
     sampler = StratifiedSampler(
         class_vector=torch.LongTensor(train_dl.dataset.y),
         batch_size=args.num_prototypes,
@@ -105,6 +121,7 @@ def train_ProtoTEx_w_neg(
         collate_fn=train_dl.dataset.collate_fn,
         sampler=sampler,
     )
+    # TODO: Try getting the average of a first few batches
     batch = next(iter(random_data_loader))
     input_ids, attn_mask, y = batch
     model.set_prototypes(

@@ -51,6 +51,7 @@ class ProtoTEx(torch.nn.Module):
                 )
             )
 
+        # TODO: Try setting bias to True
         self.classfn_model = torch.nn.Linear(
             self.num_protos, len(datasets_config[args.data_dir]["classes"]), bias=bias
         )
@@ -90,8 +91,10 @@ class ProtoTEx(torch.nn.Module):
         if do_random:
             print("initializing prototypes with xavier init")
             torch.nn.init.xavier_normal_(self.pos_prototypes)
-            torch.nn.init.xavier_normal_(self.neg_prototypes)
+            if self.num_neg_protos > 0:
+                torch.nn.init.xavier_normal_(self.neg_prototypes)
         else:
+            # Use this when the dataset is balanced (augmented)
             print("initializing prototypes with encoded outputs")
             self.eval()
             with torch.no_grad():
@@ -136,8 +139,9 @@ class ProtoTEx(torch.nn.Module):
     def set_protos_status(self, pos_or_neg=None, status=True):
         if pos_or_neg == "pos" or pos_or_neg is None:
             self.pos_prototypes.requires_grad = status
-        if pos_or_neg == "neg" or pos_or_neg is None:
-            self.neg_prototypes.requires_grad = status
+        if self.num_neg_protos > 0:
+            if pos_or_neg == "neg" or pos_or_neg is None:
+                self.neg_prototypes.requires_grad = status
 
     def forward(
         self,
@@ -204,7 +208,10 @@ class ProtoTEx(torch.nn.Module):
             torch.tensor(0),
         )
         if use_classfn or use_p1 or use_p2 or use_p3:
-            all_protos = torch.cat((self.neg_prototypes, self.pos_prototypes), dim=0)
+            if self.num_neg_protos > 0:
+                all_protos = torch.cat((self.neg_prototypes, self.pos_prototypes), dim=0)
+            else:
+                all_protos = self.pos_prototypes
             if use_classfn or use_p1 or use_p2:
                 if not self.dobatchnorm:
                     ## TODO: This loss function is not ignoring the padded part of the sequence; Get element-wise distane and then multiply with the mask
@@ -213,6 +220,7 @@ class ProtoTEx(torch.nn.Module):
                         all_protos.view(self.num_protos, -1),
                     )
                 else:
+                    # TODO: Try cosine distance
                     input_for_classfn = torch.cdist(
                         last_hidden_state.view(batch_size, -1),
                         all_protos.view(self.num_protos, -1),

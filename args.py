@@ -9,6 +9,7 @@ parser.add_argument("--num_pos_prototypes", type=int, default=40)
 parser.add_argument("--modelname", type = str)
 parser.add_argument("--data_dir", type = str)
 parser.add_argument("--model", type=str, default="ProtoTEx")
+parser.add_argument("--model_checkpoint", type=str, default=None)
 
 args = parser.parse_args()
 
@@ -35,7 +36,7 @@ datasets_config =  {
             'equivocation': 13
         }
     },
-    "data/logical_fallacy": {
+    "data/logical_fallacy_augmented": {
         'features': {
             'text': 'text', 
             'label': 'label'
@@ -97,6 +98,32 @@ datasets_config =  {
         'classes': {
             0: 0,
             1: 1
+        }
+    },
+    "data/ptc_slc_without_none_with_context/fine": {
+        'features': {
+            'text': 'text',
+            'label': 'label'
+        }, 
+        "classes": {
+            "Appeal_to_Authority": 0,
+            "Appeal_to_fear-prejudice": 1,
+            "Bandwagon": 2,
+            "Black-and-White_Fallacy": 3,
+            "Causal_Oversimplification": 4,
+            "Doubt": 5,
+            "Exaggeration,Minimisation": 6,
+            "Flag-Waving": 7,
+            "Loaded_Language": 8,
+            "Name_Calling,Labeling": 9,
+            "Obfuscation,Intentional_Vagueness,Confusion": 10,
+            "Red_Herring": 11,
+            "Reductio_ad_hitlerum": 12,
+            "Repetition": 13,
+            "Slogans": 14,
+            "Straw_Men": 15,
+            "Thought-terminating_Cliches": 16,
+            "Whataboutism": 17,
         }
     }
 }
