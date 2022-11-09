@@ -99,16 +99,16 @@ def train_ProtoTEx_w_neg(
     if model_checkpoint:
         print(f"Loading model checkpoint: {model_checkpoint}")
         pretrained_dict = torch.load(model_checkpoint)
-        del pretrained_dict['pos_prototypes']
-        if 'neg_prototypes' in pretrained_dict:
-            del pretrained_dict['neg_prototypes']
-        del pretrained_dict['classfn_model.weight']
-        del pretrained_dict['loss_fn.weight']
-        
         # Fiter out unneccessary keys
         model_dict = model.state_dict()
-        # filtered_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
-        model_dict.update(pretrained_dict)
+        filtered_dict = {}
+        for k, v in pretrained_dict.items():
+            if model_dict[k].shape == v.shape:
+                filtered_dict[k] = v
+            else:
+                print(F"Skipping weights for: {k}")
+
+        model_dict.update(filtered_dict)
         model.load_state_dict(model_dict)
 
     sampler = StratifiedSampler(
