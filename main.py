@@ -19,7 +19,7 @@ import wandb
 ## Custom modules
 from preprocess import CustomNonBinaryClassDataset
 
-from training import train_ProtoTEx_w_neg
+from training import train_ProtoTEx_w_neg, train_ProtoTEx_w_neg_roberta
 
 ## Set cuda
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -119,16 +119,32 @@ def main():
                 args.num_prototypes, args.num_pos_prototypes
             )
         )
-        train_ProtoTEx_w_neg(
-            train_dl=train_dl,
-            val_dl=val_dl,
-            test_dl=test_dl,
-            num_prototypes=args.num_prototypes,
-            num_pos_prototypes=args.num_pos_prototypes,
-            class_weights=class_weight_vect,
-            modelname=args.modelname,
-            model_checkpoint=args.model_checkpoint
-        )
+        if args.architecture == "BART":
+            print(f"Using backone: {args.architecture}")
+            train_ProtoTEx_w_neg(
+                train_dl=train_dl,
+                val_dl=val_dl,
+                test_dl=test_dl,
+                num_prototypes=args.num_prototypes,
+                num_pos_prototypes=args.num_pos_prototypes,
+                class_weights=class_weight_vect,
+                modelname=args.modelname,
+                model_checkpoint=args.model_checkpoint
+            )
+        elif args.architecture == "RoBERTa":
+            print(f"Using backone: {args.architecture}")
+            train_ProtoTEx_w_neg_roberta(
+                train_dl=train_dl,
+                val_dl=val_dl,
+                test_dl=test_dl,
+                num_prototypes=args.num_prototypes,
+                num_pos_prototypes=args.num_pos_prototypes,
+                class_weights=class_weight_vect,
+                modelname=args.modelname,
+                model_checkpoint=args.model_checkpoint
+            )
+        else:
+            print(f"Invalid backbone architecture: {args.architecture}")
 
 
 if __name__ == "__main__":
