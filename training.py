@@ -3,7 +3,7 @@ import torch
 from transformers.optimization import AdamW
 from tqdm.notebook import tqdm
 from args import args
-
+import wandb
 
 ## Custom modules
 from utils import EarlyStopping, print_logs, evaluate
@@ -83,7 +83,7 @@ def train_ProtoTEx_w_neg(
     num_pos_prototypes,
     class_weights=None,
     modelname="0408_NegProtoBart_protos_xavier_large_bs20_20_woRat_noReco_g2d_nobias_nodrop_cu1_PosUp_normed",
-    model_checkpoint=None
+    model_checkpoint=None,
 ):
     torch.cuda.empty_cache()
     model = ProtoTEx(
@@ -94,8 +94,20 @@ def train_ProtoTEx_w_neg(
         dropout=False,
         special_classfn=True,  # special_classfn=False, ## apply dropout only on bias
         p=1,  # p=0.75,
-        batchnormlp1=True
+        batchnormlp1=True,
     ).cuda()
+
+    sampler = StratifiedSampler(
+        class_vector=torch.LongTensor(train_dl.dataset.y),
+        batch_size=args.num_prototypes,
+    )
+    random_data_loader = torch.utils.data.DataLoader(
+            train_dl.dataset,
+            batch_size=args.num_prototypes,
+            collate_fn=train_dl.dataset.collate_fn,
+            sampler=sampler,
+        )
+
     if model_checkpoint:
         print(f"Loading model checkpoint: {model_checkpoint}")
         pretrained_dict = torch.load(model_checkpoint)
@@ -103,29 +115,27 @@ def train_ProtoTEx_w_neg(
         model_dict = model.state_dict()
         filtered_dict = {}
         for k, v in pretrained_dict.items():
-            if model_dict[k].shape == v.shape:
+            if k in model_dict and model_dict[k].shape == v.shape:
                 filtered_dict[k] = v
             else:
-                print(F"Skipping weights for: {k}")
+                print(f"Skipping weights for: {k}")
 
         model_dict.update(filtered_dict)
         model.load_state_dict(model_dict)
+    else:
+        # TODO: Try getting the average of a first few batches
+        batch = next(iter(random_data_loader))
+        input_ids, attn_mask, y = batch
+        model.set_prototypes(
+            input_ids_pos_rdm=input_ids, attn_mask_pos_rdm=attn_mask, do_random=True
+        )
 
-    sampler = StratifiedSampler(
-        class_vector=torch.LongTensor(train_dl.dataset.y),
-        batch_size=args.num_prototypes,
-    )
-    random_data_loader = torch.utils.data.DataLoader(
-        train_dl.dataset,
-        batch_size=args.num_prototypes,
-        collate_fn=train_dl.dataset.collate_fn,
-        sampler=sampler,
-    )
-    # TODO: Try getting the average of a first few batches
-    batch = next(iter(random_data_loader))
-    input_ids, attn_mask, y = batch
-    model.set_prototypes(
-        input_ids_pos_rdm=input_ids, attn_mask_pos_rdm=attn_mask, do_random=True
+    # Track all model parameters
+    wandb.watch(
+        models=model,
+        criterion=model.loss_fn,
+        log="all",
+        log_freq=len(random_data_loader),
     )
 
     optim = AdamW(model.parameters(), lr=3e-5, weight_decay=0.01, eps=1e-8)
@@ -156,6 +166,7 @@ def train_ProtoTEx_w_neg(
     p2_lamb = 0.9
     p3_lamb = 0.9
     for iter_ in range(n_iters):
+        wandb.log({"epoch": iter_})
         total_loss = 0
         """
         During Delta, We want decoder to become better at decoding the trained encoder
@@ -280,6 +291,16 @@ def train_ProtoTEx_w_neg(
             mac_val_f1,
             accuracy,
         )
+        wandb.log(
+            {
+                "Train epoch": iter_,
+                "Train loss": val_loss,
+                "Train Precision": mac_val_prec,
+                "Train Recall": mac_val_rec, 
+                "Train Accuracy": accuracy,
+                "Train F1 score": mac_val_f1,
+            }
+        )
         es.activate(mac_val_f1)
         val_loss, mac_val_prec, mac_val_rec, mac_val_f1, accuracy = evaluate(
             val_dl, model
@@ -293,6 +314,16 @@ def train_ProtoTEx_w_neg(
             mac_val_rec,
             mac_val_f1,
             accuracy,
+        )
+        wandb.log(
+            {
+                "Val epoch": iter_,
+                "Val loss": val_loss,
+                "Val Precision": mac_val_prec,
+                "Val Recall": mac_val_rec, 
+                "Val Accuracy": accuracy,
+                "Val F1 score": mac_val_f1,
+            }
         )
 
         es(np.mean(mac_val_f1), epoch, model)
@@ -315,6 +346,16 @@ def train_ProtoTEx_w_neg(
                 mac_val_f1,
                 accuracy,
             )
+            wandb.log(
+            {
+                "Test epoch": iter_,
+                "Test loss": val_loss,
+                "Test Precision": mac_val_prec,
+                "Test Recall": mac_val_rec, 
+                "Test Accuracy": accuracy,
+                "Test F1 score": mac_val_f1,
+            }
+        )
 
         elif (iter_ + 1) % 5 == 0:
 

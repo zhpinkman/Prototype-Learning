@@ -14,6 +14,7 @@ from args import args, bad_classes, datasets_config
 import pandas as pd
 from sklearn.utils.class_weight import compute_class_weight
 import random
+import wandb
 
 ## Custom modules
 from preprocess import CustomNonBinaryClassDataset
@@ -91,6 +92,25 @@ def main():
     # Compute class weights
     class_weight_vect = compute_class_weight(
         "balanced", classes=np.unique(train_labels), y=train_labels
+    )
+    print(f"Class weight vectors: {class_weight_vect}")
+
+    # Initialize wandb
+    wandb.init(
+        # Set the project where this run will be logged
+        project=args.project, 
+        # We pass a run name (otherwise it’ll be randomly assigned, like sunshine-lollypop-10)
+        name=args.experiment, 
+        # Track hyperparameters and run metadata
+        config={
+            "num_pos_prototypes": args.num_pos_prototypes,
+            "num_neg_prototypes": args.num_prototypes - args.num_pos_prototypes,
+            "none_class": args.none_class,
+            "augmentation": args.augmentation,
+            "nli_intialization": args.nli_intialization,
+            "curriculum": args.curriculum,
+            "architecture": args.architecture,
+        }
     )
 
     if args.model == "ProtoTEx":

@@ -2,6 +2,7 @@ import torch
 from transformers.optimization import AdamW
 from transformers import BartModel, BartForConditionalGeneration, BartConfig
 import numpy as np
+import wandb
 
 # torch.manual_seed(0)
 # import random
@@ -82,8 +83,8 @@ class ProtoTEx(torch.nn.Module):
         for i in range(len(datasets_config[args.data_dir]["classes"])):
             # self.distance_grounder[i][np.random.randint(0, self.num_protos, int(self.num_protos / 2))] = 1e7
             if self.num_neg_protos > 0 and i == 0:
-                self.distance_grounder[0][self.num_pos_protos :] = 1e7
-            self.distance_grounder[i][: self.num_pos_protos] = 1e7
+                self.distance_grounder[0][:self.num_pos_protos] = 1e7
+            self.distance_grounder[i][self.num_pos_protos:] = 1e7
 
         # TODO: maybe connect some of the layers to some of the prototypes and not fully connected
 
