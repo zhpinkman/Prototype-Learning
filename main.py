@@ -5,9 +5,8 @@ import os
 # os.environ["CUDA_VISIBLE_DEVICES"]="2"
 from importlib import reload
 import numpy as np
-import torch, time
-from transformers import BartModel, BartConfig, BartForConditionalGeneration
-from transformers import BartTokenizer
+import torch
+from transformers import BartTokenizer, RobertaTokenizer, ElectraTokenizer
 from tqdm.notebook import tqdm
 import pathlib
 from args import args, bad_classes, datasets_config
@@ -19,7 +18,7 @@ import wandb
 ## Custom modules
 from preprocess import CustomNonBinaryClassDataset
 
-from training import train_ProtoTEx_w_neg, train_ProtoTEx_w_neg_roberta
+from training import train_ProtoTEx_w_neg, train_ProtoTEx_w_neg_roberta, train_ProtoTEx_w_neg_electra
 
 ## Set cuda
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -29,9 +28,15 @@ def main():
     ## preprocess the propaganda dataset loaded in the data folder. Original dataset can be found here
     ## https://propaganda.math.unipd.it/fine-grained-propaganda-emnlp.html
 
-    tokenizer = BartTokenizer.from_pretrained(
-        "ynie/bart-large-snli_mnli_fever_anli_R1_R2_R3-nli"
-    )
+    if args.architecture == "BART":
+        tokenizer = BartTokenizer.from_pretrained("ModelTC/bart-base-mnli")
+    elif args.architecture == "RoBERTa":
+        tokenizer = RobertaTokenizer.from_pretrained("cross-encoder/nli-roberta-base")
+    elif args.architecture == "Electra":
+        tokenizer = ElectraTokenizer.from_pretrained("howey/electra-base-mnli")
+    else:
+        print(f"Invalid backbone architecture: {args.architecture}")
+    
 
     train_df = pd.read_csv(os.path.join(args.data_dir, "train.csv"))
     dev_df = pd.read_csv(os.path.join(args.data_dir, "val.csv"))
@@ -134,6 +139,18 @@ def main():
         elif args.architecture == "RoBERTa":
             print(f"Using backone: {args.architecture}")
             train_ProtoTEx_w_neg_roberta(
+                train_dl=train_dl,
+                val_dl=val_dl,
+                test_dl=test_dl,
+                num_prototypes=args.num_prototypes,
+                num_pos_prototypes=args.num_pos_prototypes,
+                class_weights=class_weight_vect,
+                modelname=args.modelname,
+                model_checkpoint=args.model_checkpoint
+            )
+        elif args.architecture == "Electra":
+            print(f"Using backone: {args.architecture}")
+            train_ProtoTEx_w_neg_electra(
                 train_dl=train_dl,
                 val_dl=val_dl,
                 test_dl=test_dl,
