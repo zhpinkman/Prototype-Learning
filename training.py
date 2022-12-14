@@ -656,6 +656,7 @@ def train_ProtoTEx_w_neg_roberta(
                 accuracy,
             )
 
+
 def train_ProtoTEx_w_neg_electra(
     train_dl,
     val_dl,
@@ -902,15 +903,15 @@ def train_ProtoTEx_w_neg_electra(
                 accuracy,
             )
             wandb.log(
-            {
-                "Test epoch": iter_,
-                "Test loss": val_loss,
-                "Test Precision": mac_val_prec,
-                "Test Recall": mac_val_rec, 
-                "Test Accuracy": accuracy,
-                "Test F1 score": mac_val_f1,
-            }
-        )
+                {
+                    "Test epoch": iter_,
+                    "Test loss": val_loss,
+                    "Test Precision": mac_val_prec,
+                    "Test Recall": mac_val_rec, 
+                    "Test Accuracy": accuracy,
+                    "Test F1 score": mac_val_f1,
+                }
+            )
 
         elif (iter_ + 1) % 5 == 0:
 

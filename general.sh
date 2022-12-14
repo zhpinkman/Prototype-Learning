@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=curr_coarse_fine_grained_nli_electra_prototex
+#SBATCH --job-name=curr_nli_electra_prototex
 #SBATCH --output=slurm_execution/%x-%j.out
 #SBATCH --error=slurm_execution/%x-%j.out
 #SBATCH --time=3-00:00:00
@@ -21,11 +21,17 @@ conda activate prototex
 
 echo "Starting training with parameters:"
 
-dataset="data/coarsegrained_with_none"
+dataset="data/finegrained_with_none"
 echo "dataset: ${dataset}"
-modelname="curr_coarsegrained_nli_electra_prototex"
+modelname="curr_finegrained_nli_electra_prototex"
 echo "modelname: ${modelname}"
-model_checkpoint="Models/bigbench_nli_electra_prototex"
+model_checkpoint="Models/curr_coarsegrained_nli_electra_prototex"
+
+for trial in 2 3
+do
+echo "Trail number: ${trial}"
+python main.py --num_prototypes 50 --num_pos_prototypes 49 --data_dir ${dataset} --modelname ${modelname} --project "curriculum-learning" --experiment "electra_finegrained_classification_$((trial))" --none_class "Yes" --augmentation "Yes" --nli_intialization "Yes" --curriculum "Yes" --architecture "Electra" --model_checkpoint ${model_checkpoint}
+done
 
 # for num_prototypes in 5 10 15 30 50 70 100 150
 # do
@@ -37,16 +43,32 @@ model_checkpoint="Models/bigbench_nli_electra_prototex"
 
 # srun --job-name=nli_roberta_prototex --partition=nodes --time=3-00:00:00 --cpus-per-task=8 --mem=10240 --gres=gpu:a100:1 --chdir=/cluster/raid/home/himanshu.rawlani/propaganda_detection/prototex_custom --pty /bin/bash
 
-python main.py --num_prototypes 50 --num_pos_prototypes 49 --data_dir ${dataset} --modelname ${modelname} --project "curriculum-learning" --experiment "electra_coarsegrained_classification_1" --none_class "Yes" --augmentation "Yes" --nli_intialization "Yes" --curriculum "Yes" --architecture "Electra" --model_checkpoint ${model_checkpoint}
+# dataset="data/coarsegrained_with_none"
+# echo "dataset: ${dataset}"
+# modelname="coarsegrained_nli_electra_prototex"
+# echo "modelname: ${modelname}"
+# # model_checkpoint="Models/finegrained_nli_electra_prototex"
 
-dataset="data/finegrained_with_none"
-echo "dataset: ${dataset}"
-modelname="curr_finegrained_nli_electra_prototex"
-echo "modelname: ${modelname}"
-model_checkpoint="Models/curr_coarsegrained_nli_electra_prototex"
+# for trial in 2 3
+# do
+# echo "Trail number: ${trial}"
+# python main.py --num_prototypes 50 --num_pos_prototypes 49 --data_dir ${dataset} --modelname ${modelname} --project "direct-fine-tuning" --experiment "electra_coarsegrained_classification_$((trial))" --none_class "Yes" --augmentation "Yes" --nli_intialization "Yes" --curriculum "Yes" --architecture "Electra"
+# # --model_checkpoint ${model_checkpoint}
+# done
 
-python main.py --num_prototypes 50 --num_pos_prototypes 49 --data_dir ${dataset} --modelname ${modelname} --project "curriculum-learning" --experiment "electra_finegrained_classification_1" --none_class "Yes" --augmentation "Yes" --nli_intialization "Yes" --curriculum "Yes" --architecture "Electra" --model_checkpoint ${model_checkpoint}
+# dataset="data/bigbench"
+# echo "dataset: ${dataset}"
+# modelname="binary_nli_electra_prototex"
+# echo "modelname: ${modelname}"
+# # model_checkpoint="Models/rev_curr_coarsegrained_nli_electra_prototex"
 
-# python main.py --num_prototypes 50 --num_pos_prototypes 49 --data_dir "data/finegrained_with_none" --modelname "nli_electra_prototex" --project "direct-fine-tuning" --experiment "electra_finegrained_classification_1" --none_class "Yes" --augmentation "Yes" --nli_intialization "Yes" --curriculum "No" --architecture "Electra"
+# for trial in 2 3
+# do
+# echo "Trail number: ${trial}"
+# python main.py --num_prototypes 50 --num_pos_prototypes 49 --data_dir ${dataset} --modelname ${modelname} --project "direct-fine-tuning" --experiment "electra_binary_classification_$((trial))" --none_class "Yes" --augmentation "Yes" --nli_intialization "Yes" --curriculum "Yes" --architecture "Electra"
+# # --model_checkpoint ${model_checkpoint}
+# done
+
+# python main.py --num_prototypes 50 --num_pos_prototypes 49 --data_dir "data/finegrained_with_none" --modelname "finegrained_nli_electra_prototex" --project "direct-fine-tuning" --experiment "electra_finegrained_classification_1" --none_class "Yes" --augmentation "Yes" --nli_intialization "Yes" --curriculum "No" --architecture "Electra"
 
 conda deactivate
