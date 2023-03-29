@@ -1,455 +1,332 @@
-index,text,label
-1750,Communism has directly lead to more innocent deaths than Fascism. Therefore we should embrace Fascism whenever it will save us from Communism. Banning Fascism might cause far greater harm. By your own logic we should embrace Fascism.,circular reasoning
-1751,"Lebron James, one of the most decorated basketball players of all time, says you need to eat breakfast so you need to eat breakfast",fallacy of credibility
-1752,A smoke screen to cover the truth; a clue that is misleading or distracting.,fallacy of red herring
-1753,Not true.,fallacy of red herring
-1754,"Style consistency is a crucial element in code comprehension.
- On the other hand, most arguments fall back to arbitrary personal preferences.
- Widely followed style guides set spaces as the convention and most code uses spaces. Keeping up with this makes developer life easier.",prejudicial language
-1755,"Jason and his family are heading to Utah to spend a week skiing. Looking at the weather reports, he notices that it is supposed to be warmer, making for lousy ski conditions. Angrily, he calls the Weather Channel and demands that they change their forecast so he will have better weather for the trip.",false causality
-1756,If you don't have a recycling bin you hate the earth and don't care about pollution.,fallacy of extension
-1757,well typed programs don't go wrong!,slothful induction
-1758,"If we let this child bring the permission slip late, there is no reason to ever set a deadline for anything again!",faulty generalization
-1759,It's named after a bitchin snake!,fallacy of red herring
-1760,It's a text editor; that shouldn't be necessary.,fallacy of red herring
-1761,"You can't prove your candidate will win, so I assume he won't",intentional
-1762,"Sukaina to her mom: Either you buy me this new book, or you decide that reading is not important at all.",false dilemma
-1763,"Dr. X is an engineer, and he doesn't believe in global warming.",fallacy of credibility
-1764,"When the workers own the means of production, they can ensure that they are not marginalized and forced into wage slavery.",prejudicial language
-1765,"I thought you cared about other people, but I didn't see you at the fundraiser for the Children's Hospital ...",false dilemma
-1766,"Quinoa is a delicious, plant-based source of protein because it tastes so darn good.",circular reasoning
-1767,People who read are smart.,faulty generalization
-1768,"Professor X holds that the use of non-invasive ventilation has no place in the management of ARDS; this, therefore, is the approach we should adopt.",fallacy of credibility
-1769,"""Everytime I wash my car it rains, therefore, washing my car makes it rain.""",false causality
-1770,"In the long run, any animosity for the transition will disappear after a couple generations of new ""common language speakers.""",ad populum
-1771,"Bill, you drive a beat-up car from the 1980s. For this reason, we can never allow you to be a lifeguard at the community pool.",ad hominem
-1772,"React brought a fresh idea back to UI software design: If something changes in the model, redraw everything. Don't observe and update specific things as we do in traditional MVC. This is a crazy idea, will this be fast enough? Turns out, it's good enough for most things when using a Virtual DOM.",false causality
-1773,javascript is pointless,fallacy of red herring
-1774,You can tell that guy's Mexican - he's wearing a sombrero.,faulty generalization
-1775,"According to the Supreme Court, we have a right to abortion. Therefore, it is right to have an abortion.",equivocation
-1776,Pre-AP kids are smart and creative.,faulty generalization
-1777,"The goal of people who ask us to wear masks to pure compliance, to practice controlling a witless population. We are not sheep!",fallacy of extension
-1778,I've never been hit by lightening when standing under a tree so we'll be perfectly safe to shelter by this oak now.,intentional
-1779,"The level of mercury in seafood may be unsafe, but what will fishers do to support their families?",fallacy of red herring
-1780,"Despite the fact that our Q4 numbers are much lower than usual, we should push forward using the same strategy because our CEO Barbara says this is the best approach.",fallacy of credibility
-1781,Beyond Meat burgers are healthy for us because they do not have any meat in them.,fallacy of credibility
-1782,Snarl Words are an example of...,appeal to emotion
-1783,"The Bible is the Word of God because God tells us it is... in the Bible.
- 
- X is true because of Y.
- Y is true because of X.",circular reasoning
-1784,"Person 1: You're either for the war or against the troops.
- 
- Person 2: Actually, I do not want our troops sent into a dangerous war.",false dilemma
-1785,"This is one of the worst things about this board...it's full of utterly shite people, if he even holds these views at all. If he does, I literally wouldn't care if he died. Scum.",ad hominem
-1786,"Only God knows, because he created everything living.",ad populum
-1787,"If we legalize pot, the next thing you know people will want to legalize meth and heroin.",faulty generalization
-1788,"Noisy children are a real headache. Two aspirin will make a headache go away. Therefore, two aspirin will make noisy children go away.",equivocation
-1789,"jesus christ, black supremacists really already infiltrated this site?",ad hominem
-1790,we have strong evidence to suggest that there was a beginning and there will be an end.,fallacy of red herring
-1791,"Jeannette has an upcoming exam in anatomy and physiology. It will cover the four chapters read and discussed over the last month. Jeannette hasn't studied. Though there are well over 200 terms she will be expected to remember, Jeannette knows that her memory is great. She will remember the terms just from having heard them mentioned in class. After all, because of her excellent memory, she got through high school without studying. Despite her faith in her memory, her lack of studying results in an F on the exam.",appeal to emotion
-1792,We cannot support immigrants because we have too many homeless and poor Americans.,false dilemma
-1793,"ever heard of the phrase ""history is written by the victors""? it just to make the enemy seem like the bad guys. if the axis won the war then everyone would think that the allies did some sort of holocaust",fallacy of slippery slope
-1794,"If you don’t eat breakfast, you’ll slouch in your desk. If you slouch in your desk, you’ll hurt your back. If you hurt your back, you’ll never become President. What fallacy is being committed here?",faulty generalization
-1795,Far better support to OOP,fallacy of red herring
-1796,"When venus flytrap eats flies it is okay to be carnivorous but when we eat plants, it is not. Get lost.",fallacy of red herring
-1797,"""You'll make the right decision because you have something that not many people do: you have heart.""?",appeal to emotion
-1798,"Yesterday, I walked under a ladder with an open umbrella indoors while spilling salt in front of a black cat. And I forgot to knock on wood with my lucky dice. That must be why I'm having such a bad day today. It's bad luck.",false causality
-1799,People who don't support the proposed state minimum wage increase hate the poor.,fallacy of extension
-1800,"Charlie: Illegal posting and sharing of songs online is crippling the music industry.
-Bob: You couldn't be more wrong; the music industry is doing just find. I can't believe you think the government should be allowed to regulate what I share with my ""friends."" No one wants a world where I can't loan a book to my girlfriend, let my roommate borrow my iPod, or share a funny meme with my blog followers.",fallacy of extension
-1801,"Victor, the company you work for just filed for bankruptcy! How can I trust you with our money?",faulty generalization
-1802,"Because 90% of college students polled had no debt, education costs are not a problem.",intentional
-1803,"Java uses only references to objects, which are effectively pointers. ArrayList<Object> is effectively an array of pointers (in Java called ""references"") to Objects.",ad populum
-1804,Ignore any scientific ideas from anyone who didn’t get a Ph.D.,fallacy of credibility
-1805,"At soccer practice, Willeidy tells Aida, ""Pace's soccer team was losing until I bought new shoes. We have not lost a game since I got my lucky shoes!""",false causality
-1806,"Duke University has the best basketball player in the NCAA, therefore they will win the tournament this year.",faulty generalization
-1807,"Braden, you drive a beat-up car from the 1980s. For this reason, we can never allow you to be a lifeguard at the community pool.",ad hominem
-1808,The is zero doubt that she has the condition. She scored high on two separate diagnostic tests for it and both tests have shown extremely high validity. That proves she has it.,fallacy of red herring
-1809,"""You asked me why the unemployment rate has increased once more, but I'm going to tell you what has an even worse effect on morale in this country.""",fallacy of red herring
-1810,"""A dog would be a great addition to our family. Think about how wonderful it would be to come home to a happy, excited, loving dog?"" This is an example of which persuasive technique?",appeal to emotion
-1811,"Although Christianity (i.e. Catholic Church) opposes scientific doctrines such as the Big Bang Theory and organic evolution, it hasn't significantly impeded the development of science on a large scale.",ad populum
-1812,"""You're not Kenyan enough to be a good leader in Kenya.""",intentional
-1813,"""University of Virginia professor [Charlotte] Patterson, considered a leading researcher in the field, says she has reviewed 22 studies involving offspring of gays ranging from toddlers to adults. She found none convincing [sic] that the children had suffered or were more than normally inclined to be gay. [...] Conservatives discredit Patterson by pointing out that she is an acknowledged lesbian, with a presumed ideological interest in the subject she studies.""",ad hominem
-1814,Come on! Everyone else thinks the movie is great - you should too!,ad populum
-1815,"Alley ate a slice of pizza for dinner and a few hours later she had a fever. Therefore, pizza causes fevers.",false causality
-1816,"""Do you want to live in a world where you can get breakfast from McDonald's all day, or would you rather live in a dictatorship?""",false dilemma
-1817,Guns are a part of American culture and by taking guns away from Americans would be taking away a part of the culture.,fallacy of red herring
-1818,"You ask your mother if you can go to the mall with your friends. She says ""no"". You ask why? She says, ""because I'm the mom and I say so"". This is an example of which logical fallacy?",fallacy of credibility
-1819,"Wars initiated by Muslims throughout the history were almost exclusively against the oppressor.
- It is not logically accepted to be peaceful with the oppressor. And these wars, do not count against peace.
- It is very clear in the Quran that, whenever peace is proposed, Muslims should accept it.",false causality
-1820,"only man is rational
- no women is man
- Therefore, no women is rational",equivocation
-1821,"Unemployment is an inherent part of capitalism. Full employment is at best only temporary, meaning that market capitalist economies are always Pareto inefficient. Socialist planned economies can guarantee work for all, meaning that all available labour is utilised.",circular reasoning
-1822,"""If you really loved me, you would buy me everything I ever wanted!""",false dilemma
-1823,"""A person apparently hopelessly ill may be allowed to take his own life. Then he may be permitted to deputize others to do it for him should he no longer be able to act. The judgment of others then becomes the ruling factor. Already at this point euthanasia is not personal and voluntary, for others are acting on behalf of the patient as they see fit. This may well incline them to act on behalf of other patients who have not authorized them to exercise their judgment. It is only a short step, then, from voluntary euthanasia (self-inflicted or authorized), to directed euthanasia administered to a patient who has given no authorization, to involuntary euthanasia conducted as a part of a social policy.""",faulty generalization
-1824,"To my knowledge, there are no studies supporting this approach. Therefore, I see no reason to change our routine.",intentional
-1825,"A study was done recently showing that church attendance was positively correlated with marriage longevity, that is, those couples who attended church together more often were more likely to stay married. This really should not be a surprise considering the general view of divorce within religion. What this does not mean is that any given couple who does not attend church is more likely to get divorced than any given couple that does attend church.",faulty generalization
-1826,"Saying that because one finds something difficult to understand, therefore it's not true",intentional
-1827,"It connects areas of your brain that have never connected before. Maybe your geometric recognition connects with your creativity and you become aware of realities that you once never knew. As a great psychonaut once said; ""Acid opens up doors, but once they're open, you can't close them"".",fallacy of credibility
-1828,"Jack is a good athlete. Jack comes from Canada. Therefore, all Canadians are good athletes.""",fallacy of logic
-1829,"There are plenty of transpilers (e.g., GWT/Java, TypeScript/JavaScript-ish and emscripten/C/C++/anything, etc.) that allow developers to work with statically typed languages and publish to the web. If usage is any measure, these tools alone have not successfully mitigated the problem.",fallacy of red herring
-1830,"The United States does this exact thing, and I surprised you didn't see the connection I was trying to make. The United States defends free speech, it's in the First Amendment. However there are plenty of companies that will fire people or not hire people because of their beliefs or what they say.",faulty generalization
-1831,It is a step towards preventing the re-emergence of fascism.,fallacy of red herring
-1832,"Transhumanism is a death cult worshiping a robotic race that can easily destroy them.
- They often sell the idea of digital immortality through the mechanism of programming a robot with your memories.
- This isn't impossible but optimistic transhumanists aren't skeptical enough about approaches.",fallacy of red herring
-1833,"""We will teach this miserable traitor(Snowball) that he cannot undo our work so easily.""",ad hominem
-1834,"I've only read a couple pages of this book, and I've already found a typo. There's no way I'm reading the rest of this garbage.",faulty generalization
-1835,He sometimes behaves violently when I am around him. I don't know what it is that I am doing to make him become so violent.,fallacy of logic
-1836,Billy murdered all those people because I spanked him when he was a child.,false causality
-1837,"""That's why, under my plan, individuals will be required to carry basic health insurance -- just as most states require you to carry auto insurance. Likewise, businesses will be required to either offer their workers health care, or chip in to help cover the cost of their workers."" President Obama on Universal Health Coverage (some feel that health insurance and car insurance are different on many fundamental aspects, and this is a bad comparison)",fallacy of logic
-1838,"In the space of a couple of days, Alastair Campbell has managed to turn an argument about the way the government presented its case for war in Iraq into an entirely different dispute about the way the BBC covered what was going on in Whitehall at the time.",fallacy of red herring
-1839,Every girl I've dated has been a nurse. I must only be compatible with nurses!,false causality
-1840,Leonardo DiCaprio is just a dumb actor! What does he really know about climate change?!,ad hominem
-1841,You oversleep and then fail a test; so you assume that oversleeping causes you to fail tests,false causality
-1842,"That doesn't requires the software to be free, just need to be ""fair"" or affordable",fallacy of red herring
-1843,We have pure food and drug laws; why can't we have laws to keep moviemakers from giving us filth ?,fallacy of logic
-1844,Some people have more than they need and could give to those in need.,fallacy of red herring
-1845,Warning! Smoking may cause frostbite?,fallacy of red herring
-1846,"""Advocates of legalized abortion predicted it would solve our social problems. Instead, this destruction of one-fourth of a generation has left a more violent society in its wake: Child abuse has exploded, from 167,000 estimated cases in 1973 to 2.4 million in 1989, according to the National Center of Child Abuse and Neglect - a 1,400% increase. Teen suicide, among non-aborted and thus presumably ""wanted"" children, has doubled. Violent crime has more than doubled.""",fallacy of extension
-1847,The President said he will not allow disrespectful dissent.,circular reasoning
-1848,"It could potentially lower the amount of gun violence by providing thirsty young men with some much-needed release, and by being socialized, it removes the barrier of ""wealth"" from preventing any individual from fulfilling a biological imperative.",circular reasoning
-1849,AttP 9: everyone wearing new llama wool coats makes them warm,ad populum
-1850,"The presence of police at protests cause an escalation of violence. It was the case that at the protest last night attended by uniformed police, there was an escalation of violence. Therefore, police should not be at protests.",false causality
-1851,"""Everyone who likes pizza likes pepperoni"" is an example of",faulty generalization
-1852,"That candidate wants to raise the minimum wage, but they aren't even smart enough to run a business.",ad hominem
-1853,"Ok, I am willing to grant that there might not be angels and demons really floating around Heaven or hanging out in Hell, but you must grant that there has to be at least one God. Is that a fair compromise?",fallacy of red herring
-1854,These technological advances would not have been possible under other systems of government.,false causality
-1855,"I know nothing about Tank Johnson except that he has a criminal record as long as your leg, but I'll bet he's really just misunderstood",intentional
-1856,My Aunt was in the hospital for 6 weeks because she didn't wear a seatbelt.,faulty generalization
-1857,"You never even finished law school, so why should I trust you to watch my children?",ad hominem
-1858,"If you don't drive a car, you hate the Earth.",fallacy of extension
-1859,The people who would abandon their home instead of fighting for freedom and justice have no value to the host society.,fallacy of red herring
-1860,A person hanging out in a bar will be an alcoholic,faulty generalization
-1861,Even though people say we are going to behave; we know they won't behave well.,faulty generalization
-1862,"Exercise is good. Therefore everybody should exercise.'
- ""'I agree,' said Polly earnestly. 'I mean exercise is wonderful. I mean it builds the body and everything.'",faulty generalization
-1863,"""She's definitely a feminist; she watched the Democratic National Convention"" IS an example of this fallacy.",faulty generalization
-1864,"McDonald's Hamburgers, over 99 billion served.",ad populum
-1865,claiming that an idea or belief is true simply because it is what most people believe,ad populum
-1866,"I think it is probable we are working with different definition of freedom. (i don’t even consider free-will because i think it is a ill-defined concept most of the time).
-It seem it will be very hard to agree without clearing this point.",fallacy of red herring
-1867,"Donald Trump Jr. Tweeted:
- If I had a bowl of skittles and I told you just three would kill you. Would you take a handful? That's our Syrian refugee problem.",faulty generalization
-1868,"A persuasive technique used in media messages that appeals to the ""everyone is doing it"" mentality",ad populum
-1869,The Senator must be wrong on the issue of taxes because he's such a jerk to the people who work for him.,ad hominem
-1870,Why did the blonde cross the road? Because she saw a shoe sale!,faulty generalization
-1871,"The phrase, ""Almost everyone that was asked said that McDonalds is better than Burger King, so it must be true,"" represents which fallacy?",ad populum
-1872,"If this is true, then how is anything new invented?",fallacy of red herring
-1873,It gives people access to media they may not be able to access in their country normally or that did not have an international release. Many documentaries are available in select regions.,fallacy of red herring
-1874,So far we have tried the other way and our world sucks.,circular reasoning
-1875,"An increasing number of people are keeping ferrets as pets, so they must make wonderful companion animals.",ad populum
-1876,"""I know the exam is graded based on performance, but you should give me an A. My cat has been sick, my car broke down, and I've had a cold, so it was really hard for me to study!""",appeal to emotion
-1877,"If you choose not to administer triple antibiotic coverage for this patient with severe and extensive burns, you will be held responsible for any infectious complications that might eventually arise.",appeal to emotion
-1878,"If you don't start recycling now, our entire planet will be destroyed in ten years.",appeal to emotion
-1879,"""There is ... a radical element, a homosexual agenda that wants to redefine what marriage is. They want to say that a marriage not only is one man and one woman but it is two men or it is two women. What logical reason is there to keep us from stopping expansion of that definition to include three people or an adult and a child, or any other odd combination that we want to have? ... and it does not even have to be limited to human beings by the way. I mean it could be anything. ... There is no reason why we cannot just completely erase whatever boundaries that currently exist on the definition of marriage and say it is a free-for-all, anything goes.""",faulty generalization
-1880,It is easier to develop for Android in the first place,ad populum
-1881,"Because the last words spoken by either the pilot or co-pilot were ""Good night, Malaysia Three-Seven-Zero,"" the pilot fell asleep and accidentally crashed the plane into the ocean.",false causality
-1882,"It is premature to discount the Sun as a cause for climate change / global warming, given that there remain numerous anomalous solar observations. These anomalies are trying to tell us that our Standard Solar Model is either wrong or incomplete. AGW advocates should be fluent in these anomalies.",fallacy of red herring
-1883,"If your so definite that God doesn't exist, it as up to you to prove so, not up to the believers that he does.",false causality
-1884,"I ask all employees to vote for my chosen candidate in the upcoming elections. If the other candidate wins, he will raise taxes and many of you will lose your jobs.",appeal to emotion
-1885,Presents only two choices when more options exist,false dilemma
-1886,"Becky: I think capital punishment is a necessary component of our justice system and should remain legal.
- Alex: So you are saying that murder should be legal and it is okay for us to go around killing people just because we think they deserve it? That isn't right.
- 
- Of what fallacy is Alex guilty?",fallacy of extension
-1887,AttP 3: Shirley MacLaine selling copies to many people makes her topic of choice true.,ad populum
-1888,"Jeff is preparing to create a commercial for a new energy drink. He visits a local high school and surveys students in an English class about their beverage preferences. The majority of the class says they prefer grape flavored drinks, so Jeff tells his superiors that grape is the flavor favored most by high school students. What error in reasoning has Jeff made?http://www.funtrivia.com",faulty generalization
-1889,They are not. Virtual DOM to DOM management is the same as automatic memory management to memory management.,faulty generalization
-1890,"""It rained and we lost the game. Every time it rains, we are going to lose.""",false causality
-1891,"Almadina school of Richmond does not have many students, so that must mean that the school has a very selective admissions process.",false causality
-1892,"Bill: ""I believe that Obamacare is wrong."" Dave: ""Of course you would say that, you're a Republican."" Bill: ""What about the arguments I gave to support my position?"" Dave: ""Those don't count. Like I said, you're a Republican, so you have to support the party line. Further, you are just a lapdog to the Republican incumbent so you can get a job , so I can't believe what you say.""",ad hominem
-1893,"Mom: You used up all of the data on our phone plan this month!
-Kid: I had a math test today that was really, really hard. Can you just forgive me this one time?",fallacy of red herring
-1894,"A: I don't want to visit McDonald's today.
- B: So you're just against good food then?
- The above is an example of:",fallacy of extension
-1895,Mr. Casal was very tired because he had no energy.,circular reasoning
-1896,"However, women are more likely to adopt this problem-solving philosophy. Therefore, men should make an extra effort to include women in decision-making efforts.",circular reasoning
-1897,"""I know the exam is graded based on performance, but you should give me an A. My cat has been sick, my car broke down, and I've had a cold, so it was really hard for me to study!"" Demanded Aun.",appeal to emotion
-1898,"Claim: You can't give me a C in this course...
-Reason: ... Because I am an A student.
-Warrant: An A student is someone who can't receive Cs.",circular reasoning
-1899,"If it wasn't a missile, a bomb, or mechanical failure, then all that's left is a meteorite.",false dilemma
-1900,"""If we ban Hummers because they are bad for the environment, then eventually the government will ban all cars; therefore, we should not ban Hummers.""",faulty generalization
-1901,He's just a psychology teacher at a community college,ad hominem
-1902,You can't build a business on low quality output,circular reasoning
-1903,The book of Mormon was translated perfectly.,false causality
-1904,"Source? If I stop paying taxes I am not free to leave, I am jailed. You lose a lot more than access to government services if you do not pay, which is why it is forceful and theft. I do not simply consent by being alive, since the government enforces a monopoly over these things I have no choice.",false causality
-1905,"Earl: Men don't cry
- Jaquon: I cry all the time; it's healthy
- Earl: Well, REAL men don't cry.
- Jaquon: Earl, you should invest in some therapy.
- Earl: Los hombres no lloran
- Jaquon: lloro todo el tiempo; Es saludable
- Earl: Bueno, los hombres REALES no lloran.
- Jaquon: Earl, deberÃ­as invertir en terapia.",intentional
-1906,Compares minor problems with much more serious crimes,fallacy of red herring
-1907,"Teachers claim that cell phones distract students, but they only say that because teachers have no lives.",ad hominem
-1908,Banning religions has historically had a bad press...,fallacy of red herring
-1909,Everyone loves Post Malone and can name at least one of his songs! (This is an example of...),faulty generalization
-1910,Science has proved that God does not exist,circular reasoning
-1911,"If you don't agree to sign the labor agreement, we'll fire you.",appeal to emotion
-1912,Which fallacy is used to promote something based on popularity?,ad populum
-1913,"""Either the city should provide recycling bins or throw out the Recycling Act"" is an example of:",false dilemma
-1914,"Every time I go to sleep, the sun goes down. Therefore, my sleeping causes the sun to set.",false causality
-1915,"Said 12 people from 2000 years ago when everyone believed in witchcraft and monsters, and worshiped stones and thunder.
- Cause think of it, everything you know about Jesus is from those 12, they're the only people who saw everything.",ad hominem
-1916,"Doctors refer to medical books all the time when they are treating patients. In the same way, I should be allowed to use a textbook in my medical exam.",fallacy of logic
-1917,"Robbery mean the non-consenting party is still the owner, but the thing is under the control of someone else.
- While with taxation, the person lose their ownership on something, which mean nobody take their properties(because it is not their properties anymore).",fallacy of credibility
-1918,"The students in my sixth-grade class listen to a lot of reggaeton music. I usually hear reggaeton when they have their headphones or earphones on while working on NoRedInk. All sixth graders must listen to reggaeton.
- 
- What type of faulty reasoning is being used?",faulty generalization
-1919,"You've got to teach the boys logic! If you don't teach them logic, they won't learn how to think, and they'll become hobos and die in prison! Don't you care about your sons? (Mother to Father)",false dilemma
-1920,1. “iPhones are the best smartphones on the market because Apple makes the best smartphones.”,circular reasoning
-1921,"It is false that government does not benefit from taxes and the services they create, who benefits from tax is irrelevant. Until you can support that humans are incapable from surviving without these services AND only government is capable of providing them, there is no necessity for government.",fallacy of red herring
-1922,"""He's the best teacher I've ever had because he's the best teacher I've known.""",circular reasoning
-1923,"(1) William Dembski argues that modern biology supports the idea that there is an intelligent designer who created life.
- (2) Dembski would say that because he's religious.
- Therefore:
- (3) Modern biology doesn't support intelligent design",ad hominem
-1924,"You should never gamble. Once you start gambling you find it hard to stop. Soon you are spending all your money on gambling, and eventually you will turn to crime to support your earnings.",faulty generalization
-1925,Decisions are made either predictably or randomly.,circular reasoning
-1926,"Eric: For my lottery numbers, I chose 6, 14, 22, 35, 38, 40. What did you choose?
- Steve: I chose 1, 2, 3, 4, 5, 6.
- Eric: You idiot! Those numbers will never come up!",false causality
-1927,AttP 11: It is okay to walk across Mr. Jones's property as evidenced by other people walking on his property.,ad populum
-1928,They can exist in both arctic and tropical environments.,ad populum
-1929,"all the good things in the world can be traced back to capitalism, as well",slothful induction
-1930,"That's a very large leap. I think it's pretty clear that there's a difference between necrophilia and saving people's lives. Even if there weren't, you're still giving people a mechanism to defend themselves from such behavior. This is not the case in necrophilia.",fallacy of red herring
-1931,"By merely being able to ask this question at a bare minimum I have a conscience that exists in a form of reality, even if everything I see, touch, taste, and feel is an illusion.",fallacy of red herring
-1932,"Years ago it was a simple script tag and you were up and running but now it takes too much time to set up a project structure that must include transpilers, modules and build tools. This complicates deployment and file handling at the end of the development process.",fallacy of red herring
-1933,God exists because the Bible says so. The Bible is a reliable source because it is the  word of God.,circular reasoning
-1934,It must be acknowledged that [whatever psychological test battery I use] is the only legitimate test battery.,circular reasoning
-1935,"Person A: I think pollution from humans contributes to climate change.
- Person B: So, you think humans are directly responsible for extreme weather, like hurricanes, typhoons and droughts.",fallacy of extension
-1936,"Jack is a good athlete. Jack comes from Canada. Therefore, all Canadians are good athletes.",faulty generalization
-1937,"If you were being paid under minimum wage for full time work, it would be illegal.",false causality
-1938,a movie reviewer who dislikes a Tom Cruise movie because of the actor's religion and tries to impose negative bias in the audience members' minds before they see the film.,ad hominem
-1939,"A cloud is 90 percent water; a watermelon is 90 percent water. Therefore, since a plane can fly through a cloud, a plane can fly through a watermelon.",fallacy of logic
-1940,"""Senator Jones says that we should not fund the attack submarine program. I disagree entirely. I can't understand why he wants to leave us defenseless like that.""",fallacy of extension
-1941,It's best thing we got so far.,ad populum
-1942,Even assisted suicide is immoral.,fallacy of red herring
-1943,"If the argument is supposed to be about whether or not we, as the American public should wear masks, and you argue: ""Asking an infant to wear a mask is ridiculous!""",fallacy of extension
-1944,Don't waste your money on a home security system; master thieves will still be able to get into your house.,false dilemma
-1945,if you violate someone else's right to living you are effectively throwing away your own.,circular reasoning
-1946,is it legal to own nuclear weapons? (as a privat person),fallacy of slippery slope
-1947,"Speaker 1: I think we should lower the age of sexual consent to 16.
- Speaker 2: 16 year olds are children. So, you think it's OK for children to have sex? No, we shouldn't lower the age of consent.",fallacy of extension
-1948,This has been discussed in much more depth on this website already.,fallacy of red herring
-1949,"In our psychology department, half of the faculty believe that a behavioral approach is the only valid approach; the other half believe that the only valid approach is psychodynamic. Obviously the most valid approach must be one that incorporates both behavioral and psychodynamic elements.",fallacy of red herring
-1950,"Mother: It's bedtime Jane
- 
- Jane: Mom, how do ants feed their babies?
- 
- Mother: Don't know dear, close your eyes now.
- 
- Jane: But mama, do ant babies cry when they're hungry?",fallacy of red herring
-1951,"I was assigned a personal trainer at the Rec, and he gave me a new workout program. But I don't have any confidence in his expertise, since he has obvious trouble controlling his own appetite.",ad hominem
-1952,"Charlie: I think we should put more money into schools. Quality public education is so important.
-Bob: So you're saying we should cut military spending and spend it instead on more spiral notebooks and crayons? I guess you want our country to be a weak, defenseless target for terrorists.",fallacy of extension
-1953,"I think that we should reject what Father Jones has to say about the ethical issues of abortion because he is a Catholic priest. After all, Father Jones is required to hold such views",ad hominem
-1954,"If you don't buy the black pencils, you will get made fun of. You will not be chosen for group projects.",appeal to emotion
-1955,"The account of Joseph Smith would have made the plates about 200 pounds, impossible for a 14 year old to run with and dodge attackers.",ad hominem
-1956,"Bill lives in a large building, so his apartment must be large.""",fallacy of logic
-1957,"If the state can require car seats for small children and infants, they can just as easily require mothers to breast-feed instead of using formula.",fallacy of logic
-1958,SM 3: Polls concerning global warming,ad populum
-1959,You use support from someone who is a trustworthy expert.,fallacy of credibility
-1960,People nowadays only vote with their emotions instead of their brains.,faulty generalization
-1961,An attempt to gain a customer's trust in an advertisement is referred to as,fallacy of credibility
-1962,because capitalism is a pseudo-intellectual self-serving ideal promoted and advertised heavily by the wealthiest 0.1% of people.,fallacy of red herring
-1963,"All men are mortal, and Socrates is a man, therefore Socrates likes dogs.",fallacy of logic
-1964,"The only way to extrapolate a belief from the Bible is through the interpretation of the text. If all you had to do to understand a religion was simply read the text, then what's the point of having theology? I'll tell you why, because interpretations of the text are valuable.",fallacy of red herring
-1965,"It is said that we have a good understanding of our universe. Therefore, we know exactly how it began and exactly when.",equivocation
-1966,Tommy went to go swimming for the afternoon and later bought a lottery ticket. He won the lottery which must mean that swimming makes you win the lottery.,false causality
-1967,This fallacy is a distraction from the argument typically with some sentiment that seems to be relevant but isn't really on-topic.,fallacy of red herring
-1968,"Animal experimentation reduces our respect for life. If we don't respect life, we are likely to be more and more tolerant of violent acts like war and murder. Soon our society will become a battlefield in which everyone constantly fears for their lives. It will be the end of civilization.",faulty generalization
-1969,You have to give me a passing grade. I spent 150 hours on that project and missed every party this quarter.,appeal to emotion
-1970,We should abolish the death penalty. Even Judge Judy is opposed to it.,fallacy of credibility
-1971,It is similar to how people speak in verbal conversation.,faulty generalization
-1972,"Mom: (looking at report card) How do you have an F in English?!
- Son: I don't know. Did you see that loaded the dishwasher? I was about to go mow the lawn. Need me to do anything else?",fallacy of red herring
-1973,"The noble forefathers who created this great country did not fail; it is a great country now as it was then, by their very making.",ad hominem
-1974,"If you can't prove that Ken had an affair with the nanny, then he's been faithful to his wife.",false dilemma
-1975,"""Everyone wants to be an English teacher.""",faulty generalization
-1976,"An effort to examine the construct is our action to find ""the meaning"".",fallacy of red herring
-1977,Which case is not a False Dichotomy?,fallacy of red herring
-1978,"Marco cusses a lot, so you can't listen to a thing he says. He's not a good guy.",ad hominem
-1979,"This is usually used in a company's slogan, using words that are very vague and nonspecific, but sound really nice. ex: ""Eat Fresh."" ""Expect More. Pay Less.""",appeal to emotion
-1980,"Javascript its self is buggy, and poorly preformant.",fallacy of credibility
-1981,"When an animal rights activist says, ""Keeping a dog as a pet is every bit as evil as human slavery. Pet owners are the KKK of the 21st century,"" they are committing what logical fallacy?",fallacy of red herring
-1982,"""If we don't adopt that puppy today, they might put him down. Do you want to be responsible for that?"" Exclaimed Yasir.",appeal to emotion
-1983,"My neighbor's cat attacked me, therefore all cats are evil.",faulty generalization
-1984,Blue is the the majority of peoples favorite color.,fallacy of credibility
-1985,You have a friend who claims that cats like to go to windows and watch sunsets because that is what her cats does. What fallacy has she committed?,faulty generalization
-1986,A recent study found that there are plenty of scientists who disagree with the consensus position on this phenomenon.,intentional
-1987,"I want to sell my house for $400,000. A buyer wants it for $100,000, so I must sell it for $250,000.",fallacy of red herring
-1988,"Many homosexuals have AIDS. Therefore, homosexuality causes AIDS.",false causality
-1989,"Prof. Jones: ""The university just cut our yearly budget by $10,000."" Prof. Smith: ""What are we going to do?"" Prof. Brown: ""I think we should eliminate one of the teaching assistant positions. That would take care of it."" Prof. Jones: ""We could reduce our scheduled raises instead."" Prof. Brown: "" I can't understand why you want to bleed us dry like that, Jones.""",fallacy of extension
-1990,Both bullying and being bullied are possible symptoms of child abuse.,circular reasoning
-1991,Force people to choose between two extreme choices intentionally ignoring the whole spectrum of other possibilities.,false dilemma
-1992,"You let my sister pierce her ears when she was 11, so you should let me stay up until midnight.",fallacy of logic
-1993,assumes that short-term deviations will correct themselves,false causality
-1994,"""My mom said that Colgate is the best toothpaste because almost 90% of dentists approve of this.""
- 
- What fallacy is being committed in the sentence above?",ad populum
-1995,"President Bennett is an effective communicator, because he has a natural talent for speaking with people.
- against",circular reasoning
-1996,"I saw John texting yesterday, and then he got in his car and drove away; he must have crashed because he was texting. Therefore, cell phones should be banned.",false causality
-1997,"""We can give cadets awards for doing well, or we can have a disciplined squadron. We can't do both.""",false dilemma
-1998,"I believe one should never deliberately hurt another person, that's why I can never be a surgeon.",faulty generalization
-1999,Appealing to popularity or the fact that many people do something as an attempted form of validation.,ad populum
-2000,"""I bought a ticket to win a new car at the mall, since I have never won anything like that in the past.""",ad populum
-2001,Then that person simply lacks the skill to speak in short and clear terms.,ad populum
-2002,"""Terrorists must not be given the chance to invade our beloved country.""",ad populum
-2003,"A year is 365 days long, so I celebrate my birthday every 365 days.",faulty generalization
-2004,"Mike: It is morally wrong to cheat on your spouse, why on earth would you have done that?
- Ken: But what is morality exactly?
- Mike: It's a code of conduct shared by cultures.
- Ken: But who creates this code?...",fallacy of red herring
-2005,"Global chocolate consumption is highest in Switzerland, yet people there are among the trimmest in the industrialized world. Therefore, it is reasonable to conclude that chocolate helps keep your weight down.",false causality
-2006,"I drank bottled water and now I am sick, so the water must have made me sick.",false causality
-2007,You can either start using plastic straws or continue killing ocean life with plastic pollution.,false dilemma
-2008,Someone who says something which does not flow logically in the conversation is guilty of using:,fallacy of logic
-2009,All robin have red breasts,faulty generalization
-2010,"I had this book that proved that leprechauns are real and have been empirically verified by scientists, but I lost it.  I forgot the name of it as well -- and who the author was.",equivocation
-2011,Mrs. Sedik really knows math; she would be an excellent math instructor.,fallacy of logic
-2012,"Farmer McDonald: Ever since they put up that new power plant across the river, we haven't had a bit of rain. I'm tellin' you, mankind has got too big for its britches when it fiddles around with nature.",false causality
-2013,Affirmative Action can never be fair or just. You cannot remedy one injustice by committing another.,circular reasoning
-2014,Yes it did. Honest.,ad hominem
-2015,"""I asked my five closest friends and they all agree that the new Underwater Basketweaving Team Coach is a jerk, therefore I'm not trying out for the team"" IS an example of THIS fallacy.",faulty generalization
-2016,Naima is scratched by a cat while visiting her friend. Two days later she comes down with a fever. Naima concludes that the cat's scratch must be the cause of her illness.,false causality
-2017,emotions are made up by biochemical reactions,fallacy of red herring
-2018,"because the ideal ""anarchist"" fulfillment of capitalism leads to neo-feudalism, which is too far from democracy.",fallacy of red herring
-2019,"If Jesus is not God, how come his sacrifice is enough?",fallacy of red herring
-2020,"But this matter when you send file to another person. If you use same tab-width it's still ok, but when you don't code looks terrible",ad populum
-2021,Studies show that it takes up to seven years for the human body to digest a piece of gum.,fallacy of credibility
-2022,All dogs go to heaven.,faulty generalization
-2023,"The book Investing for Dummies really helped me understand my finances better. The book Chess for Dummies was written by the same author, was published by the same press, and costs about the same amount, so it will probably help me understand my finances, too.",fallacy of logic
-2024,Circular reasoning occurs when someone makes an argument in which both the premises and the conclusion have to rely on the truthfulness of the other.,circular reasoning
-2025,"Lisa was brainwashed as a child into thinking that people are generally good. Therefore, people are not generally good.",ad hominem
-2026,JavaScript is a dysfunctional language,fallacy of red herring
-2027,"The lady in the pink dress is Julia Roberts.
-The reporter thinks Julia Roberts drives a Prius.
-Therefore, the reporter thinks the lady in the pink dress drives a Prius.",fallacy of logic
-2028,There is a global recession and more people are becoming hungry and desperate. Crimes of theft and robbery have been increasing at an alarming rate lately. The only way to solve this problem is by reinstating the death penalty,fallacy of red herring
-2029,"Imagine.
- Science develops to the point where we can completely understand the universe.
- We create a program that accurately simulates a down-scaled version of the universe.
- In such a world, are we not the ""creators"" of a new universe that is fully compatible with all scientific theories?",fallacy of red herring
-2030,"Bill: ""You know, those feminists all hate men."" Joe: ""Really?"" Bill: ""Yeah. I was in my philosophy class the other day and that Rachel chick gave a presentation."" Joe: ""Which Rachel?"" Bill: ""You know her. She's the one that runs that feminist group over at the Women's Center. She said that men are all sexist pigs. I asked her why she believed this and she said that her last few boyfriends were real sexist pigs. "" Joe: ""That doesn't sound like a good reason to believe that all of us are pigs."" Bill: ""That was what I said."" Joe: ""What did she say?"" Bill: ""She said that she had seen enough of men to know we are all pigs. She obviously hates all men."" Joe: ""So you think all feminists are like her?"" Bill: ""Sure. They all hate men.""",faulty generalization
-2031,"Wilma: You cheated on your income tax. Don't you realize that's wrong
-Walter: Hey, wait a minute. You cheated on your income tax last year. Or have you forgotten about that?",ad hominem
-2032,"because capitalism has no regard for anything other than profit, which led the capitalists to lie about anthropogenic global warming, and prevent a transition to green energy, which may well destroy many existing ecosystems, make half of land based species extinct, and kill millions of people.",fallacy of red herring
-2033,"""He wouldn't make a good president because he looks like a sad muppet.""",ad hominem
-2034,"X is popular; therefore, X is right.",ad populum
-2035,"Jack: You should stop smoking - it's bad for you.
- Jill: Look who's talking! You smoke three packs a day!",ad hominem
-2036,"My father smoked four packs of cigarettes a day since age fourteen and lived until age sixty-nine. Therefore, smoking really can't be that bad for you.",faulty generalization
-2037,"""Good source of Vitamin D""...*doesn't mention the terrible amounts of sugar.",intentional
-2038,"""The two courses I took at UWI were not very interesting. I don't think its a good university.""",faulty generalization
-2039,Why doesn't Tim get a real job like normal people instead of trying to launch that Internet business from home?,fallacy of credibility
-2040,"""Andrea Dworkin has written several books arguing that pornography harms women. But Dworkin is just ugly and bitter, so why should we listen to her?""",ad hominem
-2041,"But you have to let me go to the party! If I don't go to the party, I'll be a loser with no friends. Next thing you know, I'll end up alone and jobless, living in your basement when I'm 30!",faulty generalization
-2042,"In the 6 years that I have been practicing my new and improved brand of cognitive-humanistic-dynamic-behavioral-deconstructive-metaregressive-deontological psychotherapy (now with biofeedback!), which I developed, there has not been one published study showing that it fails to work or that it has ever harmed a patient. It is clearly one of the safest and most effective interventions ever devised.",intentional
-2043,"Thanks to her enduring popularity with employees, Annie Smith is the best-liked CEO in our company's history.",ad hominem
-2044,I don't believe this would be a good idea,ad populum
-2045,"Cell phones, high-tech devices that cause severe distractions and cyberbullying should be banned in schools.",circular reasoning
-2046,"Our family has always been farmers, so we should always be farmers'' is an example of which logical fallacy?",fallacy of credibility
-2047,"Person 1:
- ""I am for raising the minimum wage in our state.""
- 
- Person 2:
- ""She is for raising the minimum wage, but she is not smart enough to even run a business.""",ad hominem
-2048,"The time that children are vaccinated and the time they're diagnosed do closely correlate, however, leading upset parents to assign blame to the immunizations, for lack of a better explanation.",false causality
-2049,"Tony: I bought a book on the law of attraction and two days later I won $30k in a lottery. I wasn't a believer of the law of attraction before, but now I am!",false causality
-2050,"Earthquakes are caused when the plates of the Earth's crust move. Earthquakes happen along ""fault lines"" in the earth’s crust. When the plates in the Earth suddenly shift, the Earth will begin to shift, shake or tremble.
-What is the central idea?",false causality
-2051,"Daughter: Mom, I want that doll!
- Mom: Let's get home and I'll get you a popsicle!
- Daughter: Ooh, popsicle!",fallacy of red herring
-2052,"during the presidential campaign of 1800, John Adams was called 'a fool, a gross hypocrite and an unprincipled oppressor.' His rival, Thomas Jefferson, on the other hand, was deemed 'an uncivilized atheist, anti-American, a tool for the godless French.'",ad hominem
-2053,You are a reactionary troll.,ad hominem
-2054,Then you have no idea what Evolution is.,fallacy of red herring
-2055,"Only a mentally ill person would kill someone, so anyone who kills someone is automatically mentally ill.",circular reasoning
-2056,"If I don't take the right classes in high school, then I won't be able to get into a good college. If I don't get into a good college, then I won't be able to get a job. If I can't get a job, then I am going to end up homeless.",faulty generalization
-2057,“Harold’s new book is well-written because Harold is a wonderful writer.”,circular reasoning
-2058,Acknowledging a fact does not indicate guilt. A death can be acknowledged without being the one that caused it.,fallacy of red herring
-2059,"dude, we have george in the chat, how low can the quality go from there ?",fallacy of red herring
-2060,the brain decides how we respond. The brain is just a strange computer. => no choise how to respond,circular reasoning
-2061,"My dad went to school, so he knows everything about the education system.",fallacy of credibility
-2062,Ruby is a caveman language for garbage people,prejudicial language
-2063,And because mother told be that gum will get stuck in your stomach if you swallow it.,ad hominem
-2064,"Absolutely, They're finding us",ad populum
-2065,"Look Tom, you could go to the police with your information about our questionable accounting practices here at Bentron. But remember, you have a family to feed. Besides you know how rumors of this kind of disloyalty can spread through the industry. You'll ever work as an accountant in this town again.",appeal to emotion
-2066,"If you forget to floss, you will get cavities, and if you get cavities, you will lose all your teeth by the time you're 30.",faulty generalization
-2067,You are either a leader or a follower.,false dilemma
-2068,"If you break your diet and have one cookie tonight, you will just want to eat 10 cookies tomorrow, and before you know it, you will have gained back the 15 pounds you lost. This is an example of which logical fallacy?",faulty generalization
-2069,men don't cry,faulty generalization
-2070,There is no such as true communism and never will be.,ad populum
-2071,"I wore my lucky red shirt when I took the test, so that is probably why I did so well on the test.",false causality
-2072,"No one has proven God exists, so He doesn’t.",intentional
-2073,I read a meme once which told me so,fallacy of red herring
-2074,That which is just is not necessarily legal.,fallacy of red herring
-2075,The cost to society of an unwanted child is much greater than the cost to society of a single abortion. And the people who oppose abortions are usually against the idea of having to pay for anything in society in the first place.,circular reasoning
-2076,"I don't want my country, nor any other, to be turned into a shithole just like every other country to ever effectively pursue communism.",false causality
-2077,"""If you believe that I am wrong, prove to me that I am.""",intentional
-2078,"In a democracy, everyone should be able to vote.",circular reasoning
-2079,I met a rude person from France yesterday. I guess all French people are rude.,faulty generalization
-2080,"Do you really believe that Germany would vilify itself amongst the nations for all time by engaging in a planned genocide through an assembly line of death? They would be the pariahs for all history. It is absurd. It reads like bad fiction - because it was, it was written to shock and be calumnious.",ad populum
-2081,"""Don't make me angry; you won't like me when I'm angry.""",appeal to emotion
-2082,"My opponent suggests that lowering taxes will be a good idea -- this is coming from a woman who eats a pint of Ben and Jerry's each night!
- Mi oponente sugiere que bajar los impuestos serÃ¡ una buena idea, ¡esto viene de una mujer que se come una pinta de Ben y Jerry cada noche!",ad hominem
-2083,"I would have done my homework, but my refrigerator stopped working.",fallacy of logic
-2084,"In Greek, 'aristos' means 'the best', not 'the best natty'.",fallacy of credibility
-2085,Animal rights activists believe that we shouldn't keep animals captive and make them do our will. They would have you abandon your pets in the wilderness.,fallacy of extension
-2086,"Fred, the German, stole my wallet. Therefore, all Germans are thieves.",faulty generalization
-2087,"Speaker 1: We are using thousands of people, who are going door to door to help us spread the word about social injustice and the need for change.
- Speaker: Well then, I can't be a part of this because I was always been taught that it's wrong to use people.",equivocation
-2088,"Grace and Helen were both romantically interested in Brad. One day, with Brad sitting within earshot, Grace asked in an inquisitive tone whether Helen was still having problems with her drug habit.",intentional
-2089,"X has been around for years now.
- Y is new.
- Therefore, Y is better than X.",fallacy of credibility
-2090,"Criminals tend to ignore laws (especially gun laws). Guns laws are only obeyed by law abiding citizens, who wouldn't cause problems anyways",ad hominem
-2091,We surveyed all the customers in the store and they all agreed that staying open 24 hours would be a great idea. We need to put together a 24-hour schedule as soon as possible.,ad populum
-2092,"""But, Dad, I know you had no curfew when you were my age, so how can you give me a curfew?""",ad hominem
-2093,"You call your cell phone provider to complain about how poor your cell phone battery life is after the recent software update. The representative, instead of responding to your concern, praises the provider's new unlimited text-messaging plans that are due to be released in the next month.",fallacy of red herring
-2094,"No consciousness has ever been observed to exist without a biological brain, thus it is safe to conclude that when your brain ceases to function, your consciousness will no longer exist.",ad populum
-2095,I'm hardly prepared to listen to the arguments of an ignorant moron like you.,ad hominem
-2096,The proposition will create new crimes for teens and young adults.,circular reasoning
-2097,"Charlie: Fast food is filled with salt, fat and added sugars. We need better regulation of the industry.
- Bob: That may be, but you're such a hypocrite! I saw you devour a Triple-Baconator, super-sized fries and 64 ounces of soda yesterday.",ad hominem
-2098,"Exactly. Why, then, do we draw the line at guns? The right to bear arms is really quite arbitrary- the difference between allowing your average Joe to buy bombs and tanks and not allowing the sale of automatic/semi-automatic guns is not clearly defined in the Constitution.",fallacy of slippery slope
-2099,Most family members don't want to give up their families,appeal to emotion
-2100,"Wars have been caused by lack of food & access to resources for underprivileged groups, need to liberate oppressed peoples, systems wanting to accumulate more resources and power, States presuming the need to strike before others get too strong -- and not all ideologies are religious in nature.",fallacy of red herring
-2101,You would think that taxes should be lowered because you are a Republican [and therefore your argument about taxes should be rejected].,circular reasoning
-2102,"Free speech is good not just for the individual, but for all of society. After all, it's in the interest of the community that everyone should be at liberty to express his or her beliefs.",circular reasoning
-2103,"""The research I found on cell phone use in the classroom suggests that students can be distracted when they have access to texting. This leads me to believe that all high school students should not be allowed to have their phones on them at school anytime.",fallacy of logic
-2104,"Humans in video games are created to appear and feel real (they have emotions, desires, wants and fears). If a female's design relies solely on her sexual appeal and doesn't reflect her personality, she is being objectified.",false causality
-2105,"It's true that this company hasn't given raises in the last 5 years, but we work really hard to ensure that we have a quality product and good customer service.",fallacy of red herring
-2106,"We're going to celebrate New Year's Eve this way because that's how we've always done it.
- This is an example of ...",fallacy of credibility
-2107,"Medical Student: ""No one objects to a physician looking up a difficult case in medical books. Why, then, shouldn't students taking a difficult examination be permitted to use their textbooks?""",fallacy of logic
-2108,"How do you expect me to support a school voucher program? Soon, all of our inner-city schools will have no money left, our children will give up hope, and the entire education system will collapse. No, there's no way I could support a program that will do all that.",fallacy of extension
-2109,"Sex, when consensual and safe, is one of the strongest pleasures humans can experience. It is fun, exciting, and intimate. Ignoring religious taboos not based on evidence, such sex is a perfectly acceptable activity.",fallacy of red herring
-2110,politicians coin names to cast blame,ad hominem
-2111,"Everyone should be patient and wait for his or her turn in line. However, I need to go to the front because I am late for an appointment.",intentional
-2112,Just because an application uses part of a framework does not necessarily mean that the entire framework needs to be bundled.,false causality
-2113,Governments use force to keep out competitors.,fallacy of red herring
-2114,"If that were the case, innocent people would be murdered for crimes they didn't commit.",appeal to emotion
-2115,"All forest creatures live in the woods.
- All leprechauns are forest creatures.
- Therefore, some leprechauns live in the woods.",fallacy of logic
-2116,Driving a car is not a civil right either. lol! do you know the definition of civil rights?,ad hominem
-2117,"My opponent is an untrustworthy liar and an idiot. Therefore, you should believe me.",ad hominem
-2118,"There is no concrete proof that Duterte himself is corrupt; therefore, he is an honest politician.",intentional
-2119,It is impossible to write a for loop without semicolons.,fallacy of red herring
-2120,Think of the possibilities!,slothful induction
-2121,If we get rid of assault weapons for citizens then we will also soon lose freedom of speech and all freedoms as other countries rush in to conquer us (if the zombies don't exterminate us first!),faulty generalization
-2122,"An idea cannot be stolen. The moment an idea is expressed, it becomes a ""free"", inexhaustible good. By copying my poem, for example, you are not preventing or hindering me from reciting it, so it is not stealing.",fallacy of red herring
-2123,Don't you want the best for your baby?,appeal to emotion
-2124,The Bible is the Word of God because God tells us it is... in the Bible.,circular reasoning
+text,label
+"You need to go to the party with me, otherwise you’ll just be bored at home.",false dilemma
+"If we let this child bring the permission slip late, there is no reason to ever set a deadline for anything again!",faulty generalization
+"I am committed to preserving traditional marriage, the union of one man and one woman.",fallacy of credibility
+"""I believe deeply that canceling the fashion show is the best decision. I know it is. I am very certain about it.""",fallacy of relevance
+Most Arabs are Muslims and all the 9/11 hijackers were also Muslims. Therefore most Arabs are hijackers.,fallacy of logic
+"Latin should not be taught in school since it is not spoken anywhere in the world. All learning should have some use to be of value, and a dead language has no practical use.",fallacy of relevance
+"""You're too ugly to be class president!""",ad hominem
+"I don't think we need to talk to the people in the Justice Department about the practicality of enforcing this bill. The Justice Department is full of Democrats, and they are already biased against it.",ad hominem
+"Dustin: ""Why do you always deflect the argument by insulting me?"" Ann: ""You're ugly and poor!""",ad hominem
+"America is the best place to live, because it's better than any other country.",circular reasoning
+Everyone is going to get the new smart phone when it comes out this weekend. Why aren’t you?,ad populum
+"surgeons have X-rays to guide them during an operation, lawyers have briefs to guide them during a trial, carpenters have blueprints to guide them when they are building a house. Why, then, shouldn’t students be allowed to look at their textbooks during an examination?",fallacy of logic
+it is used to promote something based on popularity,ad populum
+"The Soviet Union collapsed after taking up atheism. Therefore, we must avoid atheism for the same reasons.",false causality
+"More and more people are buying sports utility vehicles. It is time you bought one, too!",ad populum
+"The universe has a beginning. Every thing that has a beginning has a cause. Therefore, the universe has a cause called God.",circular reasoning
+"If we take away farmers' ability to grow genetically engineered crops, if we eliminate that option, people will go hungry, in fact, people will starve. Unlike my opponent, I choose to use the technology available to us and save lives.",fallacy of extension
+"harmful atheists favor cloning, so cloning is wrong",ad hominem
+"You can't prove that space aliens don't exist, so they must be real",intentional
+"""Men are human. Mary is a human. Therefore, Mary is a man.""",fallacy of logic
+Do the best for your baby,appeal to emotion
+"Of course, your minister says he believes in God.  He would be unemployed otherwise.",ad hominem
+"Southerners talk fast. I was just on the phone with one, and I could barely keep up!",faulty generalization
+Last year I wanted to quit school because my friends treated me like an outcast and talked about me to my friends. I felt betrayed and sad all of the time but now I think I have a place at my new middle school.,appeal to emotion
+Senator: I will vote to increase the defense budget. Public: Why don't you care about education?,fallacy of extension
+Helga: You should not be eating that... it has been scientifically proven that eating fat burgers are no good for your health. Hugh: You eat fat burgers all the time so that can’t be true.,ad hominem
+"Unless you can close your eyes to abuse, write a check to save this puppy.",false dilemma
+"FlatSam: Common sense tells us that if the earth were a sphere, people on the bottom would fall off. ReasonEric: I don’t think you get to reference something you clearly don’t have.",intentional
+Jimmy isn’t at school today. He must be on a family trip.,false causality
+"""Beware of appeals made only to your feelings and not to your logic.""",appeal to emotion
+"""'What about Red Herring, ma'am?'' ""'I'm not sure. Is Red Herring a red herring? Or is it the fact that we're meant to think Red Herring is a red herring that is actually the red herring?' ""'Or perhaps the fact you're meant to think Red Herring isn't a red herring is what makes Red Herring a red herring after all.' ""'We're talking serious metaherrings here.'"" ",fallacy of relevance
+"""Everyone wants to be an English teacher.""",faulty generalization
+"Because the last words spoken by either the pilot or co-pilot were ""Good night, Malaysia Three-Seven-Zero,"" the pilot fell asleep and accidentally crashed the plane into the ocean.",false causality
+"Everyone should be patient and wait for his or her turn in line. However, I need to go to the front because I am late for an appointment.",intentional
+The party was going great! Then Gerald showed up and little by little people started collecting their coats and heading home. Gerald ruined the party.,false causality
+"""Right when I sneezed, the power went off. I must've caused the outage."" Bragged Zohaw.",false causality
+If you buy the Disney annual pass you will save money when visiting the happiest place on Earth!,intentional
+“Guns are like hammers—they’re both tools with metal parts that could be used to kill someone. And yet it would be ridiculous to restrict the purchase of hammers—so restrictions on purchasing guns are equally ridiculous.”,fallacy of logic
+You've got to donate to the hockey team. They are helping build schools in Uganda. Imagine all of those poor and hungry kids there.,appeal to emotion
+"""If you hadn't vandalized that car, don't you think things would have gone better for you?""",intentional
+Do you think that we should convict this criminal?,intentional
+"Noisy children are a real headache. Two aspirin will make a headache go away. Therefore, two aspirin will make noisy children go away.",equivocation
+"My first time walking the dog went terribly, so my dog is a terrible one.",faulty generalization
+" Doug is convinced he has lucky underwear. One time when he forgot to put on his lucky underwear, he got a parking ticket. Doug concludes that because he forgot to wear his lucky underwear, he got the ticket. Doug doesn't wash his lucky underwear often. This part isn't relevant to the example, but it is disturbing nonetheless.",false causality
+"“But, Dad, I know you had no curfew when you were my age, so how can you give me a curfew?”",ad hominem
+Love America or leave it.,false dilemma
+"Mark: Do you believe in virgin births? Sue: You mean that babies are born virgins? Mark: I mean birth without fertilization. Sue: No. Mark: How could you not believe in virgin births? Roughly two billion people believe in them, don’t you think you should reconsider your position?",ad populum
+The reason billions of children starve to death each year is because we live in a world that does not care.,circular reasoning
+The Senator thinks we can solve all our ecological problems by driving a Prius.,fallacy of extension
+"This fallacy assumes something is true (or right, or good) because other people agree with it.",ad populum
+"Every time we sacrifice virgins, it rains. Therefore, sacrificing virgins causes it to rain.",false causality
+Mom: (looking at report card) How do you have an F in English?! Son: I don’t know.  Did you see that loaded the dishwasher?  I was about to go mow the lawn.  Need me to do anything else?,fallacy of relevance
+"Without this additional insurance, you could find yourself broke and homeless.",appeal to emotion
+"Murder is morally wrong. Therefore, abortion is morally wrong.",circular reasoning
+"the fault of the wreck is a teenage boy at ECR, so all teenage boys at ECR are bad drivers",faulty generalization
+Student tells his professor that he thinks some of Donald Trump's positions have merit. Professor says he can't believe that the student believes in support racism.,fallacy of extension
+"A father tells his son not to start smoking as he will regret it when he is older, and the son points out that his father is a smoker. This does not alter the fact that his son may regret smoking when he is older.",ad hominem
+"President Clinton being a moral man, being married and loving his daughter; talking about the Bible; going to church",intentional
+"When your parent asks you why you have a bad grade in math class, and you answer, ""All teachers are the enemy!""",fallacy of relevance
+"You should eat more green leafy vegetables, because Ms. Lord says so, and she is an expert on grammar and vocabulary.",fallacy of credibility
+Too much candy can cause cavities. You should avoid eating any candy unless you want cavities.,false dilemma
+"The report suggests that 'the rise in violent offending and the explosion in the sales of iPods and other portable media devices is more than coincidental,' and asks, rather provocatively, 'Is There an iCrime Wave?' The report notes that nationally, violent crime fell every year from 1993 to 2004, before rising in 2005 and 2006, just as 'America’s streets filled with millions of people visibly wearing, and being distracted by, expensive electronic gear.'",false causality
+Expect More. Pay Less.,appeal to emotion
+Paranormal activity is real because I've seen a ghost.,circular reasoning
+"Charlie: Fast food is filled with salt, fat, and added sugars. We need better regulation of the industry. Bob: That my be, but you're such a hypocrite! I saw you devour a Triple-Baconator, super-sized fries, and 64oz of soda yesterday!",ad hominem
+Our soccer team was losing until I bought new shoes. We have not lost a game since I got my lucky shoes!,false causality
+"P1. A sedentary lifestyle contributes to obesity. P2. People have become more sedentary in the last few decades. C. Therefore, the rise in obesity can be fixed by people getting more exercise.",false causality
+"Jeannette has an upcoming exam in anatomy and physiology. It will cover the four chapters read and discussed over the last month. Jeannette hasn’t studied. Though there are well over 200 terms she will be expected to remember, Jeannette knows that her memory is great. She will remember the terms just from having heard them mentioned in class. After all, because of her excellent memory, she got through high school without studying. Despite her faith in her memory, her lack of studying results in an F on the exam.",appeal to emotion
+Billy murdered all those people because I spanked him when he was a child.,false causality
+"""Either you pass this test, or you fail it."" Laughed Sr Malak",false dilemma
+the best money can buy…  (Don’t mention it’s expensive and often needs repair.),intentional
+Everyone who is really into gaming already owns the latest video game. Don't be the only one left out!,ad populum
+"I know four poor families. They are lazy drug addicts. Therefore, all poor people are lazy drug addicts.",faulty generalization
+"Slavery is accepted by just about everyone in our society, so it’s ethical to keep slaves.",ad populum
+"If one is 16 years old or older, one can drive an automobile in Wisconsin.  I saw  your niece driving through Wausau yesterday.  She must be at least 16.",fallacy of logic
+"You must obey the law, because it’s illegal to break the law.",circular reasoning
+We should prohibit all cadets from assisting on emergency services missions. Some cadets are so immature they won’t ever stop goofing around.,fallacy of extension
+The house is white; therefore it must be big,fallacy of logic
+"We should offer movies on our company’s website. REPLY: No, we’ve built our company’s fortune by renting movies only through our stores.",fallacy of credibility
+"My wife wants to talk about cleaning out the garage, so I asked her what she wants to do with our patio furniture. Now she's shopping for new patio furniture and not asking me about the garage.",fallacy of relevance
+"Three congressional representatives have had affairs. Therefore, members of Congress are adulterers.",faulty generalization
+"Either you love bacon, or you're wrong.",false dilemma
+"Bill: Hey, did you hear we have a new operating system out now?  It is better than anything else out there because we just released it! Steve: What’s it called? Bill: Windows Vista! Steve: Sounds wonderful!  I can’t wait until all of your users install it on all their computers!",fallacy of credibility
+Everybody know that staying out in the rain can make you sick.,ad populum
+"All Jim Carrey movies are hilarious. No horror movies are Jim Carrey movies. Therefore, no horror movies are hilarious.",fallacy of logic
+"the analogy 'animal Auschwitz,' which compares the treatment of animals to the treatment of Jews, gays and other groups during the Nazi era.",fallacy of logic
+Cheesecake Factory is the best because it is always crowded,ad populum
+"If you forget to floss, you will get cavities, and if you get cavities, you will lose all your teeth by the time you're 30.",faulty generalization
+J: Cats are better than dogs. V: Dogs are better. J: You are a lazy person. You won't even be able to take care of a dog.,ad hominem
+"You passed everyone in the class, so I should get extra credit",fallacy of logic
+You're wrong because you're ugly!,ad hominem
+You are not a credible resource person. You haven't finished college.,ad hominem
+we should not build bike lanes because cyclists run red lights,fallacy of extension
+"Michael Jordan wears Hanes underwear, so you should too!",fallacy of credibility
+"Daniel was a precocious child and had a liking for logic. He reasoned that atoms are invisible, and that he was made of atoms and therefore invisible too. Unfortunately, despite his thinky skills, he lost the game of hide and go seek.",faulty generalization
+"Dad, either you let me go to the party or you're a bad dad.",false dilemma
+"David: We have way too much police presence in this city. Pete: What are you going to do about it? David: Vandalize, loot, and perhaps a little arson.",false causality
+Warning!  Smoking may cause frostbite?,fallacy of relevance
+Everyone knows that teenagers are lazy,faulty generalization
+SM 10: Local talk show host saying we are on the verge of a nuclear war leading to sitting in a basement for months.,fallacy of credibility
+"I don't know about you, but I would never take the word of a woman who never finished school.",ad hominem
+"Which fallacy am I? Combining facts and evidence with words that stir up emotion, with the attempt to manipulate others into accepting the truth of the argument.",appeal to emotion
+"Bill, you drive a beat-up car from the 1980s. For this reason, we can never allow you to be a lifeguard at the community pool.",ad hominem
+Distracting your audience from the original issue by introducing an irrelevant topic.,fallacy of relevance
+If I made a reference to a monk I would most likely be utilizing...,fallacy of credibility
+"""You can't give me a D because I'm an A student!""",circular reasoning
+"This fast food chain claims that they've served five billion people, so they must have the best hamburger in town. Five billion people can't be wrong!",ad populum
+See the movie that everybody's talking about,ad populum
+"Our house was burglarized right after that new family moved in next door. Therefore, that new family must have been involved.",false causality
+"Ralph Nader and Pat Buchanan are banging at the doors, and the political establishment, consisting of both politicians and the media, seems determined not to let them in on the grounds that they have no public support.",circular reasoning
+"She asserts that we need more military spending, but that is false, since she is only saying it because she is a Republican.",ad hominem
+"I believe that when we die, we are all given new, young, perfect bodies, and we spend eternity with those whom we love. I can’t imagine the point of life if it all just ends when we die!",appeal to emotion
+"James, the company you work for just filed for bankruptcy! How can I trust you with our money?",faulty generalization
+"In this election, we've seen the highest voter turnout ever recorded. If you have any doubts about Tyler Espinoza's qualifications, just look at how many people have come out to vote for him.",ad populum
+"There are two kinds of people in this world: those who like penguins, and those who are terrible monsters.",false dilemma
+Senator Randall isn't lying when she says she cares about her constituents—she wouldn't lie to people she cares about.,circular reasoning
+"“Everyone else is doing it, so should you”.",ad populum
+People who don't support the proposed state minimum wage increase hate the poor.,fallacy of extension
+claiming that an idea or belief is true simply because it is what most people believe,ad populum
+"My opponent in this election claims to have the best interests of our community at heart. However, he is separated from his family. Isn’t family the basic unit of society? How can we entrust the concerns of the community to someone who was not able to keep his family together?",ad hominem
+Smoking pot is against the law because it is wrong; I know it is wrong because it is against the law,circular reasoning
+"I have no intention of stopping the use of somatostatin on patients suffering from acute pancreatitis. I consider it to be a very reasonable choice. After all, it has been standard practice in our department for many years and we’ve been quite satisfied with the results we’ve had.",fallacy of credibility
+How many school shootings should we tolerate before we change the gun laws?,intentional
+"I view any discussion concerning the limiting of therapy as morally wrong, that is why I do not accept it.",circular reasoning
+"Most of my testimony about the defendant was the opposite of what I actually believe but I'll bet there's no expert witness who has always told the truth from the time they were old enough to talk, so I'm no less honest than they are.",faulty generalization
+"""Some tall people recently vandalized the park, tall people are irresponsible.""",faulty generalization
+Purchase our product or no one is going to think you’re attractive.,false dilemma
+People who buy stocks are no different from people who bet on horse racing. They both risk their money with little chance of making a big profit.,fallacy of logic
+"I believe one should never deliberately hurt another person, that’s why I can never be a surgeon.",faulty generalization
+"since EVERYONE else is buying a product, so should you!",ad populum
+"What I object to most about those people who oppose capital punishment is that they believe that the lives of convicted murderers are more important than the lives of the police and prison guards who protect us. But, obviously, since the lives of those who protect us are of the greatest value, no one should oppose capital punishment.",fallacy of extension
+"He has my vote for senator, because he has the best shirts.",fallacy of logic
+Someone really should move this ‘deer crossing’ sign. This is a dangerous stretch of highway and the deer really should be crossing somewhere else.,false causality
+Christine has a terrible experience with a boyfriend. She decides that all boys are mean.,faulty generalization
+"Timmy: Mom, what if I don’t believe in God? Mom: Then you burn in Hell forever.  Why do you ask? Timmy: No reason.",appeal to emotion
+"""Florida is the most important state because it has sun and beaches.""",fallacy of extension
+"Now you tell me she looks presidential, folks. I look presidential",ad hominem
+"At a party you overhear a friend tell her spouse, “I had high blood pressure at the doctor’s office today; I really need to reduce the stress in my job.”",faulty generalization
+"You should drive on the right side of the road because that is what the law says, and the law is the law.",circular reasoning
+"“We should abolish the death penalty. Many respected people, such as actor Guy Handsome, have publicly stated their opposition to it.”",fallacy of credibility
+"I know you don't like the kitty-cat  sweater that Grandma knitted for you, but she worked so hard on it and it will make her happy to see you wear it in the family holiday photo.",appeal to emotion
+"Marco cusses a lot, so you can't listen to a thing he says. He's not a good guy.",ad hominem
+"Mrs. Collier, we can't take a quiz tomorrow! The new season of Game of Thrones premieres tonight!!",fallacy of relevance
+an attempt to persuade the reader/audience based on feelings or emotions; emotional response,appeal to emotion
+"Since Dwayne Johnson (aka The Rock) endorsed this protein powder, it must work wonders.",fallacy of credibility
+"When sales of hot chocolate go up, street crime drops.",false causality
+Person 1: Bicycle infrastructure should be expanded because cycling is a sustainable mode of transportation. Person 2: We should not build bike lanes because cyclists run red lights and endanger pedestrians.,fallacy of extension
+"With 80% of consumers choosing our product, isn't obvious that you should, too?",ad populum
+Have you stopped cheating on your tests?,intentional
+"But, Dad, I know you smoked when you were my age, so how can you tell me not to do it?",ad hominem
+"""All students everywhere should use clear backpacks because bad things happen at schools where students don't use clear backpacks.""",fallacy of extension
+"Every time my brother Bill accompanies me to Fenway Park, the Red Sox are sure to lose",false causality
+She's wearing red shoes. Her favorite color must be red.,fallacy of logic
+"""Certainly this is the case at most colleges in America nowadays""",ad populum
+Repeating the same thing as if you’re proving something,circular reasoning
+"The nuthatch was discovered by Tilly Turnow in the woods, while hopping from branch to branch of an elm tree, singing happily.",equivocation
+"Student: You didn't teach us this; we never learned this. Teacher: So, what you're saying is that you just didn't study it after we went over it in class right? That you don't want to put in the work?",fallacy of extension
+A recent study found that there are plenty of scientists who disagree with the consensus position on this phenomenon.,intentional
+"Charlie: I think we should put more money into schools. Quality public education is so important. Bob: So you’re saying we should cut military spending and spend it instead on more spiral notebooks and crayons? I guess you want our country to be a weak, defenseless target for terrorists.",fallacy of extension
+"Duke University has the best basketball player in the NCAA, therefore they will win the tournament this year.",faulty generalization
+Roommate A: We need to talk about your dog. He keeps peeing everywhere and making a mess. Roommate B: It's not as big of a problem as your cat. The thing sheds all over my clothes!,fallacy of relevance
+What is the name of the fallacy in question 4 about Marcus?,ad populum
+"""My opponent claims that water pollution is endangering our city waters. But have you thought about all of the air pollution in China? Where they have to wear masks sometimes in the city? That's what we really need to worry about.""",fallacy of relevance
+"One day, Megan wore a Donald Duck t-shirt, and she got an ¨A¨ on her Chemistry test. Now she wears a Donald Duck t-shirt every day to Chemistry class.",false causality
+"Employer: It says here on your resume that you are a hard worker, you pay attention to detail, and you don’t mind working long hours. Andy: Yes sir. Employer: I spoke to your previous employer.  He says that you constantly change things that should not be changed, you could care less about other people’s privacy, and you had the lowest score in customer relations. Andy: Yes, that is all true, as well. Employer: Great then.  Welcome to our social media team!",intentional
+"""If my hair looks nice, people will love me.""",fallacy of logic
+No one stops to process...No one appreciates the value,faulty generalization
+"You can't give me a C! I'm an A student, a C is just wrong!",circular reasoning
+This clinic sure makes a lot of money. Each of the psychologists who work there must earn a large income.,faulty generalization
+"Do most Americans believe in God? To find out, we asked over 10,000 scientists at colleges and universities throughout America. Less than 40 percent said they believed in God. The conclusion is obvious: Most Americans no longer believe in God.",faulty generalization
+All sports car drivers are too aggressive!,faulty generalization
+"Callie: Did you know that Jake Tooten was a racist? Chris: I know Jake well. Why do you say he’s a racist? Callie: He was on a podcast the other day... Chris: Did he say something racist? Callie: No, but the podcast host did an interview two years ago with a woman who said she supported an organization that had a history of racism back in the 1960s. Jake clearly supports racism!",faulty generalization
+"""Cars cause more deaths than firearms do, so if we ban firearms we should also ban cars.""",fallacy of logic
+An attempt to gain a customer’s trust in an advertisement is referred to as,fallacy of credibility
+A driver with a New York license plate cuts you off in traffic. You decide that all New York drivers are terrible drivers.,faulty generalization
+“You can’t give me a C. I’m an A student!”,circular reasoning
+The witchcraft problem is the most urgent spiritual crisis in the world today. Why? Because witches threaten our very souls.,circular reasoning
+"""Don't listen to Mr. Fingers when he says walk in the hallways. How can you trust someone who wears bow ties?""",ad hominem
+"The city should not be singling out our company's problems at our chemical storage facilities, when the EPA records indicate the city's very own landfill has been cited as needing improvements. The council needs to clean up its own mess, before they go after us.",fallacy of relevance
+Come on! Everyone else thinks the movie is great - you should too!,ad populum
+Is your stupidity inborn?,intentional
+argues that a proposition is true because it has not yet been proven false,intentional
+"My opponent in this debate wants all of you to increase taxes for a recycling program, but his own company has been fined over a dozen times for pollution and environmental damage.",ad hominem
+"""If you don't get an A in Mr. K's class you will fail high school, never graduate, and end up fighting people for nickels under freeway as a career""",faulty generalization
+Teenagers are too immature and self-absorbed to understand anything about global issues.,faulty generalization
+No one should believe our dear lady Senator who have had an adulterous relationship.,ad hominem
+"Student: You didn't teach us this; we never learned this. Teacher: So, you're either lazy or unwilling to learn is that right?",false dilemma
+My Aunt was in the hospital for 6 weeks because she didn't wear a seatbelt.,faulty generalization
+Why would you lend money to some who looks like they don't have a job?,ad hominem
+"Either support gun confiscation or have the government provide everyone with his own private nuclear warhead, you decide which one.",false dilemma
+"If I don't take this Advanced Placement (A.P.) class, then I won't do well on the exam. If I don't do well on the A.P. exam, then I can't get into a good college. If I can't get into a good college, then I'll never get a good job. If I can't get a good job, then I'm going to have to live in my parents' basement forever. Guess I'll sign up for the A.P. class",faulty generalization
+"If this client is competent to stand trial, she will certainly know the answers to at least 80% of the questions on this standardized test. She knows the answers to 87% of the test questions. Therefore she is competent to stand trial.",fallacy of logic
+you are not really an American if you are vegetarian,intentional
+"If you're going to add that much salt to the soup, you might as well pour the whole box in!",faulty generalization
+The child did not do his chores so therefore all children are lazy.,faulty generalization
+Aliens must exist because most people believe in them.,ad populum
+"Professor X holds that the use of non-invasive ventilation has no place in the management of ARDS; this, therefore, is the approach we should adopt.",fallacy of credibility
+"My parents are vegetarians, and they are good people. Therefore, all vegetarians must be good people.",faulty generalization
+"Kent: My new car is really fast. Cal: I doubt that it is as fast as a jet fighter so, therefore, it is not fast.",fallacy of extension
+A person hanging out in a bar will be an alcoholic,faulty generalization
+"""The Americans I know say they elected the new president because they were tired of having their jobs sent overseas. This question of jobs brought this president into office.""",faulty generalization
+"Dan White ate a lot of Twinkies and then killed the Mayor of San Francisco. If I were a mayor, I’d ban Twinkies so no one would kill me.",false causality
+A baseball pitcher bought new socks before he pitched a winning game. The new socks caused a pitcher to throw faster! He will wear the new socks for EVERY game now.,false causality
+"You should choose to work more overtime at the same rate of pay. After all, you wouldn’t want to lose your job, would you?",appeal to emotion
+"If your neighbor robs a bank, should you go to jail?",intentional
+Atheists are morally bankrupt.,faulty generalization
+"If the argument is supposed to be about whether or not we, as the American public should wear masks, and you argue: ""Asking an infant to wear a mask is ridiculous!""",fallacy of extension
+"""If we don't adopt that puppy today, they might put him down. Do you want to be responsible for that?"" Exclaimed Yasir.",appeal to emotion
+"""All elephants are big. Some boys are big. Therefore some boys are elephants.""",faulty generalization
+Finish your dinner. There are starving children in Africa.,fallacy of relevance
+"This trick, which literally means ""to the guy,"" distorts a person's character subtly or blatantly, undermining their reputation regardless of how compelling their point is.",ad hominem
+"“I really deserve an “A” on this paper, professor. Not only did I study during my grandmother’s funeral, but I also passed up the heart transplant surgery, even though that was the first matching donor in 3 years.”",appeal to emotion
+"Having come from the same political party, he is sure to communicate biased and untrue claims about his party-mates",ad hominem
+It is either you are for the US war on terror or against it.,false dilemma
+"Gus is Christian or Gus is politically liberal. Gus is a Christian. Therefore, Gus is not politically liberal.",fallacy of logic
+"“I admire the president for being a good role model.” REPLY: “But the New York Times says he’s a lousy role model, so you’re wrong.”",fallacy of credibility
+"Radio talk show host, on learning that an association of critical thinking professors had suggested his show as a source of fallacious reasoning: “Who are these people? They talk to maybe 30 people at a time. I talk to 5 million people every day. They could not begin to do what I do. They are just gnats flying around getting in the way.”",fallacy of relevance
+"Ms. Drayer, the smartest person in the universe, says the debate is the best class, therefore it is.",fallacy of credibility
+"My opponent says I am weak on crime, but I have been one of the most reliable participants in city council meetings.",fallacy of relevance
+"A 2005 Gallup Poll found that an estimated 25% of Americans over the age of 18 believe in astrology—or that the position of the stars and planets can affect people's lives.  That is roughly 75,000,000 people.  Therefore, there must be some truth to astrology!",ad populum
+There is definitely a link between autism and the vaccines given to toddlers. I know this because a Wikipedia entry mentioned numerous studies that found this to be true.,fallacy of credibility
+"Whatever happens by chance should be punished, because whatever happens by chance is a departure from law and all departures from law should be punished.",equivocation
+"There you are cheating on your husband, how could you ever tell us anything meaningful about ethics?",ad hominem
+"The “prophet” Nostradamus wrote about 500 years ago: Beasts wild with hunger will cross the rivers, The greater part of the battle will be against Hister. He will cause great men to be dragged in a cage of iron, When the son of Germany obeys no law. Surely he must have had some vision of Hitler!",intentional
+"Mr. Gough supports the cell phone ban and he's an idiot, so we should let teachers keep their cell phones.",ad hominem
+"In the race for mayor, Lara says a vote for her opponent will lead to you losing your job.",appeal to emotion
+"Tyler's friends are all obnoxious, he's a bad kid",faulty generalization
+"Minds, like rivers, can be broad. The broader the river, the shallower it is. Therefore, the broader the mind, the shallower it is.",fallacy of logic
+(1) William Dembski argues that modern biology supports the idea that there is an intelligent designer who created life. (2) Dembski would say that because he’s religious. Therefore: (3) Modern biology doesn’t support intelligent design,ad hominem
+"An abusive attack against someone making the argument, instead of the argument itself, is called a/an",ad hominem
+"The temperature has dropped this morning, and I also have a headache. The cold weather must be causing my headache.",false causality
+"If we legalize marijuana, then more people will try heroin",faulty generalization
+Donald Trump Jr. Tweeted: If I had a bowl of skittles and I told you just three would kill you. Would you take a handful? That's our Syrian refugee problem.,faulty generalization
+"""Annie must like Starbucks because all white girls like Starbucks.""",faulty generalization
+"This technique uses the logic: Everyone else is doing it, you should too!",ad populum
+"I wore my lucky red shirt when I took the test, so that is probably why I did so well on the test.",false causality
+Studies show it takes up to seven years for the human body to digest a piece of gum.,fallacy of credibility
+French people are great at kissing. Julie is French. Get me a date!,faulty generalization
+Confession is good for the soul.,faulty generalization
+This technique using vague positive words that actually hold little meaning.,appeal to emotion
+That parking attendant who gave me a ticket is as bad as Hitler.,fallacy of relevance
+"The academic decathlon, Mr. Iglesias? That's a rich kid thing.",false dilemma
+I guess I should buy my 12-year-old daughter an iPhone. Everyone at her new school has one and I want her to fit in with the other kids.,ad populum
+"Exercise is good. Therefore everybody should exercise.' ""'I agree,' said Polly earnestly. 'I mean exercise is wonderful. I mean it builds the body and everything.'",faulty generalization
+"Tasha is studying polar and tropical climates on Earth. She learned the following: Tropical climates: Summer and winter temperatures are similar.  Polar climates: Summer temperature is much higher than winter temperature. Tasha wonders why the tropical climate has the same temperature year round, but the polar climate temperature differs greatly.",false causality
+I can't trust the mayor or the governor. All politicians must be liars.,faulty generalization
+"The number of off-leash dogs I've seen in Livingston is completely unacceptable. Let's make our streets safe again by addressing this dog problem, before our city becomes a haven for criminals.",fallacy of relevance
+You're complaining because you have to walk to school? I used to have to give my parents my entire paycheck.,fallacy of relevance
+"Robert Downey Jr. thinks everyone should vote. However, Robert Downey Jr. once went to prison for drug use. So, he's obviously wrong.",ad hominem
+"We admit that this measure is popular, but we also urge you to recognize that there are so many other bond issues on this ballot it is getting ridiculous.",fallacy of relevance
+"I did not complete my homework last night? Well, you did not do yours last weak either.",ad hominem
+"Four out of five dentists recommend Happy Glossy Smiley toothpaste brand. Therefore, it must be great.",faulty generalization
+"""If a black cat crosses your path you will have bad luck.""",false causality
+"Yeah, I think everyone's opinion counts on moral matters like that, but that Lila sleeps around with anything. I know of at least one marriage she's broken up, so why should her opinion count on anything, much less morality?",ad hominem
+The word of Zorbo the Great is flawless and perfect. We know this because it says so in The Great and Infallible Book of Zorbo’s Best and Most Truest Things that are Definitely True and Should Not Ever Be Questioned.,circular reasoning
+We're going to celebrate New Year's Eve this way because that's how we've always done it.,fallacy of credibility
+"Because you found something difficult to understand, or are unaware of how it works, you made out like it is probably not true.",intentional
+"I didn't want to the only one not listening to music while I completed my Achieve article, so I listened to music too.",ad populum
+"“Because young male drivers are twice as likely to get into a car accident, they should pay more for car insurance.”",faulty generalization
+I don't see how you can say you're an ethical person. It's so hard to get you to do anything; your work ethic is so bad,equivocation
+men don’t cry,faulty generalization
+"Dave: For five generations, the men in our family went to Stanford and became doctors, while the women got married and raised children.  Therefore, it is my duty to become a doctor. Kaitlin: Do you want to become a doctor? Dave: It doesn’t matter -- it is our family tradition.  Who am I to break it?",fallacy of credibility
+"Either you love me, or you hate me.",false dilemma
+"It is immoral to kill an innocent human being.  Fetuses are innocent human  beings.  Therefore, it is immoral to kill fetuses.",equivocation
+very time Joe goes swimming he is wearing his Speedos. Something about wearing that Speedo must make him want to go swimming.,false causality
+Did you really vote for Donald as class treasurer? Didn't you hear that his uncle was imprisoned for embezzling $1.5 million?,faulty generalization
+"If it wasn't a missile, a bomb, or mechanical failure, then all that's left is a meteorite.",false dilemma
+Royal's promoting their team for the next season by telling people to come join the team because everyone else has.,ad populum
+"Recently, we highlighted a British journalist’s story about the underside of Dubai’s startling ascent. Some in Dubai called foul, including one writer who wants to remind Britons that their own country has a dark side. After all, what to think of a country in which one-fifth of the population lives in poverty?",ad hominem
+"If it was raining outside, it would be dark. It’s dark outside, so it must be raining.",fallacy of logic
+"All Greek food causes illness;  when I traveled through Greece, I got food  poisoning.",faulty generalization
+"If you don't study, you'll fail your test. Then you will do poorly in the class and your GPA will fall. You won't get into a good college, so you'll never get a decent job and you'll end up homeless.",faulty generalization
+Justifies a claim because a large group favors it,ad populum
+I believe that PNoy is the Abraham Lincoln of the Philippines.,fallacy of logic
+"Everyone who gets a college degree is better off.  All people who are better off as a result of getting a degree are good to have conversations with.  Therefore, everyone who gets a college degree is a good person to have a conversation with.",faulty generalization
+"I want to have myself a merry little Christmas, but I refuse to do as the song suggests and make the yuletide gay.  I don't think sexual preference should have anything to do with enjoying the holiday.",equivocation
+"Mike: It is morally wrong to cheat on your spouse, why on earth would you have done that? Ken: But what is morality exactly? Mike: It’s a code of conduct shared by cultures. Ken: But who creates this code?...",fallacy of relevance
+Jack threw up because he ate Hot Cheetos.,false causality
+"Many people criticize Thomas Jefferson for being an owner of slaves. But Jefferson was one of our greatest presidents, and his Declaration of Independence is one of the most eloquent pleas for freedom and democracy ever written. Clearly these criticisms are unwarranted.",fallacy of relevance
+Using a double standard or arguing for an unjustified exception.,intentional
+"Hundreds of thousands of animals are being tortured and killed every year, and for what? So that we can modernize our beauty products and overstock our grocery stores?",appeal to emotion
+Wife: I'd rather have a dog than a cat Husband: Why do you hate cats?,fallacy of extension
+Elba: I can’t believe the art critic said my artwork is awful! Rowena: He must have meant it in the old sense of the word -- that your artwork inspired awe! Elba: Yes!  That makes sense now!,equivocation
+"Senator Jill: ""We'll have to cut education funding this year."" Senator Bill: ""Why?"" Senator Jill: ""Well, either we cut the social programs or we live with a huge deficit and we can't live with the deficit.""",false dilemma
+I passed my math test after going out to the movies the night before. I should go to the movies the night before every math test!,false causality
+John: I think we should hire someone to redesign our website. Lola: You're saying we should throw our money away on external resources instead of building up our in-house design team? That's going to hurt our company in the long run.,fallacy of extension
+"According to Freud, your belief in God stems from your need for a strong father figure. So don’t you see that it’s silly to continue believing in God?",ad hominem
+"The reason the firmament, a tent-like structure that kept the “waters above” from flooding the earth as described in the Bible, is no longer there today, is because it was destroyed during Noah’s flood.",circular reasoning
+"Look, the only way to improve social programs is to raise taxes. You have to either raise taxes, or accept that the poor and needy are going to suffer.",false dilemma
+"“President Kumail raised taxes, and then the rate of violent crime went up. Kumail is responsible for the rise in crime.”",false causality
+"Senator Jones wants a strong national defense, but I will not vote for him because he moved to Canada to avoid being drafted for war when he was in college.",ad hominem
+"“I know the exam is graded based on performance, but you should give me an A. My cat has been sick, my car broke down, and I’ve had a cold, so it was really hard for me to study!”",appeal to emotion
+"Speaker 1: You should trust the Bible because it’s the Word of God. Speaker 2: How do you know it’s the Word of God? Speaker 1: Because God tells us it is. Speaker 2: Where does God tell us this? Speaker 1: Right here, in the Bible.",circular reasoning
+Those who believe in behavior modification obviously want to try to control everyone by subjecting them to rewards and punishments.,fallacy of extension
+The meteorologist predicted the wrong amount of rain for May. Obviously the meteorologist is unreliable.,faulty generalization
+"""If you don't bring a pencil to class... you will end up sad and alone in life.""",faulty generalization
+"“We must accept the traditions of the men of old time who affirm themselves to be the offspring of the gods - that is what they say - and they must surely have known their own ancestors. How can we doubt the word of the children of the gods?” - Plato, Timaeus",circular reasoning
+"Which fallacy literally means ""He did it himself?""",fallacy of credibility
+"Sandra tells her mom, ""I deserve to have a later curfew, so you should let me stay out until 10pm!""",circular reasoning
+"Eugene is silly in class. Harry is his friend, so Harry must be silly, too.",faulty generalization
+Fred the Australian stole my wallet. All Australians are thieves!,faulty generalization
+"The use of laptops and other devices to replace books in the classroom would eventually lead to the downfall of printing and publishing companies, causing many people to be laid off from their jobs. As such, schools should stick to using printed books as study materials.",faulty generalization
+Running the government is like running a business. You can’t keep running into debt and expect to be successful.,fallacy of logic
+"Everyone else believes it, so it must be true.",ad populum
+", that makes it right/valid.",ad populum
+Someone who says something which does not flow logically in the conversation is guilty of using:,fallacy of logic
+My opponent is a card-carrying member of the K.K.K.,faulty generalization
+"After Sally presents an eloquent and compelling case for a more equitable taxation system, Sam asks the audience whether we should believe anything from a woman who isn't married, was once arrested, and smells a bit weird.",ad hominem
+"It looks like the waiter forgot to charge us for the expensive bottle of champagne.  Let’s just leave -- after all, if he overcharged us, I doubt he would chase us down to give us our money back that we overpaid.",fallacy of relevance
+You can tell that guy's Mexican - he's wearing a sombrero.,faulty generalization
+"I really deserve an “A” on this paper, professor.  Not only did I study during my grandmother’s funeral, but I also passed up the heart transplant surgery, even though that was the first matching donor in 3 years.",appeal to emotion
+All engineers are introverts who would rather relate to computers than people. ,faulty generalization
+"I guess I should buy my 12 year old daughter an iPhone. Everyone at her school has one, and I want her to fit in with the other kids.",ad populum
+The latest craze or fad; everyone has to have it.,ad populum
+"“Do you want to live in a world where you can get breakfast from McDonald’s all day, or would you rather live in a dictatorship?”",false dilemma
+"Andy states that a Scotsman would never put sugar on his porridge. Dougal replies that he is a Scotsman and he does put sugar on his porridge. Andy counters that no true Scotsman puts sugar on his porridge. Andy thus changes the terms of the argument, implying that Dougal is not a ""true"" Scotsman in order to support his own position.",intentional
+It takes faith to believe in God just like it takes faith to believe in the Easter Bunny -- but at least the Easter Bunny is based on a creature that actually exists!,appeal to emotion
+"Your honor, if we let Pinocchio get away with lying, what's next? Stealing? Murder? ...",faulty generalization
+"Accused on the 6 o'clock news of corruption and taking bribes, the senator said that we should all be very wary of the things we hear in the media, because we all know how very unreliable the media can be.",ad hominem
+This coin has landed heads-up nine times in a row. So it will probably land tails-up next time it is tossed.,false causality
+"God did not create the world six thousand years ago because matter has always existed, and therefore the world has always existed.",circular reasoning
+"Smoking cigarettes is just like ingesting arsenic into your system; both have been shown to be causally related to death. If you wouldn't want to take a spoonful of arsenic, I would think that you wouldn't want to continue smoking.",fallacy of logic
+"Subscribe to our streaming services, or get stuck with cable!",false dilemma
+"I saw two women get in a car accident. Therefore, all women are bad drivers",faulty generalization
+"Says Robot 2, attacking Robot 1 instead of his arguments.",ad hominem
+Leonardo DiCaprio is just a dumb actor! What does he really know about climate change?!,ad hominem
+Everyone is against child pornography. I asked Mrs. Smith and Mr. Jones at the PTA meeting and they are definitely against it.,faulty generalization
+"Sometimes kids ride skateboards and fall off, breaking their arms or legs. Clearly, riding a skateboard is extremely dangerous. Don’t you think skateboards should be banned?",appeal to emotion
+Encourages the audience to become part of a group or act because other people are acting in the same way.,ad populum
+"""Every 0.008 seconds in the United States, a teen accidentally shatters his/her phone screen. You can help put an end to these devastating tragedies: donate now to my Kickstarter fund, the new Bubble-wrap Phone Case X.""",appeal to emotion
+My way of responding to difficult patients is by far the most ethical because no other way is so ethical and it is the only way that is completely ethical.,circular reasoning
