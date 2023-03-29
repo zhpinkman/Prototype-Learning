@@ -4,8 +4,8 @@ parser = argparse.ArgumentParser()
 
 
 parser.add_argument("--tiny_sample", dest="tiny_sample", action="store_true") 
-parser.add_argument("--num_prototypes", type=int, default=40)
-parser.add_argument("--num_pos_prototypes", type=int, default=40)
+parser.add_argument("--num_prototypes", type=int, default=50)
+parser.add_argument("--num_pos_prototypes", type=int, default=50)
 parser.add_argument("--model", type=str, default="ProtoTEx")
 parser.add_argument("--modelname", type = str)
 parser.add_argument("--data_dir", type = str)
@@ -14,16 +14,37 @@ parser.add_argument("--model_checkpoint", type=str, default=None)
 # Wandb parameters
 parser.add_argument("--project", type=str)
 parser.add_argument("--experiment", type=str)
-parser.add_argument("--none_class", type=str, default="No")
 parser.add_argument("--nli_intialization", type=str, default="Yes")
+parser.add_argument("--none_class", type=str, default="No")
 parser.add_argument("--curriculum", type=str, default="No")
-parser.add_argument("--architecture", type=str, default="BART")
 parser.add_argument("--augmentation", type=str, default="No")
+parser.add_argument("--architecture", type=str, default="BART")
 
 
 args = parser.parse_args()
 
 datasets_config =  {
+    "data/finegrained": {
+        'features': {
+            'text': 'text',
+            'label': 'label'
+        },
+        'classes': {
+            "fallacy of logic": 0,
+            "circular reasoning": 1,
+            "appeal to emotion": 2,
+            "intentional": 3,
+            "faulty generalization": 4,
+            "fallacy of extension": 5,
+            "false dilemma": 6,
+            "ad populum": 7,
+            "ad hominem": 8,
+            "false causality": 9,
+            "equivocation": 10,
+            "fallacy of relevance": 11,
+            "fallacy of credibility": 12
+        }
+    },
     "data/logical_fallacy_with_none": {
         'features': {
             'text': 'source_article', 

@@ -1,11 +1,14 @@
-# OS generated files # 
+# OS generated files #
 ######################
 
-.DS_Store 
+.DS_Store
 .DS_Store?
 ._*
 .Trashes
 __pycache__/
 Models/*
+artifacts/*
+Logs/*
 **/*.err
 **/*.out
+wandb/*

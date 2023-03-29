@@ -216,11 +216,10 @@ def get_best_k_protos_for_batch(
             input_ids, attn_mask, y = batch
             #             print(y)
             batch_size = input_ids.size(0)
-            last_hidden_state = model_new.electra_model(
-                input_ids.cuda(),
-                attn_mask.cuda(),
+            last_hidden_state=model_new.bart_model.base_model.encoder(
+                input_ids.cuda(),attn_mask.cuda(),
                 output_attentions=False,
-                output_hidden_states=False,
+                output_hidden_states=False
             ).last_hidden_state
             if not model_new.dobatchnorm:
                 input_for_classfn = model_new.one_by_sqrt_bartoutdim * torch.cdist(
@@ -251,7 +250,7 @@ def get_best_k_protos_for_batch(
             best_protos.append(temp[1].cpu())
             best_protos_dists.append(
                 (
-                    temp[0] * torch.sqrt(torch.tensor(model_new.electra_out_dim).float())
+                    temp[0] * torch.sqrt(torch.tensor(model_new.bart_out_dim).float())
                 ).cpu()
             )
         #             best_protos.append((torch.topk(input_for_classfn,dim=1,
@@ -294,11 +293,10 @@ def get_bestk_train_data_for_every_proto(
         for batch in loader:
             input_ids, attn_mask, y = batch
             batch_size = input_ids.size(0)
-            last_hidden_state = model_new.electra_model(
-                input_ids.cuda(),
-                attn_mask.cuda(),
+            last_hidden_state=model_new.bart_model.base_model.encoder(
+                input_ids.cuda(),attn_mask.cuda(),
                 output_attentions=False,
-                output_hidden_states=False,
+                output_hidden_states=False
             ).last_hidden_state
             if not model_new.dobatchnorm:
                 input_for_classfn = model_new.one_by_sqrt_bartoutdim * torch.cdist(
@@ -322,7 +320,7 @@ def get_bestk_train_data_for_every_proto(
             concerned_idxs = torch.nonzero((predicted == y.cuda())).view(-1)
             #             concerned_idxs=torch.nonzero((predicted==y)).view(-1)
             input_for_classfn = input_for_classfn[concerned_idxs] * torch.sqrt(
-                torch.tensor(model_new.electra_out_dim).float()
+                torch.tensor(model_new.bart_out_dim).float()
             )
             #             predict_all=torch.cat((predict_all,predicted.cpu()),dim=0)
             #             true_all=torch.cat((true_all,y.cpu()),dim=0)
@@ -382,11 +380,10 @@ def get_distances_for_rdm(train_dataset_eval, model_new=None, return_distances=T
         for batch in loader:
             input_ids, attn_mask, y = batch
             batch_size = input_ids.size(0)
-            last_hidden_state = model_new.electra_model(
-                input_ids.cuda(),
-                attn_mask.cuda(),
+            last_hidden_state=model_new.bart_model.base_model.encoder(
+                input_ids.cuda(),attn_mask.cuda(),
                 output_attentions=False,
-                output_hidden_states=False,
+                output_hidden_states=False
             ).last_hidden_state
             input_for_classfn = model_new.one_by_sqrt_bartoutdim * torch.cdist(
                 last_hidden_state.view(batch_size, -1), all_protos
@@ -458,9 +455,9 @@ def print_protos(train_dataset, tokenizer, train_ls, which_protos, protos_train_
     )
     _ = plt.figure(figsize=(15, 15))
     sns.heatmap(df, cmap="RdYlGn", linewidths=0.30, annot=True)
-    plt.savefig("cooc_matrix.png")
-    df.to_csv("cooccurence_matrix.csv")
-    joblib.dump(first_prototypes, "first_prototypes.pkl")
+    plt.savefig("artifacts/cooc_matrix.png")
+    df.to_csv("artifacts/cooccurence_matrix.csv")
+    joblib.dump(first_prototypes, "artifacts/first_prototypes.pkl")
 
 
 def best_protos_for_test(test_dataset, model_new=None, top_k=5):
@@ -475,12 +472,11 @@ def best_protos_for_test(test_dataset, model_new=None, top_k=5):
     all_protos = model_new.pos_prototypes
     input_ids, attn_mask, y = next(iter(dl))
     with torch.no_grad():
-        last_hidden_state = model_new.electra_model(
-            input_ids.cuda(),
-            attn_mask.cuda(),
-            output_attentions=False,
-            output_hidden_states=False,
-        ).last_hidden_state
+        last_hidden_state=model_new.bart_model.base_model.encoder(
+                input_ids.cuda(),attn_mask.cuda(),
+                output_attentions=False,
+                output_hidden_states=False
+            ).last_hidden_state
         input_for_classfn = torch.cdist(
             last_hidden_state.view(batch_size, -1),
             all_protos.view(model_new.num_protos, -1),

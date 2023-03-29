@@ -1,4 +1,4 @@
-python main.py \
+python inference_and_explanations.py \
     --num_prototypes 50 \
     --num_pos_prototypes 50 \
     --data_dir "data/finegrained" \

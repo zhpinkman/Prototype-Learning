@@ -186,9 +186,7 @@ def train_ProtoTEx_w_neg(
         #     for n,w in model.named_parameters():
         #         if w.requires_grad: print(n)
         for epoch in range(delta):
-            train_loader = tqdm(
-                train_dl, total=len(train_dl), unit="batches", desc="delta training"
-            )
+            train_loader = train_dl
             for batch in train_loader:
                 input_ids, attn_mask, y = batch
                 #             print(y)
@@ -231,9 +229,8 @@ def train_ProtoTEx_w_neg(
         #     for n,w in model.named_parameters():
         #         if w.requires_grad: print(n)
         for epoch in range(gamma):
-            train_loader = tqdm(
-                train_dl, total=len(train_dl), unit="batches", desc="gamma training"
-            )
+            train_loader = train_dl
+            
             for batch in train_loader:
                 input_ids, attn_mask, y = batch
                 classfn_out, loss = model(

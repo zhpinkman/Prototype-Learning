@@ -1,8 +1,4 @@
 import os
-
-# os.environ['TRANSFORMERS_CACHE'] = '/mnt/infonas/data/baekgupta/cache/'
-# os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
-# os.environ["CUDA_VISIBLE_DEVICES"]="2"
 from importlib import reload
 import numpy as np
 import torch
@@ -41,16 +37,6 @@ def main():
     train_df = pd.read_csv(os.path.join(args.data_dir, "train.csv"))
     dev_df = pd.read_csv(os.path.join(args.data_dir, "val.csv"))
     test_df = pd.read_csv(os.path.join(args.data_dir, "test.csv"))
-
-    train_df = train_df[
-        ~train_df[datasets_config[args.data_dir]["features"]["label"]].isin(bad_classes)
-    ]
-    dev_df = dev_df[
-        ~dev_df[datasets_config[args.data_dir]["features"]["label"]].isin(bad_classes)
-    ]
-    test_df = test_df[
-        ~test_df[datasets_config[args.data_dir]["features"]["label"]].isin(bad_classes)
-    ]
 
     train_sentences = train_df[
         datasets_config[args.data_dir]["features"]["text"]

@@ -3,32 +3,28 @@ from IPython import embed
 from importlib import reload  
 import numpy as np
 import torch,time
-from transformers import BartModel,BartConfig,BartForConditionalGeneration,BartForCausalLM, BartTokenizer
+from transformers import BartTokenizer
 from tqdm.notebook import tqdm
 from torch import nn
 import sys
-
-MOD_FOLDER = '../'
-# setting path to enable import from the parent directory
-sys.path.append(MOD_FOLDER)
-print(sys.path)
+import pandas as pd
+from preprocess import *
 ## Load all the functions for analyzing prototypes
+from args import args
 from utils import *
 from models import ProtoTEx
 
-num_prototypes = 50
-num_pos_prototypes = 49
-model = ProtoTEx(num_prototypes, 
-                 num_pos_prototypes,
-                 n_classes=14,
-                 bias=False, 
-                 dropout=False, 
-                 special_classfn=True, # special_classfn=False, ## apply dropout only on bias 
-                 p=1, #p=0.75,
-                 batchnormlp1=True)
+
+model = ProtoTEx(args.num_prototypes, 
+                args.num_pos_prototypes,
+                bias=False, 
+                dropout=False, 
+                special_classfn=True, # special_classfn=False, ## apply dropout only on bias 
+                p=1, #p=0.75,
+                batchnormlp1=True)
 
 
-model_path = "../Models/curr_lf_fine_updated_aug_with_none_nli_prototex"
+model_path = "Models/finegrained_nli_bart_prototex"
 
 print(f"Loading model checkpoint: {model_path}")
 pretrained_dict = torch.load(model_path)
@@ -44,24 +40,14 @@ for k, v in pretrained_dict.items():
 model_dict.update(filtered_dict)
 model.load_state_dict(model_dict)
 
-if model.num_neg_protos > 0:
-    all_protos = torch.cat((model.neg_prototypes, model.pos_prototypes), dim=0)
-else:
-    all_protos = model.pos_prototypes
-torch.save(all_protos, "all_protos.pt")
-
 device = torch.device('cuda')
 model.to(device)
 tokenizer = BartTokenizer.from_pretrained('facebook/bart-large')
 
-## Load all the data classes
-from preprocess import *
-import pandas as pd
-
 ## Load data
-train_df = pd.read_csv("../data/finegrained_with_none/train.csv")
-dev_df = pd.read_csv("../data/finegrained_with_none/val.csv")
-test_df = pd.read_csv("../data/finegrained_with_none/test.csv")
+train_df = pd.read_csv(f"{args.data_dir}/train.csv")
+dev_df = pd.read_csv(f"{args.data_dir}/val.csv")
+test_df = pd.read_csv(f"{args.data_dir}/test.csv")
 
 train_sentences = train_df['text'].tolist()
 dev_sentences = dev_df['text'].tolist()
@@ -88,15 +74,6 @@ test_dataset = CustomNonBinaryClassDataset(
     tokenizer = tokenizer
 )
 
-train_dl=torch.utils.data.DataLoader(train_dataset,batch_size=20,shuffle=False,
-                                 collate_fn=train_dataset.collate_fn)
-val_dl=torch.utils.data.DataLoader(dev_dataset,batch_size=20,shuffle=False,
-                                 collate_fn=dev_dataset.collate_fn)
-test_dl=torch.utils.data.DataLoader(test_dataset,batch_size=20,shuffle=False,
-                                 collate_fn=test_dataset.collate_fn)
-
-test_sents = test_sentences
-
 best_protos_per_testeg = get_best_k_protos_for_batch(
     dataset = test_dataset,
     specific_label=None, 
@@ -114,23 +91,24 @@ best_protos_per_traineg = get_best_k_protos_for_batch(
     do_all=True
 )
 bestk_train_data_per_proto=get_bestk_train_data_for_every_proto(train_dataset, 
-                                                   model_new=model, top_k=5)
+                                                model_new=model, top_k=5)
 
 
-joblib.dump(bestk_train_data_per_proto, "bestk_train_data_per_proto.joblib")
-joblib.dump(best_protos_per_testeg, "best_protos_per_testeg.joblib")
-joblib.dump(best_protos_per_traineg, "best_protos_per_traineg.joblib")
+joblib.dump(bestk_train_data_per_proto, "artifacts/bestk_train_data_per_proto.joblib")
+joblib.dump(best_protos_per_testeg, "artifacts/best_protos_per_testeg.joblib")
+joblib.dump(best_protos_per_traineg, "artifacts/best_protos_per_traineg.joblib")
+
 if model.num_neg_protos > 0:
     all_protos = torch.cat((model.neg_prototypes, model.pos_prototypes), dim=0)
 else:
     all_protos = model.pos_prototypes
-torch.save(all_protos, "all_protos.pt")
+torch.save(all_protos, "artifacts/all_protos.pt")
 
 print_protos(
     train_dataset = train_dataset, 
     tokenizer = tokenizer, 
     train_ls = train_labels, 
-    which_protos=list(range(num_prototypes)), 
+    which_protos=list(range(args.num_prototypes)), 
     protos_train_table=bestk_train_data_per_proto[0]
 )
 
