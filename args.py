@@ -24,6 +24,28 @@ parser.add_argument("--architecture", type=str, default="BART")
 args = parser.parse_args()
 
 datasets_config =  {
+    "data/CoLA": {
+        'features': {
+            'text': 'sentence',
+            'label': 'label'
+        },
+        'classes': {
+            0: 0,
+            1: 1
+        },
+        'max_length': 20
+    },
+    "data/SST-2": {
+        'features': {
+            'text': 'sentence',
+            'label': 'label'
+        },
+        'classes': {
+            0: 0,
+            1: 1
+        },
+        'max_length': 30
+    },
     "data/finegrained": {
         'features': {
             'text': 'text',
@@ -43,7 +65,8 @@ datasets_config =  {
             "equivocation": 10,
             "fallacy of relevance": 11,
             "fallacy of credibility": 12
-        }
+        },
+        'max_length': 128
     },
     "data/logical_fallacy_with_none": {
         'features': {
