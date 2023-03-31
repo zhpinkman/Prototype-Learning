@@ -12,3 +12,12 @@ Logs/*
 **/*.err
 **/*.out
 wandb/*
+data/CoLA/*
+data/MNLI/*
+data/MRPC/*
+data/QNLI/*
+data/QQP/*
+data/RTE/*
+data/SST-2/*
+data/STS-B/*
+data/WNLI/*

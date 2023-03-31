@@ -32,7 +32,10 @@ def main():
     ].tolist()
     test_labels = test_df[datasets_config[args.data_dir]["features"]["label"]].tolist()
     test_dataset = CustomNonBinaryClassDataset(
-        sentences=test_sentences, labels=test_labels, tokenizer=tokenizer
+        sentences=test_sentences, 
+        labels=test_labels, 
+        tokenizer=tokenizer, 
+        max_length = datasets_config[args.data_dir]["max_seq_len"]
     )
     test_dl = torch.utils.data.DataLoader(
         test_dataset, batch_size=128, shuffle=False, collate_fn=test_dataset.collate_fn
