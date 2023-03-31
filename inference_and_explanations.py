@@ -61,17 +61,20 @@ test_labels = test_df['label'].tolist()
 train_dataset = CustomNonBinaryClassDataset(
     sentences = train_sentences,
     labels = train_labels,
-    tokenizer = tokenizer
+    tokenizer = tokenizer,
+    max_length=datasets_config[args.data_dir]["max_length"]
 )
 dev_dataset = CustomNonBinaryClassDataset(
     sentences = dev_sentences,
     labels = dev_labels,
-    tokenizer=tokenizer
+    tokenizer=tokenizer,
+    max_length=datasets_config[args.data_dir]["max_length"]
 )
 test_dataset = CustomNonBinaryClassDataset(
     sentences = test_sentences,
     labels = test_labels,
-    tokenizer = tokenizer
+    tokenizer = tokenizer,
+    max_length=datasets_config[args.data_dir]["max_length"]
 )
 
 best_protos_per_testeg = get_best_k_protos_for_batch(
