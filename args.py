@@ -4,6 +4,7 @@ parser = argparse.ArgumentParser()
 
 
 parser.add_argument("--tiny_sample", dest="tiny_sample", action="store_true") 
+# parser.add_argument("--nli_dataset", help="check if the dataset is in nli format that has sentence1, sentence2, label", action="store_true")
 parser.add_argument("--num_prototypes", type=int, default=50)
 parser.add_argument("--num_pos_prototypes", type=int, default=50)
 parser.add_argument("--model", type=str, default="ProtoTEx")
@@ -23,8 +24,23 @@ parser.add_argument("--architecture", type=str, default="BART")
 
 args = parser.parse_args()
 
-datasets_config =  {
+datasets_config =  { 
+    "data/MNLI": {
+        'type': 'nli',
+        'features': {
+            'sentence1': 'sentence1',
+            'sentence2': 'sentence2',
+            'label': 'label'
+        },
+        'classes': {
+            'entailment': 0,
+            'neutral': 1,
+            'contradiction': 2
+        },
+        'max_length': 
+    },                 
     "data/CoLA": {
+        'type': 'classification',
         'features': {
             'text': 'sentence',
             'label': 'label'
@@ -36,6 +52,7 @@ datasets_config =  {
         'max_length': 20
     },
     "data/SST-2": {
+        'type': 'classification',
         'features': {
             'text': 'sentence',
             'label': 'label'
@@ -47,6 +64,7 @@ datasets_config =  {
         'max_length': 30
     },
     "data/finegrained": {
+        'type': 'classification',
         'features': {
             'text': 'text',
             'label': 'label'
@@ -69,6 +87,7 @@ datasets_config =  {
         'max_length': 128
     },
     "data/logical_fallacy_with_none": {
+        'type': 'classification',
         'features': {
             'text': 'source_article', 
             'label': 'updated_label'
@@ -91,6 +110,7 @@ datasets_config =  {
         }
     },
     "data/logical_fallacy_augmented_with_none": {
+        'type': 'classification',
         'features': {
             'text': 'text', 
             'label': 'label'
@@ -113,6 +133,7 @@ datasets_config =  {
         }
     },
     "data/finegrained_with_none": {
+        'type': 'classification',
         'features': {
             'text': 'text', 
             'label': 'label'
@@ -135,6 +156,7 @@ datasets_config =  {
         }
     },
     "data/logical_climate_finegrained": {
+        'type': 'classification',
         'features': {
             'text': 'text', 
             'label': 'label'
@@ -157,6 +179,7 @@ datasets_config =  {
         }
     }, 
     "data/coarsegrained_with_none": {
+        'type': 'classification',
         'features': {
             'text': 'text',
             'label': 'label'
@@ -170,6 +193,7 @@ datasets_config =  {
         }
     },
     "data/logical_climate_coarsegrained": {
+        'type': 'classification',
         'features': {
             'text': 'text',
             'label': 'coarse_label'
@@ -183,6 +207,7 @@ datasets_config =  {
         }
     },
     "data/bigbench": {
+        'type': 'classification',
         'features': {
             'text': 'text',
             'label': 'label'
@@ -193,6 +218,7 @@ datasets_config =  {
         }
     },
     "data/ptc_slc_without_none_with_context/fine": {
+        'type': 'classification',
         'features': {
             'text': 'text',
             'label': 'label'
@@ -219,6 +245,7 @@ datasets_config =  {
         }
     },
     "data/ptc_slc_with_context": {
+        'type': 'classification',
         'features': {
             'text': 'text',
             'label': 'label'
@@ -246,6 +273,7 @@ datasets_config =  {
         }
     },
     "data/ptc_slc_aug_without_none_with_context":{
+        'type': 'classification',
         'features': {
             'text': 'text',
             'label': 'label'
