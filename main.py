@@ -59,13 +59,22 @@ def main():
     train_sentences, train_labels = zip(*train_artifacts)
 
     train_dataset = CustomNonBinaryClassDataset(
-        sentences=train_sentences, labels=train_labels, tokenizer=tokenizer
+        sentences=train_sentences, 
+        labels=train_labels, 
+        tokenizer=tokenizer,
+        max_length=datasets_config[args.data_dir]["max_length"]
     )
     dev_dataset = CustomNonBinaryClassDataset(
-        sentences=dev_sentences, labels=dev_labels, tokenizer=tokenizer
+        sentences=dev_sentences, 
+        labels=dev_labels, 
+        tokenizer=tokenizer,
+        max_length=datasets_config[args.data_dir]["max_length"]
     )
     test_dataset = CustomNonBinaryClassDataset(
-        sentences=test_sentences, labels=test_labels, tokenizer=tokenizer
+        sentences=test_sentences, 
+        labels=test_labels, 
+        tokenizer=tokenizer,
+        max_length=datasets_config[args.data_dir]["max_length"]
     )
 
     train_dl = torch.utils.data.DataLoader(
@@ -94,6 +103,8 @@ def main():
         name=args.experiment, 
         # Track hyperparameters and run metadata
         config={
+            "data_dir": args.data_dir,
+            "modelname": args.modelname,
             "num_pos_prototypes": args.num_pos_prototypes,
             "num_neg_prototypes": args.num_prototypes - args.num_pos_prototypes,
             "none_class": args.none_class,
