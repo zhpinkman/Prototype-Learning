@@ -35,7 +35,7 @@ class ProtoTEx(torch.nn.Module):
         self.one_by_sqrt_bartoutdim = 1 / torch.sqrt(
             torch.tensor(self.bart_out_dim).float()
         )
-        self.max_position_embeddings = 128
+        self.max_position_embeddings = datasets_config[args.data_dir]['max_length']
         self.num_protos = num_prototypes
         self.num_pos_protos = num_pos_prototypes
         self.num_neg_protos = self.num_protos - self.num_pos_protos
@@ -317,7 +317,7 @@ class ProtoTEx_roberta(torch.nn.Module):
             torch.tensor(self.roberta_out_dim).float()
         )
 
-        self.max_position_embeddings = 128
+        self.max_position_embeddings = datasets_config[args.data_dir]["max_length"]
         self.num_protos = num_prototypes
         self.num_pos_protos = num_pos_prototypes
         self.num_neg_protos = self.num_protos - self.num_pos_protos
@@ -551,7 +551,7 @@ class ProtoTEx_electra(torch.nn.Module):
             torch.tensor(self.electra_out_dim).float()
         )
 
-        self.max_position_embeddings = 128
+        self.max_position_embeddings = datasets_config[args.data_dir]["max_length"]
         self.num_protos = num_prototypes
         self.num_pos_protos = num_pos_prototypes
         self.num_neg_protos = self.num_protos - self.num_pos_protos
