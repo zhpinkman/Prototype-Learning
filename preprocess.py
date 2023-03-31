@@ -11,9 +11,9 @@ def create_labels(dataset):
 
 
 class CustomNonBinaryClassDataset(torch.utils.data.Dataset):
-    def __init__(self, sentences, labels, tokenizer: BartTokenizer,it_is_train=1,pos_or_neg=None,fix_seq_len=128,balance=False,
+    def __init__(self, sentences, labels, tokenizer: BartTokenizer, max_length: int, it_is_train=1,pos_or_neg=None,balance=False,
                  specific_label=None,for_protos=False):
-        inputs = tokenizer(sentences, truncation=True, padding = 'max_length', max_length=fix_seq_len)
+        inputs = tokenizer(sentences, truncation=True, padding = 'max_length', max_length=max_length)
         input_ids = inputs["input_ids"]
         attention_mask = inputs["attention_mask"]
         
