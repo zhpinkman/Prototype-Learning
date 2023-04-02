@@ -1,21 +1,165 @@
 import joblib
 import numpy as np
 import collections
+import os
 from sklearn.metrics import (
     precision_recall_fscore_support,
     accuracy_score,
     classification_report,
 )
-from transformers.modeling_outputs import BaseModelOutput
+from sklearn.utils.class_weight import compute_class_weight
 import torch
 import pandas as pd
 from tqdm import tqdm
-import numpy as np
-from args import args, datasets_config
-import wandb
+from preprocess import CustomNonBinaryClassDataset
+from args import args
+import json
 
 
-index2label = {v: k for k, v in datasets_config[args.data_dir]["classes"].items()}
+class DatasetInfo:
+    def __new__(cls):
+        if not hasattr(cls, "instance"):
+            cls.instance = super(DatasetInfo, cls).__new__(cls)
+        return cls.instance
+
+    @property
+    def data(self):
+        return self.dataset_info
+
+    def __init__(self) -> None:
+        self.load_dataset_info()
+
+    def load_dataset_info(self):
+        with open(os.path.join(args.data_dir, "info.json"), "r") as f:
+            self.dataset_info = json.load(f)
+
+    @property
+    def batch_size(self):
+        return DatasetInfo().data["batch_size"]
+
+    @property
+    def dataset_type(self):
+        return DatasetInfo().data["dataset_type"]
+
+    @property
+    def dataset_classes_dict(self):
+        classes = self.dataset_info["features"]["label"]["names"]
+        return dict(zip(classes, range(len(classes))))
+
+    @property
+    def max_length(self):
+        return (
+            self.dataset_info["sentence_max_length"]
+            if ("sentence_max_length" in self.dataset_info and args.use_max_length)
+            else 128
+        )
+
+    @property
+    def num_classes(self):
+        return len(self.dataset_info["features"]["label"]["names"])
+
+
+# Compute class weights
+def get_class_weights(train_labels):
+    class_weight_vect = compute_class_weight(
+        "balanced", classes=np.unique(train_labels), y=train_labels
+    )
+    print(f"Class weight vectors: {class_weight_vect}")
+    return class_weight_vect
+
+
+def load_dataset(tokenizer):
+
+    train_df = pd.read_csv(os.path.join(args.data_dir, "train.csv"))
+    val_df = pd.read_csv(os.path.join(args.data_dir, "val.csv"))
+    test_df = pd.read_csv(os.path.join(args.data_dir, "test.csv"))
+
+    # shuffle train dataframe
+    train_df = train_df.sample(frac=1, random_state=42).reset_index(drop=True)
+
+    if DatasetInfo().dataset_type == "classification":
+        return load_classification_dataset(train_df, val_df, test_df, tokenizer)
+    elif DatasetInfo().dataset_type == "nli":
+        return load_nli_dataset(train_df, val_df, test_df, tokenizer)
+
+    else:
+        raise Exception("Dataset type not supported")
+
+
+def load_nli_dataset(train_df, val_df, test_df, tokenizer):
+    train_sentences1 = train_df["sentence1"].tolist()
+    train_sentences2 = train_df["sentence2"].tolist()
+    train_labels = train_df["label"].tolist()
+
+    val_sentences1 = val_df["sentence1"].tolist()
+    val_sentences2 = val_df["sentence2"].tolist()
+    val_labels = val_df["label"].tolist()
+
+    test_sentences1 = test_df["sentence1"].tolist()
+    test_sentences2 = test_df["sentence2"].tolist()
+    test_labels = test_df["label"].tolist()
+
+    train_sentences = (train_sentences1, train_sentences2)
+    val_sentences = (val_sentences1, val_sentences2)
+    test_sentences = (test_sentences1, test_sentences2)
+
+    train_dataset = CustomNonBinaryClassDataset(
+        sentences=train_sentences,
+        labels=train_labels,
+        tokenizer=tokenizer,
+        max_length=DatasetInfo().max_length,
+        dataset_type=DatasetInfo().dataset_type,
+    )
+    val_dataset = CustomNonBinaryClassDataset(
+        sentences=val_sentences,
+        labels=val_labels,
+        tokenizer=tokenizer,
+        max_length=DatasetInfo().max_length,
+        dataset_type=DatasetInfo().dataset_type,
+    )
+    test_dataset = CustomNonBinaryClassDataset(
+        sentences=test_sentences,
+        labels=test_labels,
+        tokenizer=tokenizer,
+        max_length=DatasetInfo().max_length,
+        dataset_type=DatasetInfo().dataset_type,
+    )
+    return train_dataset, val_dataset, test_dataset
+
+
+def load_classification_dataset(train_df, val_df, test_df, tokenizer):
+    train_sentences = train_df["sentence"].tolist()
+    train_labels = train_df["label"].tolist()
+
+    val_sentences = val_df["sentence"].tolist()
+    val_labels = val_df["label"].tolist()
+
+    test_sentences = test_df["sentence"].tolist()
+    test_labels = test_df["label"].tolist()
+
+    train_dataset = CustomNonBinaryClassDataset(
+        sentences=train_sentences,
+        labels=train_labels,
+        tokenizer=tokenizer,
+        max_length=DatasetInfo().max_length,
+        dataset_type=DatasetInfo().dataset_type,
+    )
+    val_dataset = CustomNonBinaryClassDataset(
+        sentences=val_sentences,
+        labels=val_labels,
+        tokenizer=tokenizer,
+        max_length=DatasetInfo().max_length,
+        dataset_type=DatasetInfo().dataset_type,
+    )
+    test_dataset = CustomNonBinaryClassDataset(
+        sentences=test_sentences,
+        labels=test_labels,
+        tokenizer=tokenizer,
+        max_length=DatasetInfo().max_length,
+        dataset_type=DatasetInfo().dataset_type,
+    )
+
+    return train_dataset, val_dataset, test_dataset
 
 
 def print_logs(
@@ -131,6 +275,7 @@ class EarlyStopping(object):
 
 
 def evaluate(dl, model_new=None, path=None, modelclass=None):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     assert (model_new is not None) ^ (path is not None)
     if path is not None:
         model_new = modelclass().cuda()
@@ -138,13 +283,17 @@ def evaluate(dl, model_new=None, path=None, modelclass=None):
     loader = tqdm(dl, total=len(dl), unit="batches")
     total_len = 0
     model_new.eval()
+    model_new = model_new.to(device)
     with torch.no_grad():
         total_loss = 0
-        tts = 0
+        # tts = 0
         y_pred = []
         y_true = []
         for batch in loader:
             input_ids, attn_mask, y = batch
+            input_ids = input_ids.to(device)
+            attn_mask = attn_mask.to(device)
+            y = y.to(device)
             classfn_out, loss = model_new(
                 input_ids, attn_mask, y, use_decoder=False, use_classfn=1
             )
@@ -174,7 +323,7 @@ def evaluate(dl, model_new=None, path=None, modelclass=None):
     return total_loss, mac_prec, mac_recall, mac_f1_score, accuracy
 
 
-#### Functions for analyzing prototypes
+# Functions for analyzing prototypes
 
 
 def get_best_k_protos_for_batch(
@@ -205,7 +354,9 @@ def get_best_k_protos_for_batch(
     with torch.no_grad():
         # Updated for negative prototypes
         if model_new.num_neg_protos > 0:
-            all_protos = torch.cat((model_new.neg_prototypes, model_new.pos_prototypes), dim=0)
+            all_protos = torch.cat(
+                (model_new.neg_prototypes, model_new.pos_prototypes), dim=0
+            )
         else:
             all_protos = model_new.pos_prototypes
 
@@ -216,10 +367,11 @@ def get_best_k_protos_for_batch(
             input_ids, attn_mask, y = batch
             #             print(y)
             batch_size = input_ids.size(0)
-            last_hidden_state=model_new.bart_model.base_model.encoder(
-                input_ids.cuda(),attn_mask.cuda(),
+            last_hidden_state = model_new.bart_model.base_model.encoder(
+                input_ids.cuda(),
+                attn_mask.cuda(),
                 output_attentions=False,
-                output_hidden_states=False
+                output_hidden_states=False,
             ).last_hidden_state
             if not model_new.dobatchnorm:
                 input_for_classfn = model_new.one_by_sqrt_bartoutdim * torch.cdist(
@@ -236,7 +388,7 @@ def get_best_k_protos_for_batch(
                 ).view(batch_size, model_new.num_protos)
             predicted = torch.argmax(
                 model_new.classfn_model(input_for_classfn).view(
-                    batch_size, len(datasets_config[args.data_dir]["classes"])
+                    batch_size, DatasetInfo().num_classes
                 ),
                 dim=1,
             )
@@ -287,16 +439,19 @@ def get_bestk_train_data_for_every_proto(
         true_all = torch.tensor([])
         # Updated for negative prototypes
         if model_new.num_neg_protos > 0:
-            all_protos = torch.cat((model_new.neg_prototypes, model_new.pos_prototypes), dim=0)
+            all_protos = torch.cat(
+                (model_new.neg_prototypes, model_new.pos_prototypes), dim=0
+            )
         else:
             all_protos = model_new.pos_prototypes
         for batch in loader:
             input_ids, attn_mask, y = batch
             batch_size = input_ids.size(0)
-            last_hidden_state=model_new.bart_model.base_model.encoder(
-                input_ids.cuda(),attn_mask.cuda(),
+            last_hidden_state = model_new.bart_model.base_model.encoder(
+                input_ids.cuda(),
+                attn_mask.cuda(),
                 output_attentions=False,
-                output_hidden_states=False
+                output_hidden_states=False,
             ).last_hidden_state
             if not model_new.dobatchnorm:
                 input_for_classfn = model_new.one_by_sqrt_bartoutdim * torch.cdist(
@@ -313,7 +468,7 @@ def get_bestk_train_data_for_every_proto(
                 ).view(batch_size, model_new.num_protos)
             predicted = torch.argmax(
                 model_new.classfn_model(input_for_classfn).view(
-                    batch_size, len(datasets_config[args.data_dir]["classes"])
+                    batch_size, DatasetInfo().num_classes
                 ),
                 dim=1,
             )
@@ -358,7 +513,6 @@ def get_distances_for_rdm(train_dataset_eval, model_new=None, return_distances=T
     """
     for every prototype find out k best similar training examples
     """
-    batch_size = 30
     dl = torch.utils.data.DataLoader(
         train_dataset_eval,
         batch_size=batch_size,
@@ -380,17 +534,18 @@ def get_distances_for_rdm(train_dataset_eval, model_new=None, return_distances=T
         for batch in loader:
             input_ids, attn_mask, y = batch
             batch_size = input_ids.size(0)
-            last_hidden_state=model_new.bart_model.base_model.encoder(
-                input_ids.cuda(),attn_mask.cuda(),
+            last_hidden_state = model_new.bart_model.base_model.encoder(
+                input_ids.cuda(),
+                attn_mask.cuda(),
                 output_attentions=False,
-                output_hidden_states=False
+                output_hidden_states=False,
             ).last_hidden_state
             input_for_classfn = model_new.one_by_sqrt_bartoutdim * torch.cdist(
                 last_hidden_state.view(batch_size, -1), all_protos
             )
             predicted = torch.argmax(
                 model_new.classfn_model(input_for_classfn).view(
-                    batch_size, len(datasets_config[args.data_dir]["classes"])
+                    batch_size, DatasetInfo().num_classes
                 ),
                 dim=1,
             )
@@ -407,8 +562,8 @@ def get_distances_for_rdm(train_dataset_eval, model_new=None, return_distances=T
 def print_protos(train_dataset, tokenizer, train_ls, which_protos, protos_train_table):
     df = np.zeros(
         [
-            len(datasets_config[args.data_dir]["classes"]),
-            len(datasets_config[args.data_dir]["classes"]),
+            DatasetInfo().num_classes,
+            DatasetInfo().num_classes,
         ]
     )
     first_prototypes = collections.defaultdict(list)
@@ -432,12 +587,12 @@ def print_protos(train_dataset, tokenizer, train_ls, which_protos, protos_train_
         for i in range(len(train_ys)):
             for j in range(i + 1, len(train_ys)):
                 df[
-                    datasets_config[args.data_dir]["classes"][train_ys[i]],
-                    datasets_config[args.data_dir]["classes"][train_ys[j]],
+                    DatasetInfo().dataset_classes_dict[train_ys[i]],
+                    DatasetInfo().dataset_classes_dict[train_ys[j]],
                 ] += 1
                 df[
-                    datasets_config[args.data_dir]["classes"][train_ys[j]],
-                    datasets_config[args.data_dir]["classes"][train_ys[i]],
+                    DatasetInfo().dataset_classes_dict[train_ys[j]],
+                    DatasetInfo().dataset_classes_dict[train_ys[i]],
                 ] += 1
         print(collections.Counter(train_ys))
 
@@ -450,8 +605,8 @@ def print_protos(train_dataset, tokenizer, train_ls, which_protos, protos_train_
 
     df = pd.DataFrame(
         df,
-        index=list(datasets_config[args.data_dir]["classes"].keys()),
-        columns=list(datasets_config[args.data_dir]["classes"].keys()),
+        index=list(DatasetInfo().dataset_classes_dict.keys()),
+        columns=list(DatasetInfo().dataset_classes_dict.keys()),
     )
     _ = plt.figure(figsize=(15, 15))
     sns.heatmap(df, cmap="RdYlGn", linewidths=0.30, annot=True)
@@ -472,11 +627,12 @@ def best_protos_for_test(test_dataset, model_new=None, top_k=5):
     all_protos = model_new.pos_prototypes
     input_ids, attn_mask, y = next(iter(dl))
     with torch.no_grad():
-        last_hidden_state=model_new.bart_model.base_model.encoder(
-                input_ids.cuda(),attn_mask.cuda(),
-                output_attentions=False,
-                output_hidden_states=False
-            ).last_hidden_state
+        last_hidden_state = model_new.bart_model.base_model.encoder(
+            input_ids.cuda(),
+            attn_mask.cuda(),
+            output_attentions=False,
+            output_hidden_states=False,
+        ).last_hidden_state
         input_for_classfn = torch.cdist(
             last_hidden_state.view(batch_size, -1),
             all_protos.view(model_new.num_protos, -1),
