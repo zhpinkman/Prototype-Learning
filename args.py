@@ -3,14 +3,17 @@ import argparse
 parser = argparse.ArgumentParser()
 
 
-parser.add_argument("--tiny_sample", dest="tiny_sample", action="store_true") 
-# parser.add_argument("--nli_dataset", help="check if the dataset is in nli format that has sentence1, sentence2, label", action="store_true")
+parser.add_argument("--tiny_sample", dest="tiny_sample", action="store_true")
+# parser.add_argument("--nli_dataset", help="check if the dataset is in nli
+# format that has sentence1, sentence2, label", action="store_true")
 parser.add_argument("--num_prototypes", type=int, default=50)
 parser.add_argument("--num_pos_prototypes", type=int, default=50)
 parser.add_argument("--model", type=str, default="ProtoTEx")
-parser.add_argument("--modelname", type = str)
-parser.add_argument("--data_dir", type = str)
+parser.add_argument("--batch_size", type=int, default=128)
+parser.add_argument("--modelname", type=str)
+parser.add_argument("--data_dir", type=str)
 parser.add_argument("--model_checkpoint", type=str, default=None)
+parser.add_argument("--use_max_length", action="store_true")
 
 # Wandb parameters
 parser.add_argument("--project", type=str)
@@ -24,52 +27,11 @@ parser.add_argument("--architecture", type=str, default="BART")
 
 args = parser.parse_args()
 
-datasets_config =  { 
-    "data/MNLI": {
-        'type': 'nli',
-        'features': {
-            'sentence1': 'sentence1',
-            'sentence2': 'sentence2',
-            'label': 'label'
-        },
-        'classes': {
-            'entailment': 0,
-            'neutral': 1,
-            'contradiction': 2
-        },
-        'max_length': 
-    },                 
-    "data/CoLA": {
-        'type': 'classification',
-        'features': {
-            'text': 'sentence',
-            'label': 'label'
-        },
-        'classes': {
-            0: 0,
-            1: 1
-        },
-        'max_length': 20
-    },
-    "data/SST-2": {
-        'type': 'classification',
-        'features': {
-            'text': 'sentence',
-            'label': 'label'
-        },
-        'classes': {
-            0: 0,
-            1: 1
-        },
-        'max_length': 30
-    },
+datasets_config = {
     "data/finegrained": {
-        'type': 'classification',
-        'features': {
-            'text': 'text',
-            'label': 'label'
-        },
-        'classes': {
+        "type": "classification",
+        "features": {"text": "text", "label": "label"},
+        "classes": {
             "fallacy of logic": 0,
             "circular reasoning": 1,
             "appeal to emotion": 2,
@@ -82,147 +44,120 @@ datasets_config =  {
             "false causality": 9,
             "equivocation": 10,
             "fallacy of relevance": 11,
-            "fallacy of credibility": 12
+            "fallacy of credibility": 12,
         },
-        'max_length': 128
+        "max_length": 128,
     },
     "data/logical_fallacy_with_none": {
-        'type': 'classification',
-        'features': {
-            'text': 'source_article', 
-            'label': 'updated_label'
+        "type": "classification",
+        "features": {"text": "source_article", "label": "updated_label"},
+        "classes": {
+            "O": 0,
+            "ad hominem": 1,
+            "ad populum": 2,
+            "appeal to emotion": 3,
+            "circular reasoning": 4,
+            "fallacy of credibility": 5,
+            "fallacy of extension": 6,
+            "fallacy of logic": 7,
+            "fallacy of relevance": 8,
+            "false causality": 9,
+            "false dilemma": 10,
+            "faulty generalization": 11,
+            "intentional": 12,
+            "equivocation": 13,
         },
-        'classes': {
-            'O': 0,
-            'ad hominem': 1,
-            'ad populum': 2,
-            'appeal to emotion': 3,
-            'circular reasoning': 4,
-            'fallacy of credibility': 5,
-            'fallacy of extension': 6,
-            'fallacy of logic': 7,
-            'fallacy of relevance': 8,
-            'false causality': 9,
-            'false dilemma': 10,
-            'faulty generalization': 11,
-            'intentional': 12,
-            'equivocation': 13
-        }
     },
     "data/logical_fallacy_augmented_with_none": {
-        'type': 'classification',
-        'features': {
-            'text': 'text', 
-            'label': 'label'
+        "type": "classification",
+        "features": {"text": "text", "label": "label"},
+        "classes": {
+            "O": 0,
+            "ad hominem": 1,
+            "ad populum": 2,
+            "appeal to emotion": 3,
+            "circular reasoning": 4,
+            "fallacy of credibility": 5,
+            "fallacy of extension": 6,
+            "fallacy of logic": 7,
+            "fallacy of relevance": 8,
+            "false causality": 9,
+            "false dilemma": 10,
+            "faulty generalization": 11,
+            "intentional": 12,
+            "equivocation": 13,
         },
-        'classes': {
-            'O': 0,
-            'ad hominem': 1,
-            'ad populum': 2,
-            'appeal to emotion': 3,
-            'circular reasoning': 4,
-            'fallacy of credibility': 5,
-            'fallacy of extension': 6,
-            'fallacy of logic': 7,
-            'fallacy of relevance': 8,
-            'false causality': 9,
-            'false dilemma': 10,
-            'faulty generalization': 11,
-            'intentional': 12,
-            'equivocation': 13
-        }
     },
     "data/finegrained_with_none": {
-        'type': 'classification',
-        'features': {
-            'text': 'text', 
-            'label': 'label'
-        }, 
-        'classes': {
-            'O': 0,
-            'ad hominem': 1,
-            'ad populum': 2,
-            'appeal to emotion': 3,
-            'circular reasoning': 4,
-            'fallacy of credibility': 5,
-            'fallacy of extension': 6,
-            'fallacy of logic': 7,
-            'fallacy of relevance': 8,
-            'false causality': 9,
-            'false dilemma': 10,
-            'faulty generalization': 11,
-            'intentional': 12,
-            'equivocation': 13
-        }
+        "type": "classification",
+        "features": {"text": "text", "label": "label"},
+        "classes": {
+            "O": 0,
+            "ad hominem": 1,
+            "ad populum": 2,
+            "appeal to emotion": 3,
+            "circular reasoning": 4,
+            "fallacy of credibility": 5,
+            "fallacy of extension": 6,
+            "fallacy of logic": 7,
+            "fallacy of relevance": 8,
+            "false causality": 9,
+            "false dilemma": 10,
+            "faulty generalization": 11,
+            "intentional": 12,
+            "equivocation": 13,
+        },
     },
     "data/logical_climate_finegrained": {
-        'type': 'classification',
-        'features': {
-            'text': 'text', 
-            'label': 'label'
-        }, 
-        'classes': {
-            'O': 0,
-            'ad hominem': 1,
-            'ad populum': 2,
-            'appeal to emotion': 3,
-            'circular reasoning': 4,
-            'fallacy of credibility': 5,
-            'fallacy of extension': 6,
-            'fallacy of logic': 7,
-            'fallacy of relevance': 8,
-            'false causality': 9,
-            'false dilemma': 10,
-            'faulty generalization': 11,
-            'intentional': 12,
-            'equivocation': 13
-        }
-    }, 
-    "data/coarsegrained_with_none": {
-        'type': 'classification',
-        'features': {
-            'text': 'text',
-            'label': 'label'
+        "type": "classification",
+        "features": {"text": "text", "label": "label"},
+        "classes": {
+            "O": 0,
+            "ad hominem": 1,
+            "ad populum": 2,
+            "appeal to emotion": 3,
+            "circular reasoning": 4,
+            "fallacy of credibility": 5,
+            "fallacy of extension": 6,
+            "fallacy of logic": 7,
+            "fallacy of relevance": 8,
+            "false causality": 9,
+            "false dilemma": 10,
+            "faulty generalization": 11,
+            "intentional": 12,
+            "equivocation": 13,
         },
-        'classes': {
-            'O': 0,
+    },
+    "data/coarsegrained_with_none": {
+        "type": "classification",
+        "features": {"text": "text", "label": "label"},
+        "classes": {
+            "O": 0,
             "fallacy of relevance": 1,
             "fallacies of defective induction": 2,
             "fallacies of presumption": 3,
             "fallacy of ambiguity": 4,
-        }
+        },
     },
     "data/logical_climate_coarsegrained": {
-        'type': 'classification',
-        'features': {
-            'text': 'text',
-            'label': 'coarse_label'
-        },
-        'classes': {
-            'O': 0,
+        "type": "classification",
+        "features": {"text": "text", "label": "coarse_label"},
+        "classes": {
+            "O": 0,
             "fallacy of relevance": 1,
             "fallacies of defective induction": 2,
             "fallacies of presumption": 3,
             "fallacy of ambiguity": 4,
-        }
+        },
     },
     "data/bigbench": {
-        'type': 'classification',
-        'features': {
-            'text': 'text',
-            'label': 'label'
-        }, 
-        'classes': {
-            0: 0,
-            1: 1
-        }
+        "type": "classification",
+        "features": {"text": "text", "label": "label"},
+        "classes": {0: 0, 1: 1},
     },
     "data/ptc_slc_without_none_with_context/fine": {
-        'type': 'classification',
-        'features': {
-            'text': 'text',
-            'label': 'label'
-        }, 
+        "type": "classification",
+        "features": {"text": "text", "label": "label"},
         "classes": {
             "Appeal_to_Authority": 0,
             "Appeal_to_fear-prejudice": 1,
@@ -242,14 +177,11 @@ datasets_config =  {
             "Straw_Men": 15,
             "Thought-terminating_Cliches": 16,
             "Whataboutism": 17,
-        }
+        },
     },
     "data/ptc_slc_with_context": {
-        'type': 'classification',
-        'features': {
-            'text': 'text',
-            'label': 'label'
-        },
+        "type": "classification",
+        "features": {"text": "text", "label": "label"},
         "classes": {
             "O": 0,
             "Appeal_to_Authority": 1,
@@ -270,14 +202,11 @@ datasets_config =  {
             "Straw_Men": 16,
             "Thought-terminating_Cliches": 17,
             "Whataboutism": 18,
-        }
-    },
-    "data/ptc_slc_aug_without_none_with_context":{
-        'type': 'classification',
-        'features': {
-            'text': 'text',
-            'label': 'label'
         },
+    },
+    "data/ptc_slc_aug_without_none_with_context": {
+        "type": "classification",
+        "features": {"text": "text", "label": "label"},
         "classes": {
             "Appeal_to_Authority": 0,
             "Appeal_to_fear-prejudice": 1,
@@ -297,12 +226,12 @@ datasets_config =  {
             "Straw_Men": 15,
             "Thought-terminating_Cliches": 16,
             "Whataboutism": 17,
-        }
-    }
+        },
+    },
 }
 
 bad_classes = [
     "prejudicial language",
     "fallacy of slippery slope",
-    "slothful induction"
+    "slothful induction",
 ]
