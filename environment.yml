@@ -6,10 +6,12 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1
   - _openmp_mutex=5.1
+  - astroid=2.14.2
   - blas=1.0
   - brotlipy=0.7.0
   - bzip2=1.0.8
   - ca-certificates=2023.01.10
+  - colorama=0.4.6
   - cryptography=39.0.1
   - cuda=11.6.1
   - cuda-cccl=11.6.55
@@ -42,15 +44,19 @@ dependencies:
   - cuda-toolkit=11.6.1
   - cuda-tools=11.6.1
   - cuda-visual-tools=11.6.1
+  - dill=0.3.6
   - ffmpeg=4.3
+  - flake8=6.0.0
   - flit-core=3.8.0
   - freetype=2.12.1
   - gds-tools=1.6.0.25
   - giflib=5.2.1
   - gmp=6.2.1
   - gnutls=3.6.15
+  - isort=5.9.3
   - jpeg=9e
   - lame=3.100
+  - lazy-object-proxy=1.6.0
   - lcms2=2.12
   - ld_impl_linux-64=2.38
   - lerc=3.0
@@ -83,6 +89,7 @@ dependencies:
   - libwebp=1.2.4
   - libwebp-base=1.2.4
   - lz4-c=1.9.4
+  - mccabe=0.7.0
   - mkl_fft=1.3.1
   - mkl_random=1.2.2
   - ncurses=6.4
@@ -92,7 +99,11 @@ dependencies:
   - openh264=2.1.1
   - openssl=1.1.1t
   - pip=23.0.1
+  - platformdirs=2.5.2
+  - pycodestyle=2.10.0
   - pycparser=2.21
+  - pyflakes=3.0.1
+  - pylint=2.16.2
   - pyopenssl=23.0.0
   - pysocks=1.7.1
   - python=3.9.16
@@ -104,17 +115,23 @@ dependencies:
   - six=1.16.0
   - sqlite=3.41.1
   - tk=8.6.12
+  - tomli=2.0.1
+  - tomlkit=0.11.1
   - typing_extensions=4.4.0
   - tzdata=2022g
   - wheel=0.38.4
+  - wrapt=1.14.1
   - xz=5.2.10
   - zlib=1.2.13
   - zstd=1.5.2
   - pip:
+    - aiohttp==3.8.4
+    - aiosignal==1.3.1
     - appdirs==1.4.4
     - argon2-cffi==21.3.0
     - argon2-cffi-bindings==21.2.0
     - asttokens==2.0.5
+    - async-timeout==4.0.2
     - attrs==21.4.0
     - backcall==0.2.0
     - beautifulsoup4==4.10.0
@@ -125,6 +142,7 @@ dependencies:
     - click==8.0.4
     - contourpy==1.0.7
     - cycler==0.11.0
+    - datasets==2.11.0
     - debugpy==1.5.1
     - decorator==5.1.1
     - defusedxml==0.7.1
@@ -134,9 +152,11 @@ dependencies:
     - executing==0.8.3
     - filelock==3.6.0
     - fonttools==4.39.3
+    - frozenlist==1.3.3
+    - fsspec==2023.3.0
     - gitdb==4.0.10
     - gitpython==3.1.31
-    - huggingface-hub==0.4.0
+    - huggingface-hub==0.13.3
     - idna==3.3
     - importlib-resources==5.4.0
     - intel-cmplr-lib-rt==2023.0.0
@@ -164,6 +184,8 @@ dependencies:
     - mkl==2023.0.0
     - mkl-fft==1.3.1
     - mkl-service==2.4.0
+    - multidict==6.0.4
+    - multiprocess==0.70.14
     - nbclient==0.5.13
     - nbconvert==6.4.4
     - nbformat==5.2.0
@@ -171,6 +193,7 @@ dependencies:
     - notebook==6.4.10
     - numba==0.56.4
     - numpy==1.22.4
+    - nvidia-htop==1.0.5
     - packaging==21.3
     - pandas==1.5.3
     - pandocfilters==1.5.0
@@ -185,6 +208,7 @@ dependencies:
     - psutil==5.9.0
     - ptyprocess==0.7.0
     - pure-eval==0.2.2
+    - pyarrow==11.0.0
     - pygments==2.11.2
     - pynndescent==0.5.8
     - pyparsing==3.0.7
@@ -195,6 +219,7 @@ dependencies:
     - pyzmq==22.3.0
     - regex==2022.3.15
     - requests==2.27.1
+    - responses==0.18.0
     - sacremoses==0.0.49
     - scikit-learn==1.0.2
     - scipy==1.8.0
@@ -207,6 +232,7 @@ dependencies:
     - soupsieve==2.3.1
     - stack-data==0.2.0
     - tbb==2021.8.0
+    - termcolor==2.2.0
     - terminado==0.13.3
     - testpath==0.6.0
     - threadpoolctl==3.1.0
@@ -226,4 +252,6 @@ dependencies:
     - wcwidth==0.2.5
     - webencodings==0.5.1
     - widgetsnbextension==3.6.0
+    - xxhash==3.2.0
+    - yarl==1.8.2
     - zipp==3.7.0
