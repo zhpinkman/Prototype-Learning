@@ -274,12 +274,9 @@ class EarlyStopping(object):
         torch.save(model.state_dict(), path)
 
 
-def evaluate(dl, model_new=None, path=None, modelclass=None):
+def evaluate(dl, model_new=None):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    assert (model_new is not None) ^ (path is not None)
-    if path is not None:
-        model_new = modelclass().cuda()
-        model_new.load_state_dict(torch.load(path))
+    assert model_new is not None
     loader = tqdm(dl, total=len(dl), unit="batches")
     total_len = 0
     model_new.eval()
