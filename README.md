@@ -18,4 +18,6 @@ To train the model, use the script `general.sh` that contains all the arg parame
 
 Run `python main.py --help` to see all the available parameters.
 
-After running the `general.sh` that would train the model, the model will be saved in the `Models` folder. To run the explaratory analysis, run the `inference_and_explanation.sh` script. This will generate all the prototypes and the test / train examples that are close to prototypes in the `artifacts` folder. Other analysis are located in `Notebooks/post_hoc_analysis.ipynb`
+After running the `general.sh` that would train the model, the model will be saved in the `Models` folder. There are different scripts such as training and evaluation in the general.sh that you comment or uncomment to run the different parts of the pipeline. To run the explaratory analysis, run the `inference_and_explanation.sh` script. This will generate all the prototypes and the test / train examples that are close to prototypes in the `artifacts` folder. Other analysis are located in `Notebooks/post_hoc_analysis.ipynb`.
+
+glue dataset that is currently in the gitignore file and extract it under `data` directory. You can download it from here: https://drive.google.com/file/d/1XIapOHwt_m5Z5O5VyCkkozltEyApIMLX/view?usp=share_link

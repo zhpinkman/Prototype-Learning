@@ -13,3 +13,4 @@ Logs/*
 **/*.out
 wandb/*
 data/glue_data/*
+data/glue_data.zip
