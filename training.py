@@ -175,6 +175,7 @@ def train_ProtoTEx_w_neg(
     p3_lamb = 0.9
     for iter_ in range(n_iters):
         wandb.log({"epoch": iter_})
+        print(f"Epoch: {iter_}")
         # total_loss = 0
         """
         During Delta, We want decoder to become better at decoding the trained encoder
@@ -194,6 +195,7 @@ def train_ProtoTEx_w_neg(
         #     for n,w in model.named_parameters():
         #         if w.requires_grad: print(n)
         for epoch in range(delta):
+            print(f"Delta Epoch: {epoch}")
             train_loader = train_dl
             for i_batch, batch in enumerate(tqdm(train_loader, leave=False)):
                 input_ids, attn_mask, y = batch

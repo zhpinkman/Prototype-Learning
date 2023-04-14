@@ -42,7 +42,7 @@ done
 
 # for conf in "mnli"; do
 
-#     WANDB_MODE="offline" CUDA_VISIBLE_DEVICES=3 python evaluate.py \
+#     WANDB_MODE="offline" CUDA_VISIBLE_DEVICES=3 python evaluate_model.py \
 #         --num_pos_prototypes 50 \
 #         --num_prototypes 50 \
 #         --batch_size 128 \
