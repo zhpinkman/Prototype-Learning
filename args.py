@@ -7,7 +7,6 @@ parser.add_argument("--tiny_sample", dest="tiny_sample", action="store_true")
 # parser.add_argument("--nli_dataset", help="check if the dataset is in nli
 # format that has sentence1, sentence2, label", action="store_true")
 parser.add_argument("--num_prototypes", type=int, default=50)
-parser.add_argument("--num_pos_prototypes", type=int, default=50)
 parser.add_argument("--model", type=str, default="ProtoTEx")
 parser.add_argument("--batch_size", type=int, default=128)
 parser.add_argument("--modelname", type=str)

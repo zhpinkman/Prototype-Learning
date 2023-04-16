@@ -10,19 +10,8 @@ def create_labels(dataset):
 
 class CustomNonBinaryClassDataset(torch.utils.data.Dataset):
     def __init__(
-        self,
-        sentences,
-        labels,
-        tokenizer,
-        max_length: int,
-        dataset_type: str,
-        it_is_train=1,
-        pos_or_neg=None,
-        balance=False,
-        specific_label=None,
-        for_protos=False,
+        self, sentences, labels, tokenizer, max_length: int, dataset_type: str
     ):
-
         try:
             if dataset_type == "classification":
                 sentences = [str(i) for i in sentences]
@@ -158,7 +147,6 @@ def make_dataset(directory):
 
 
 def make_bert_testset(dataset):
-
     words, tags, ids = [], [], []
     for article in dataset:
         tmp_doc, tmp_label, tmp_id = [], [], []

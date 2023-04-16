@@ -11,7 +11,6 @@ from models import ProtoTEx
 
 model = ProtoTEx(
     args.num_prototypes,
-    args.num_pos_prototypes,
     bias=False,
     dropout=False,
     special_classfn=True,  # special_classfn=False, # apply dropout only on bias
@@ -68,10 +67,8 @@ joblib.dump(bestk_train_data_per_proto, "artifacts/bestk_train_data_per_proto.jo
 joblib.dump(best_protos_per_testeg, "artifacts/best_protos_per_testeg.joblib")
 joblib.dump(best_protos_per_traineg, "artifacts/best_protos_per_traineg.joblib")
 
-if model.num_neg_protos > 0:
-    all_protos = torch.cat((model.neg_prototypes, model.pos_prototypes), dim=0)
-else:
-    all_protos = model.pos_prototypes
+
+all_protos = model.prototypes
 torch.save(all_protos, "artifacts/all_protos.pt")
 
 utils.print_protos(

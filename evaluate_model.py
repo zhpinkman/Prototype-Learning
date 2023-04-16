@@ -34,17 +34,12 @@ def main():
     )
 
     if args.model == "ProtoTEx":
-        print(
-            "ProtoTEx best model: {0}, {1}".format(
-                args.num_prototypes, args.num_pos_prototypes
-            )
-        )
+        print("ProtoTEx best model: {0}".format(args.num_prototypes))
         if args.architecture == "BART":
             print(f"Using backone: {args.architecture}")
             torch.cuda.empty_cache()
             model = ProtoTEx(
                 num_prototypes=args.num_prototypes,
-                num_pos_prototypes=args.num_pos_prototypes,
                 bias=False,
                 dropout=False,
                 special_classfn=True,  # special_classfn=False, # apply dropout only on bias
@@ -59,7 +54,6 @@ def main():
             torch.cuda.empty_cache()
             model = ProtoTEx_roberta(
                 num_prototypes=args.num_prototypes,
-                num_pos_prototypes=args.num_pos_prototypes,
                 bias=False,
                 dropout=False,
                 special_classfn=True,  # special_classfn=False, # apply dropout only on bias
@@ -72,7 +66,6 @@ def main():
             print(f"Using backone: {args.architecture}")
             model = ProtoTEx_electra(
                 num_prototypes=args.num_prototypes,
-                num_pos_prototypes=args.num_pos_prototypes,
                 bias=False,
                 dropout=False,
                 special_classfn=True,  # special_classfn=False, # apply dropout only on bias

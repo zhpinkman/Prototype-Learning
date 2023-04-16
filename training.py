@@ -80,18 +80,15 @@ def train_ProtoTEx_w_neg(
     n_classes,
     max_length,
     num_prototypes,
-    num_pos_prototypes,
     class_weights=None,
     modelname="0408_NegProtoBart_protos_xavier_large_bs20_20_woRat_noReco_g2d_nobias_nodrop_cu1_PosUp_normed",
     model_checkpoint=None,
 ):
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     torch.cuda.empty_cache()
     model = ProtoTEx(
         num_prototypes=num_prototypes,
-        num_pos_prototypes=num_pos_prototypes,
         class_weights=class_weights,
         n_classes=n_classes,
         max_length=max_length,
@@ -135,7 +132,7 @@ def train_ProtoTEx_w_neg(
         batch = next(iter(random_data_loader))
         input_ids, attn_mask, y = batch
         model.set_prototypes(
-            input_ids_pos_rdm=input_ids, attn_mask_pos_rdm=attn_mask, do_random=True
+            input_ids_rdm=input_ids, attn_mask_rdm=attn_mask, do_random=True
         )
 
     # Track all model parameters
@@ -365,7 +362,6 @@ def train_ProtoTEx_w_neg(
             )
 
         elif (iter_ + 1) % 5 == 0:
-
             # print_logs(logs_path,"Early Stopping VAL SCORES (not the best ones)",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
 
             """
@@ -393,7 +389,6 @@ def train_ProtoTEx_w_neg_roberta(
     n_classes,
     max_length,
     num_prototypes,
-    num_pos_prototypes,
     class_weights=None,
     modelname="0408_NegProtoBart_protos_xavier_large_bs20_20_woRat_noReco_g2d_nobias_nodrop_cu1_PosUp_normed",
     model_checkpoint=None,
@@ -401,7 +396,6 @@ def train_ProtoTEx_w_neg_roberta(
     torch.cuda.empty_cache()
     model = ProtoTEx_roberta(
         num_prototypes=num_prototypes,
-        num_pos_prototypes=num_pos_prototypes,
         class_weights=class_weights,
         n_classes=n_classes,
         max_length=max_length,
@@ -442,7 +436,7 @@ def train_ProtoTEx_w_neg_roberta(
         batch = next(iter(random_data_loader))
         input_ids, attn_mask, y = batch
         model.set_prototypes(
-            input_ids_pos_rdm=input_ids, attn_mask_pos_rdm=attn_mask, do_random=True
+            input_ids_rdm=input_ids, attn_mask_rdm=attn_mask, do_random=True
         )
 
     # Track all model parameters
@@ -646,7 +640,6 @@ def train_ProtoTEx_w_neg_roberta(
             )
 
         elif (iter_ + 1) % 5 == 0:
-
             # print_logs(logs_path,"Early Stopping VAL SCORES (not the best ones)",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
 
             """
@@ -674,7 +667,6 @@ def train_ProtoTEx_w_neg_electra(
     n_classes,
     max_length,
     num_prototypes,
-    num_pos_prototypes,
     class_weights=None,
     modelname="0408_NegProtoBart_protos_xavier_large_bs20_20_woRat_noReco_g2d_nobias_nodrop_cu1_PosUp_normed",
     model_checkpoint=None,
@@ -682,7 +674,6 @@ def train_ProtoTEx_w_neg_electra(
     torch.cuda.empty_cache()
     model = ProtoTEx_electra(
         num_prototypes=num_prototypes,
-        num_pos_prototypes=num_pos_prototypes,
         class_weights=class_weights,
         n_classes=n_classes,
         max_length=max_length,
@@ -723,7 +714,7 @@ def train_ProtoTEx_w_neg_electra(
         batch = next(iter(random_data_loader))
         input_ids, attn_mask, y = batch
         model.set_prototypes(
-            input_ids_pos_rdm=input_ids, attn_mask_pos_rdm=attn_mask, do_random=True
+            input_ids_rdm=input_ids, attn_mask_rdm=attn_mask, do_random=True
         )
 
     # Track all model parameters
@@ -927,7 +918,6 @@ def train_ProtoTEx_w_neg_electra(
             )
 
         elif (iter_ + 1) % 5 == 0:
-
             # print_logs(logs_path,"Early Stopping VAL SCORES (not the best ones)",iter_,val_loss,mac_val_prec,mac_val_rec,mac_val_f1)
 
             """

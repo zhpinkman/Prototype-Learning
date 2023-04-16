@@ -126,7 +126,6 @@ class ProtoTEx(torch.nn.Module):
     def __init__(
         self,
         num_prototypes,
-        num_pos_prototypes,
         n_classes,
         max_length,
         class_weights=None,
@@ -148,19 +147,9 @@ class ProtoTEx(torch.nn.Module):
         )
         self.max_position_embeddings = max_length
         self.num_protos = num_prototypes
-        self.num_pos_protos = num_pos_prototypes
-        self.num_neg_protos = self.num_protos - self.num_pos_protos
-        self.pos_prototypes = torch.nn.Parameter(
-            torch.rand(
-                self.num_pos_protos, self.max_position_embeddings, self.bart_out_dim
-            )
+        self.prototypes = torch.nn.Parameter(
+            torch.rand(self.num_protos, self.max_position_embeddings, self.bart_out_dim)
         )
-        if self.num_neg_protos > 0:
-            self.neg_prototypes = torch.nn.Parameter(
-                torch.rand(
-                    self.num_neg_protos, self.max_position_embeddings, self.bart_out_dim
-                )
-            )
 
         # TODO: Try setting bias to True
         self.classfn_model = torch.nn.Linear(self.num_protos, self.n_classes, bias=bias)
@@ -188,28 +177,21 @@ class ProtoTEx(torch.nn.Module):
         self.distance_grounder = torch.zeros(self.n_classes, self.num_protos).cuda()
         for i in range(self.n_classes):
             # self.distance_grounder[i][np.random.randint(0, self.num_protos, int(self.num_protos / 2))] = 1e7
-            if self.num_neg_protos > 0 and i == 0:
-                self.distance_grounder[0][: self.num_pos_protos] = 1e7
-            self.distance_grounder[i][self.num_pos_protos :] = 1e7
-            # if self.num_neg_protos > 0 and i == 0:
-            #     self.distance_grounder[0][self.num_pos_protos:] = 1e7
-            # self.distance_grounder[i][:self.num_pos_protos] = 1e7
+            self.distance_grounder[i][self.num_protos :] = 1e7
 
-    def set_prototypes(self, input_ids_pos_rdm, attn_mask_pos_rdm, do_random=False):
+    def set_prototypes(self, input_ids_rdm, attn_mask_rdm, do_random=False):
         if do_random:
             print("initializing prototypes with xavier init")
-            torch.nn.init.xavier_normal_(self.pos_prototypes)
-            if self.num_neg_protos > 0:
-                torch.nn.init.xavier_normal_(self.neg_prototypes)
+            torch.nn.init.xavier_normal_(self.prototypes)
         else:
             # Use this when the dataset is balanced (augmented)
             print("initializing prototypes with encoded outputs")
             self.eval()
             with torch.no_grad():
-                self.pos_prototypes = torch.nn.Parameter(
+                self.prototypes = torch.nn.Parameter(
                     self.bart_model.base_model.encoder(
-                        input_ids_pos_rdm.cuda(),
-                        attn_mask_pos_rdm.cuda(),
+                        input_ids_rdm.cuda(),
+                        attn_mask_rdm.cuda(),
                         output_attentions=False,
                         output_hidden_states=False,
                     ).last_hidden_state
@@ -243,12 +225,8 @@ class ProtoTEx(torch.nn.Module):
     def set_classfn_status(self, status=True):
         self.classfn_model.requires_grad_(status)
 
-    def set_protos_status(self, pos_or_neg=None, status=True):
-        if pos_or_neg == "pos" or pos_or_neg is None:
-            self.pos_prototypes.requires_grad = status
-        if self.num_neg_protos > 0:
-            if pos_or_neg == "neg" or pos_or_neg is None:
-                self.neg_prototypes.requires_grad = status
+    def set_protos_status(self, status=True):
+        self.prototypes.requires_grad = status
 
     def forward(
         self,
@@ -268,7 +246,6 @@ class ProtoTEx(torch.nn.Module):
         p3_lamb=1.0,
         distmask_lp1=0,
         distmask_lp2=0,
-        pos_or_neg=None,
         random_mask_for_distanceMat=None,
     ):
         """
@@ -315,12 +292,7 @@ class ProtoTEx(torch.nn.Module):
             torch.tensor(0),
         )
         if use_classfn or use_p1 or use_p2 or use_p3:
-            if self.num_neg_protos > 0:
-                all_protos = torch.cat(
-                    (self.neg_prototypes, self.pos_prototypes), dim=0
-                )
-            else:
-                all_protos = self.pos_prototypes
+            all_protos = self.prototypes
             if use_classfn or use_p1 or use_p2:
                 if not self.dobatchnorm:
                     ## TODO: This loss function is not ignoring the padded part of the sequence; Get element-wise distane and then multiply with the mask
@@ -366,7 +338,7 @@ class ProtoTEx(torch.nn.Module):
             ## Used for Inter-prototype distance
             #             l_p3 = self.one_by_sqrt_bartoutdim * torch.mean(torch.pdist(all_protos.view(self.num_protos,-1)))
             l_p3 = self.one_by_sqrt_bartoutdim * torch.mean(
-                torch.pdist(self.pos_prototypes.view(self.num_pos_protos, -1))
+                torch.pdist(self.prototypes.view(self.num_protos, -1))
             )
         if use_classfn:
             if self.do_dropout:
@@ -407,7 +379,6 @@ class ProtoTEx_roberta(torch.nn.Module):
     def __init__(
         self,
         num_prototypes,
-        num_pos_prototypes,
         n_classes,
         max_length,
         class_weights=None,
@@ -429,22 +400,12 @@ class ProtoTEx_roberta(torch.nn.Module):
 
         self.max_position_embeddings = max_length
         self.num_protos = num_prototypes
-        self.num_pos_protos = num_pos_prototypes
-        self.num_neg_protos = self.num_protos - self.num_pos_protos
 
-        self.pos_prototypes = torch.nn.Parameter(
+        self.prototypes = torch.nn.Parameter(
             torch.rand(
-                self.num_pos_protos, self.max_position_embeddings, self.roberta_out_dim
+                self.num_protos, self.max_position_embeddings, self.roberta_out_dim
             )
         )
-        if self.num_neg_protos > 0:
-            self.neg_prototypes = torch.nn.Parameter(
-                torch.rand(
-                    self.num_neg_protos,
-                    self.max_position_embeddings,
-                    self.roberta_out_dim,
-                )
-            )
 
         # TODO: Try setting bias to True
         self.classfn_model = torch.nn.Linear(self.num_protos, self.n_classes, bias=bias)
@@ -467,18 +428,14 @@ class ProtoTEx_roberta(torch.nn.Module):
         self.distance_grounder = torch.zeros(self.n_classes, self.num_protos).cuda()
         for i in range(self.n_classes):
             # self.distance_grounder[i][np.random.randint(0, self.num_protos, int(self.num_protos / 2))] = 1e7
-            if self.num_neg_protos > 0 and i == 0:
-                self.distance_grounder[0][: self.num_pos_protos] = 1e7
-            self.distance_grounder[i][self.num_pos_protos :] = 1e7
+            self.distance_grounder[i][self.num_protos :] = 1e7
             # if self.num_neg_protos > 0 and i == 0:
-            #     self.distance_grounder[0][self.num_pos_protos:] = 1e7
-            # self.distance_grounder[i][:self.num_pos_protos] = 1e7
+            #     self.distance_grounder[0][self.num_protos:] = 1e7
+            # self.distance_grounder[i][:self.num_protos] = 1e7
 
-    def set_prototypes(self, input_ids_pos_rdm, attn_mask_pos_rdm, do_random=False):
+    def set_prototypes(self, input_ids_rdm, attn_mask_rdm, do_random=False):
         print("initializing prototypes with xavier init")
-        torch.nn.init.xavier_normal_(self.pos_prototypes)
-        if self.num_neg_protos > 0:
-            torch.nn.init.xavier_normal_(self.neg_prototypes)
+        torch.nn.init.xavier_normal_(self.prototypes)
 
     def set_encoder_status(self, status=True):
         self.num_enc_layers = len(self.roberta_model.encoder.layer)
@@ -491,12 +448,8 @@ class ProtoTEx_roberta(torch.nn.Module):
     def set_classfn_status(self, status=True):
         self.classfn_model.requires_grad_(status)
 
-    def set_protos_status(self, pos_or_neg=None, status=True):
-        if pos_or_neg == "pos" or pos_or_neg is None:
-            self.pos_prototypes.requires_grad = status
-        if self.num_neg_protos > 0:
-            if pos_or_neg == "neg" or pos_or_neg is None:
-                self.neg_prototypes.requires_grad = status
+    def set_protos_status(self, status=True):
+        self.prototypes.requires_grad = status
 
     def forward(
         self,
@@ -516,7 +469,6 @@ class ProtoTEx_roberta(torch.nn.Module):
         p3_lamb=1.0,
         distmask_lp1=0,
         distmask_lp2=0,
-        pos_or_neg=None,
         random_mask_for_distanceMat=None,
     ):
         """
@@ -547,10 +499,7 @@ class ProtoTEx_roberta(torch.nn.Module):
             torch.tensor(0),
         )
 
-        if self.num_neg_protos > 0:
-            all_protos = torch.cat((self.neg_prototypes, self.pos_prototypes), dim=0)
-        else:
-            all_protos = self.pos_prototypes
+        all_protos = self.prototypes
 
         if use_classfn or use_p1 or use_p2:
             if not self.dobatchnorm:
@@ -599,7 +548,7 @@ class ProtoTEx_roberta(torch.nn.Module):
             # Used for Inter-prototype distance
             #             l_p3 = self.one_by_sqrt_bartoutdim * torch.mean(torch.pdist(all_protos.view(self.num_protos,-1)))
             l_p3 = self.one_by_sqrt_robertaoutdim * torch.mean(
-                torch.pdist(self.pos_prototypes.view(self.num_pos_protos, -1))
+                torch.pdist(self.prototypes.view(self.num_protos, -1))
             )
 
         if use_classfn:
@@ -642,7 +591,6 @@ class ProtoTEx_electra(torch.nn.Module):
     def __init__(
         self,
         num_prototypes,
-        num_pos_prototypes,
         n_classes,
         max_length,
         class_weights=None,
@@ -663,22 +611,13 @@ class ProtoTEx_electra(torch.nn.Module):
 
         self.max_position_embeddings = max_length
         self.num_protos = num_prototypes
-        self.num_pos_protos = num_pos_prototypes
-        self.num_neg_protos = self.num_protos - self.num_pos_protos
+        self.n_classes = n_classes
 
-        self.pos_prototypes = torch.nn.Parameter(
+        self.prototypes = torch.nn.Parameter(
             torch.rand(
-                self.num_pos_protos, self.max_position_embeddings, self.electra_out_dim
+                self.num_protos, self.max_position_embeddings, self.electra_out_dim
             )
         )
-        if self.num_neg_protos > 0:
-            self.neg_prototypes = torch.nn.Parameter(
-                torch.rand(
-                    self.num_neg_protos,
-                    self.max_position_embeddings,
-                    self.electra_out_dim,
-                )
-            )
 
         # TODO: Try setting bias to True
         self.classfn_model = torch.nn.Linear(self.num_protos, self.n_classes, bias=bias)
@@ -703,21 +642,17 @@ class ProtoTEx_electra(torch.nn.Module):
             # Approach 1: 50% Random initialization
             # self.distance_grounder[i][np.random.randint(0, self.num_protos, int(self.num_protos / 2))] = 1e7
             # Approach 2: Original Prototex paper approach
-            if self.num_neg_protos > 0 and i == 0:
-                self.distance_grounder[0][: self.num_pos_protos] = 1e7
-            self.distance_grounder[i][self.num_pos_protos :] = 1e7
+            self.distance_grounder[i][self.num_protos :] = 1e7
             # Approach 3: A mistake but works well
             # if self.num_neg_protos > 0 and i == 0:
-            #     self.distance_grounder[0][self.num_pos_protos:] = 1e7
-            # self.distance_grounder[i][:self.num_pos_protos] = 1e7
+            #     self.distance_grounder[0][self.num_protos:] = 1e7
+            # self.distance_grounder[i][:self.num_protos] = 1e7
             # Approach 4: For the case that we want each class to be connected to at least k prototypes which is 3 in our case
             # self.distance_grounder[i][3*i:3*i + 3] = 1e7
 
-    def set_prototypes(self, input_ids_pos_rdm, attn_mask_pos_rdm, do_random=False):
+    def set_prototypes(self, input_ids_rdm, attn_mask_rdm, do_random=False):
         print("initializing prototypes with xavier init")
-        torch.nn.init.xavier_normal_(self.pos_prototypes)
-        if self.num_neg_protos > 0:
-            torch.nn.init.xavier_normal_(self.neg_prototypes)
+        torch.nn.init.xavier_normal_(self.prototypes)
 
     def set_encoder_status(self, status=True):
         self.num_enc_layers = len(self.electra_model.encoder.layer)
@@ -730,12 +665,8 @@ class ProtoTEx_electra(torch.nn.Module):
     def set_classfn_status(self, status=True):
         self.classfn_model.requires_grad_(status)
 
-    def set_protos_status(self, pos_or_neg=None, status=True):
-        if pos_or_neg == "pos" or pos_or_neg is None:
-            self.pos_prototypes.requires_grad = status
-        if self.num_neg_protos > 0:
-            if pos_or_neg == "neg" or pos_or_neg is None:
-                self.neg_prototypes.requires_grad = status
+    def set_protos_status(self, status=True):
+        self.prototypes.requires_grad = status
 
     def forward(
         self,
@@ -755,7 +686,6 @@ class ProtoTEx_electra(torch.nn.Module):
         p3_lamb=1.0,
         distmask_lp1=0,
         distmask_lp2=0,
-        pos_or_neg=None,
         random_mask_for_distanceMat=None,
     ):
         """
@@ -786,10 +716,7 @@ class ProtoTEx_electra(torch.nn.Module):
             torch.tensor(0),
         )
 
-        if self.num_neg_protos > 0:
-            all_protos = torch.cat((self.neg_prototypes, self.pos_prototypes), dim=0)
-        else:
-            all_protos = self.pos_prototypes
+        all_protos = self.prototypes
 
         if use_classfn or use_p1 or use_p2:
             if not self.dobatchnorm:
@@ -838,7 +765,7 @@ class ProtoTEx_electra(torch.nn.Module):
             # Used for Inter-prototype distance
             #             l_p3 = self.one_by_sqrt_bartoutdim * torch.mean(torch.pdist(all_protos.view(self.num_protos,-1)))
             l_p3 = self.one_by_sqrt_electraoutdim * torch.mean(
-                torch.pdist(self.pos_prototypes.view(self.num_pos_protos, -1))
+                torch.pdist(self.prototypes.view(self.num_protos, -1))
             )
 
         if use_classfn:

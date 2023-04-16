@@ -59,8 +59,7 @@ def main():
         config={
             "data_dir": args.data_dir,
             "modelname": args.modelname,
-            "num_pos_prototypes": args.num_pos_prototypes,
-            "num_neg_prototypes": args.num_prototypes - args.num_pos_prototypes,
+            "num_prototypes": args.num_prototypes,
             "none_class": args.none_class,
             "augmentation": args.augmentation,
             "nli_intialization": args.nli_intialization,
@@ -70,11 +69,7 @@ def main():
     )
 
     if args.model == "ProtoTEx":
-        print(
-            "ProtoTEx best model: {0}, {1}".format(
-                args.num_prototypes, args.num_pos_prototypes
-            )
-        )
+        print("ProtoTEx best model: {0}".format(args.num_prototypes))
         if args.architecture == "BART":
             print(f"Using backone: {args.architecture}")
             train_ProtoTEx_w_neg(
@@ -84,7 +79,6 @@ def main():
                 n_classes=utils.DatasetInfo().num_classes,
                 max_length=utils.DatasetInfo().max_length,
                 num_prototypes=args.num_prototypes,
-                num_pos_prototypes=args.num_pos_prototypes,
                 class_weights=class_weight_vect,
                 modelname=args.modelname,
                 model_checkpoint=args.model_checkpoint,
@@ -98,7 +92,6 @@ def main():
                 n_classes=utils.DatasetInfo().num_classes,
                 max_length=utils.DatasetInfo().max_length,
                 num_prototypes=args.num_prototypes,
-                num_pos_prototypes=args.num_pos_prototypes,
                 class_weights=class_weight_vect,
                 modelname=args.modelname,
                 model_checkpoint=args.model_checkpoint,
@@ -112,7 +105,6 @@ def main():
                 n_classes=utils.DatasetInfo().num_classes,
                 max_length=utils.DatasetInfo().max_length,
                 num_prototypes=args.num_prototypes,
-                num_pos_prototypes=args.num_pos_prototypes,
                 class_weights=class_weight_vect,
                 modelname=args.modelname,
                 model_checkpoint=args.model_checkpoint,
