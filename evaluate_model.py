@@ -1,5 +1,4 @@
 import torch
-import wandb
 from transformers import AutoTokenizer
 
 from args import args
@@ -21,27 +20,17 @@ def main():
         print(f"Invalid backbone architecture: {args.architecture}")
 
     _, _, test_dataset = utils.load_dataset(tokenizer=tokenizer)
+    adversarial_datasets = utils.load_adv_data(tokenizer=tokenizer)
+
+    adversarial_dataloaders = {
+        file_name: torch.utils.data.DataLoader(
+            dataset, batch_size=128, shuffle=False, collate_fn=dataset.collate_fn
+        )
+        for file_name, dataset in adversarial_datasets.items()
+    }
 
     test_dl = torch.utils.data.DataLoader(
         test_dataset, batch_size=128, shuffle=False, collate_fn=test_dataset.collate_fn
-    )
-
-    # Initialize wandb
-    wandb.init(
-        # Set the project where this run will be logged
-        project=args.project,
-        # We pass a run name (otherwise it’ll be randomly assigned, like sunshine-lollypop-10)
-        name=args.experiment,
-        # Track hyperparameters and run metadata
-        config={
-            "num_pos_prototypes": args.num_pos_prototypes,
-            "num_neg_prototypes": args.num_prototypes - args.num_pos_prototypes,
-            "none_class": args.none_class,
-            "augmentation": args.augmentation,
-            "nli_intialization": args.nli_intialization,
-            "curriculum": args.curriculum,
-            "architecture": args.architecture,
-        },
     )
 
     if args.model == "ProtoTEx":
@@ -115,12 +104,8 @@ def main():
         total_loss, mac_prec, mac_recall, mac_f1_score, accuracy = utils.evaluate(
             test_dl, model_new=model
         )
-        logs_path = "Logs/" + args.modelname
-        f = open(logs_path, "w")
-        f.writelines([""])
-        f.close()
         utils.print_logs(
-            logs_path,
+            None,
             "TEST SCORES",
             0,
             total_loss,
@@ -129,16 +114,21 @@ def main():
             mac_f1_score,
             accuracy,
         )
-        wandb.log(
-            {
-                "Test epoch": 0,
-                "Test loss": total_loss,
-                "Test Precision": mac_prec,
-                "Test Recall": mac_recall,
-                "Test Accuracy": accuracy,
-                "Test F1 score": mac_f1_score,
-            }
-        )
+
+        for file_name, dataloader in adversarial_dataloaders.items():
+            total_loss, mac_prec, mac_recall, mac_f1_score, accuracy = utils.evaluate(
+                dataloader, model_new=model
+            )
+            utils.print_logs(
+                None,
+                f"{file_name} TEST SCORES",
+                0,
+                total_loss,
+                mac_prec,
+                mac_recall,
+                mac_f1_score,
+                accuracy,
+            )
 
 
 if __name__ == "__main__":

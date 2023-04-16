@@ -68,8 +68,20 @@ def get_class_weights(train_labels):
     return class_weight_vect
 
 
-def load_dataset(tokenizer):
+def load_adv_data(tokenizer):
+    all_dataframes = []
+    file_names = []
+    for file in os.listdir(args.data_dir):
+        if file.startswith("adv"):
+            all_dataframes.append(pd.read_csv(os.path.join(args.data_dir, file)))
+            file_names.append(file)
+    return {
+        file_name: load_classification_dataset(df, tokenizer)
+        for file_name, df in zip(file_names, all_dataframes)
+    }
 
+
+def load_dataset(tokenizer):
     train_df = pd.read_csv(os.path.join(args.data_dir, "train.csv"))
     val_df = pd.read_csv(os.path.join(args.data_dir, "val.csv"))
     test_df = pd.read_csv(os.path.join(args.data_dir, "test.csv"))
@@ -78,88 +90,48 @@ def load_dataset(tokenizer):
     train_df = train_df.sample(frac=1, random_state=42).reset_index(drop=True)
 
     if DatasetInfo().dataset_type == "classification":
-        return load_classification_dataset(train_df, val_df, test_df, tokenizer)
+        return [
+            load_classification_dataset(df, tokenizer)
+            for df in [train_df, val_df, test_df]
+        ]
     elif DatasetInfo().dataset_type == "nli":
-        return load_nli_dataset(train_df, val_df, test_df, tokenizer)
+        return [load_nli_dataset(df, tokenizer) for df in [train_df, val_df, test_df]]
 
     else:
         raise Exception("Dataset type not supported")
 
 
-def load_nli_dataset(train_df, val_df, test_df, tokenizer):
-    train_sentences1 = train_df["sentence1"].tolist()
-    train_sentences2 = train_df["sentence2"].tolist()
-    train_labels = train_df["label"].tolist()
+def load_nli_dataset(df, tokenizer):
+    sentences1 = df["sentence1"].tolist()
+    sentences2 = df["sentence2"].tolist()
+    labels = df["label"].tolist()
 
-    val_sentences1 = val_df["sentence1"].tolist()
-    val_sentences2 = val_df["sentence2"].tolist()
-    val_labels = val_df["label"].tolist()
+    sentences = (sentences1, sentences2)
 
-    test_sentences1 = test_df["sentence1"].tolist()
-    test_sentences2 = test_df["sentence2"].tolist()
-    test_labels = test_df["label"].tolist()
-
-    train_sentences = (train_sentences1, train_sentences2)
-    val_sentences = (val_sentences1, val_sentences2)
-    test_sentences = (test_sentences1, test_sentences2)
-
-    train_dataset = CustomNonBinaryClassDataset(
-        sentences=train_sentences,
-        labels=train_labels,
-        tokenizer=tokenizer,
-        max_length=DatasetInfo().max_length,
-        dataset_type=DatasetInfo().dataset_type,
-    )
-    val_dataset = CustomNonBinaryClassDataset(
-        sentences=val_sentences,
-        labels=val_labels,
-        tokenizer=tokenizer,
-        max_length=DatasetInfo().max_length,
-        dataset_type=DatasetInfo().dataset_type,
-    )
-    test_dataset = CustomNonBinaryClassDataset(
-        sentences=test_sentences,
-        labels=test_labels,
-        tokenizer=tokenizer,
-        max_length=DatasetInfo().max_length,
-        dataset_type=DatasetInfo().dataset_type,
-    )
-    return train_dataset, val_dataset, test_dataset
-
-
-def load_classification_dataset(train_df, val_df, test_df, tokenizer):
-    train_sentences = train_df["sentence"].tolist()
-    train_labels = train_df["label"].tolist()
-
-    val_sentences = val_df["sentence"].tolist()
-    val_labels = val_df["label"].tolist()
-
-    test_sentences = test_df["sentence"].tolist()
-    test_labels = test_df["label"].tolist()
-
-    train_dataset = CustomNonBinaryClassDataset(
-        sentences=train_sentences,
-        labels=train_labels,
-        tokenizer=tokenizer,
-        max_length=DatasetInfo().max_length,
-        dataset_type=DatasetInfo().dataset_type,
-    )
-    val_dataset = CustomNonBinaryClassDataset(
-        sentences=val_sentences,
-        labels=val_labels,
-        tokenizer=tokenizer,
-        max_length=DatasetInfo().max_length,
-        dataset_type=DatasetInfo().dataset_type,
-    )
-    test_dataset = CustomNonBinaryClassDataset(
-        sentences=test_sentences,
-        labels=test_labels,
+    dataset = CustomNonBinaryClassDataset(
+        sentences=sentences,
+        labels=labels,
         tokenizer=tokenizer,
         max_length=DatasetInfo().max_length,
         dataset_type=DatasetInfo().dataset_type,
     )
 
-    return train_dataset, val_dataset, test_dataset
+    return dataset
+
+
+def load_classification_dataset(df, tokenizer):
+    sentences = df["sentence"].tolist()
+    labels = df["label"].tolist()
+
+    dataset = CustomNonBinaryClassDataset(
+        sentences=sentences,
+        labels=labels,
+        tokenizer=tokenizer,
+        max_length=DatasetInfo().max_length,
+        dataset_type=DatasetInfo().dataset_type,
+    )
+
+    return dataset
 
 
 def print_logs(
@@ -184,9 +156,10 @@ def print_logs(
     #     print("epoch",epoch,"MICRO val precision %.4f, recall %.4f, f1 %.4f,"%(mic_val_prec,mic_val_rec,mic_val_f1))
     print()
     logs.append("\n")
-    f = open(file, "a")
-    f.writelines(logs)
-    f.close()
+    if file is not None:
+        f = open(file, "a")
+        f.writelines(logs)
+        f.close()
 
 
 class EarlyStopping(object):
