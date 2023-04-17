@@ -2,13 +2,12 @@ import numpy as np
 import torch
 from transformers.optimization import AdamW
 from tqdm import tqdm
-from args import args
 import wandb
 import torch as th
 
 # Custom modules
 from utils import EarlyStopping, print_logs, evaluate
-from models import ProtoTEx, ProtoTEx_roberta, ProtoTEx_electra
+from models import ProtoTEx, SimpleProtoTex
 
 # Save paths
 MODELPATH = "Models/"
@@ -73,6 +72,190 @@ class StratifiedSampler(Sampler):
         return len(self.class_vector)
 
 
+def train_simple_ProtoTEx(
+    train_dl,
+    val_dl,
+    test_dl,
+    num_prototypes,
+    train_dataset_len,
+    modelname="0406_simpleprotobart_onlyclass_lp1_lp2_fntrained_20_train_nomask_protos",
+):
+    torch.cuda.empty_cache()
+    model = SimpleProtoTex(num_prototypes=num_prototypes).cuda()
+    torch.cuda.empty_cache()
+
+    save_path = MODELPATH + modelname
+    logs_path = LOGSPATH + modelname
+
+    optim = AdamW(model.parameters(), lr=3e-6, weight_decay=0.01, eps=1e-8)
+    f = open(logs_path, "w")
+    f.writelines([""])
+    f.close()
+    epoch = -1
+    (
+        val_loss,
+        mac_val_prec,
+        mac_val_rec,
+        mac_val_f1,
+        accuracy,
+        y_true,
+        y_pred,
+    ) = evaluate(val_dl, model)
+
+    print_logs(
+        logs_path,
+        "VAL SCORES",
+        epoch,
+        val_loss,
+        mac_val_prec,
+        mac_val_rec,
+        mac_val_f1,
+        accuracy,
+    )
+
+    (
+        val_loss,
+        mac_val_prec,
+        mac_val_rec,
+        mac_val_f1,
+        accuracy,
+        y_true,
+        y_pred,
+    ) = evaluate(train_dl, model)
+    print_logs(
+        logs_path,
+        "TRAIN SCORES",
+        epoch,
+        val_loss,
+        mac_val_prec,
+        mac_val_rec,
+        mac_val_f1,
+        accuracy,
+    )
+    es = EarlyStopping(-np.inf, patience=7, path=save_path, save_epochwise=False)
+    n_iters = 500
+    for epoch in range(n_iters):
+        total_loss = 0
+        model.train()
+        model.set_encoder_status(status=True)
+        model.set_decoder_status(status=False)
+        model.set_protos_status(status=True)
+        model.set_classfn_status(status=True)
+        classfn_loss, rc_loss, l_p1, l_p2, l_p3 = [0] * 5
+        train_loader = tqdm(
+            train_dl, total=len(train_dl), unit="batches", desc="training"
+        )
+        for batch in train_loader:
+            input_ids, attn_mask, y = batch
+            classfn_out, loss = model(
+                input_ids,
+                attn_mask,
+                y,
+                use_decoder=0,
+                use_classfn=1,
+                use_rc=0,
+                use_p1=1,
+                use_p2=1,
+                rc_loss_lamb=1.0,
+                p1_lamb=1.0,
+                p2_lamb=1.0,
+            )
+            optim.zero_grad()
+            loss[0].backward()
+            optim.step()
+            classfn_out = None
+            loss = None
+        total_loss = total_loss / train_dataset_len
+        (
+            val_loss,
+            mac_val_prec,
+            mac_val_rec,
+            mac_val_f1,
+            accuracy,
+            y_true,
+            y_pred,
+        ) = evaluate(train_dl, model)
+        print_logs(
+            logs_path,
+            "TRAIN SCORES",
+            epoch,
+            val_loss,
+            mac_val_prec,
+            mac_val_rec,
+            mac_val_f1,
+            accuracy,
+        )
+        es.activate(mac_val_f1)
+        (
+            val_loss,
+            mac_val_prec,
+            mac_val_rec,
+            mac_val_f1,
+            accuracy,
+            y_true,
+            y_pred,
+        ) = evaluate(val_dl, model)
+        print_logs(
+            logs_path,
+            "VAL SCORES",
+            epoch,
+            val_loss,
+            mac_val_prec,
+            mac_val_rec,
+            mac_val_f1,
+            accuracy,
+        )
+        es(np.mean(mac_val_f1), epoch, model)
+        if es.early_stop:
+            break
+        if es.improved:
+            """
+            Below using "val_" prefix but the dl is that of test.
+            """
+            (
+                val_loss,
+                mac_val_prec,
+                mac_val_rec,
+                mac_val_f1,
+                accuracy,
+                y_true,
+                y_pred,
+            ) = evaluate(test_dl, model)
+            print_logs(
+                logs_path,
+                "TEST SCORES",
+                epoch,
+                val_loss,
+                mac_val_prec,
+                mac_val_rec,
+                mac_val_f1,
+                accuracy,
+            )
+        elif (epoch + 1) % 5 == 0:
+            """
+            Below using "val_" prefix but the dl is that of test.
+            """
+            (
+                val_loss,
+                mac_val_prec,
+                mac_val_rec,
+                mac_val_f1,
+                accuracy,
+                y_true,
+                y_pred,
+            ) = evaluate(test_dl, model)
+            print_logs(
+                logs_path,
+                "TEST SCORES (not the best ones)",
+                epoch,
+                val_loss,
+                mac_val_prec,
+                mac_val_rec,
+                mac_val_f1,
+                accuracy,
+            )
+
+
 def train_ProtoTEx_w_neg(
     train_dl,
     val_dl,
@@ -80,6 +263,8 @@ def train_ProtoTEx_w_neg(
     n_classes,
     max_length,
     num_prototypes,
+    learning_rate,
+    batchnormlp1=False,
     class_weights=None,
     modelname="0408_NegProtoBart_protos_xavier_large_bs20_20_woRat_noReco_g2d_nobias_nodrop_cu1_PosUp_normed",
     model_checkpoint=None,
@@ -96,7 +281,7 @@ def train_ProtoTEx_w_neg(
         dropout=False,
         special_classfn=True,  # special_classfn=False, # apply dropout only on bias
         p=1,  # p=0.75,
-        batchnormlp1=True,
+        batchnormlp1=batchnormlp1,
     )
 
     # model = torch.nn.DataParallel(model)
@@ -104,11 +289,11 @@ def train_ProtoTEx_w_neg(
 
     sampler = StratifiedSampler(
         class_vector=torch.LongTensor(train_dl.dataset.y),
-        batch_size=args.num_prototypes,
+        batch_size=num_prototypes,
     )
     random_data_loader = torch.utils.data.DataLoader(
         train_dl.dataset,
-        batch_size=args.num_prototypes,
+        batch_size=num_prototypes,
         collate_fn=train_dl.dataset.collate_fn,
         sampler=sampler,
     )
@@ -143,14 +328,22 @@ def train_ProtoTEx_w_neg(
         log_freq=len(random_data_loader),
     )
 
-    optim = AdamW(model.parameters(), lr=3e-5, weight_decay=0.01, eps=1e-8)
+    optim = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.01, eps=1e-8)
 
     save_path = MODELPATH + modelname
     logs_path = LOGSPATH + modelname
     f = open(logs_path, "w")
     f.writelines([""])
     f.close()
-    val_loss, mac_val_prec, mac_val_rec, mac_val_f1, accuracy = evaluate(val_dl, model)
+    (
+        val_loss,
+        mac_val_prec,
+        mac_val_rec,
+        mac_val_f1,
+        accuracy,
+        y_true,
+        y_pred,
+    ) = evaluate(val_dl, model)
     epoch = -1
     print_logs(
         logs_path,
@@ -238,7 +431,7 @@ def train_ProtoTEx_w_neg(
         for epoch in range(gamma):
             train_loader = train_dl
 
-            for batch in train_loader:
+            for batch in tqdm(train_loader, leave=False):
                 input_ids, attn_mask, y = batch
                 classfn_out, loss = model(
                     input_ids,
@@ -282,9 +475,15 @@ def train_ProtoTEx_w_neg(
         #             loss[0].backward()
         #             optim.step()
 
-        val_loss, mac_val_prec, mac_val_rec, mac_val_f1, accuracy = evaluate(
-            train_dl, model
-        )
+        (
+            val_loss,
+            mac_val_prec,
+            mac_val_rec,
+            mac_val_f1,
+            accuracy,
+            y_true,
+            y_pred,
+        ) = evaluate(train_dl, model)
         print_logs(
             logs_path,
             "TRAIN SCORES",
@@ -306,9 +505,15 @@ def train_ProtoTEx_w_neg(
             }
         )
         es.activate(mac_val_f1)
-        val_loss, mac_val_prec, mac_val_rec, mac_val_f1, accuracy = evaluate(
-            val_dl, model
-        )
+        (
+            val_loss,
+            mac_val_prec,
+            mac_val_rec,
+            mac_val_f1,
+            accuracy,
+            y_true,
+            y_pred,
+        ) = evaluate(val_dl, model)
         print_logs(
             logs_path,
             "VAL SCORES",
@@ -337,9 +542,15 @@ def train_ProtoTEx_w_neg(
             """
             Below using "val_" prefix but the dl is that of test.
             """
-            val_loss, mac_val_prec, mac_val_rec, mac_val_f1, accuracy = evaluate(
-                test_dl, model
-            )
+            (
+                val_loss,
+                mac_val_prec,
+                mac_val_rec,
+                mac_val_f1,
+                accuracy,
+                y_true,
+                y_pred,
+            ) = evaluate(test_dl, model)
             print_logs(
                 logs_path,
                 "TEST SCORES",
@@ -367,9 +578,15 @@ def train_ProtoTEx_w_neg(
             """
             Below using "val_" prefix but the dl is that of test.
             """
-            val_loss, mac_val_prec, mac_val_rec, mac_val_f1, accuracy = evaluate(
-                test_dl, model
-            )
+            (
+                val_loss,
+                mac_val_prec,
+                mac_val_rec,
+                mac_val_f1,
+                accuracy,
+                y_true,
+                y_pred,
+            ) = evaluate(test_dl, model)
             print_logs(
                 logs_path,
                 "Early Stopping TEST SCORES (not the best ones)",
