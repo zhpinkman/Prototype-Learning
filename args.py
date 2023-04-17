@@ -1,31 +1,3 @@
-import argparse
-
-parser = argparse.ArgumentParser()
-
-
-parser.add_argument("--tiny_sample", dest="tiny_sample", action="store_true")
-# parser.add_argument("--nli_dataset", help="check if the dataset is in nli
-# format that has sentence1, sentence2, label", action="store_true")
-parser.add_argument("--num_prototypes", type=int, default=50)
-parser.add_argument("--model", type=str, default="ProtoTEx")
-parser.add_argument("--batch_size", type=int, default=128)
-parser.add_argument("--modelname", type=str)
-parser.add_argument("--data_dir", type=str)
-parser.add_argument("--model_checkpoint", type=str, default=None)
-parser.add_argument("--use_max_length", action="store_true")
-
-# Wandb parameters
-parser.add_argument("--project", type=str)
-parser.add_argument("--experiment", type=str)
-parser.add_argument("--nli_intialization", type=str, default="Yes")
-parser.add_argument("--none_class", type=str, default="No")
-parser.add_argument("--curriculum", type=str, default="No")
-parser.add_argument("--augmentation", type=str, default="No")
-parser.add_argument("--architecture", type=str, default="BART")
-
-
-args = parser.parse_args()
-
 datasets_config = {
     "data/finegrained": {
         "type": "classification",
