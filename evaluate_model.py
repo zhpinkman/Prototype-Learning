@@ -1,3 +1,4 @@
+import os
 import torch
 from transformers import AutoTokenizer
 import argparse
@@ -92,6 +93,10 @@ def main(args):
             accuracy,
         )
 
+        utils.print_predictions(
+            os.path.join("Logs", "test_predictions.csv"), y_pred, y_true
+        )
+
         for file_name, dataloader in adversarial_dataloaders.items():
             (
                 total_loss,
@@ -111,6 +116,9 @@ def main(args):
                 mac_recall,
                 mac_f1_score,
                 accuracy,
+            )
+            utils.print_predictions(
+                os.path.join("Logs", f"adv_predictions.csv"), y_pred, y_true
             )
 
 

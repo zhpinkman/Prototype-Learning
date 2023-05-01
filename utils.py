@@ -133,6 +133,13 @@ def load_classification_dataset(dataset_info, df, tokenizer):
     return dataset
 
 
+def print_predictions(file, predictions, labels):
+    df = pd.DataFrame(
+        {"index": range(len(predictions)), "predictions": predictions, "labels": labels}
+    )
+    df.to_csv(file, index=False)
+
+
 def print_logs(
     file, info, epoch, val_loss, mac_val_prec, mac_val_rec, mac_val_f1, accuracy
 ):
@@ -289,7 +296,15 @@ def evaluate(dl, model_new=None):
             f"classification_report:\n{classification_report(np.concatenate(y_true),np.concatenate(y_pred), labels=np.unique(np.concatenate(y_true)))}"
         )
 
-    return total_loss, mac_prec, mac_recall, mac_f1_score, accuracy, y_true, y_pred
+    return (
+        total_loss,
+        mac_prec,
+        mac_recall,
+        mac_f1_score,
+        accuracy,
+        np.concatenate(y_true),
+        np.concatenate(y_pred),
+    )
 
 
 # Functions for analyzing prototypes
