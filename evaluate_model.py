@@ -1,97 +1,58 @@
+import os
 import torch
-import wandb
 from transformers import AutoTokenizer
-
-from args import args
+import argparse
+from IPython import embed
 import utils
-from models import ProtoTEx, ProtoTEx_roberta, ProtoTEx_electra
+from models import ProtoTEx
 
 
-def main():
+def main(args):
     # preprocess the propaganda dataset loaded in the data folder. Original dataset can be found here
     # https://propaganda.math.unipd.it/fine-grained-propaganda-emnlp.html
 
     if args.architecture == "BART":
         tokenizer = AutoTokenizer.from_pretrained("ModelTC/bart-base-mnli")
-    elif args.architecture == "RoBERTa":
-        tokenizer = AutoTokenizer.from_pretrained("cross-encoder/nli-roberta-base")
-    elif args.architecture == "Electra":
-        tokenizer = AutoTokenizer.from_pretrained("howey/electra-base-mnli")
     else:
         print(f"Invalid backbone architecture: {args.architecture}")
 
-    _, _, test_dataset = utils.load_dataset(tokenizer=tokenizer)
+    dataset_info = utils.DatasetInfo(
+        data_dir=args.data_dir, use_max_length=args.use_max_length
+    )
+    _, _, test_dataset = utils.load_dataset(
+        dataset_info=dataset_info, data_dir=args.data_dir, tokenizer=tokenizer
+    )
+    adversarial_datasets = utils.load_adv_data(
+        dataset_info=dataset_info, data_dir=args.data_dir, tokenizer=tokenizer
+    )
+
+    adversarial_dataloaders = {
+        file_name: torch.utils.data.DataLoader(
+            dataset, batch_size=128, shuffle=False, collate_fn=dataset.collate_fn
+        )
+        for file_name, dataset in adversarial_datasets.items()
+    }
 
     test_dl = torch.utils.data.DataLoader(
         test_dataset, batch_size=128, shuffle=False, collate_fn=test_dataset.collate_fn
     )
 
-    # Initialize wandb
-    wandb.init(
-        # Set the project where this run will be logged
-        project=args.project,
-        # We pass a run name (otherwise it’ll be randomly assigned, like sunshine-lollypop-10)
-        name=args.experiment,
-        # Track hyperparameters and run metadata
-        config={
-            "num_pos_prototypes": args.num_pos_prototypes,
-            "num_neg_prototypes": args.num_prototypes - args.num_pos_prototypes,
-            "none_class": args.none_class,
-            "augmentation": args.augmentation,
-            "nli_intialization": args.nli_intialization,
-            "curriculum": args.curriculum,
-            "architecture": args.architecture,
-        },
-    )
-
     if args.model == "ProtoTEx":
-        print(
-            "ProtoTEx best model: {0}, {1}".format(
-                args.num_prototypes, args.num_pos_prototypes
-            )
-        )
+        print("ProtoTEx best model: {0}".format(args.num_prototypes))
         if args.architecture == "BART":
             print(f"Using backone: {args.architecture}")
             torch.cuda.empty_cache()
             model = ProtoTEx(
                 num_prototypes=args.num_prototypes,
-                num_pos_prototypes=args.num_pos_prototypes,
                 bias=False,
                 dropout=False,
                 special_classfn=True,  # special_classfn=False, # apply dropout only on bias
                 p=1,  # p=0.75,
-                batchnormlp1=True,
-                n_classes=utils.DatasetInfo().num_classes,
-                max_length=utils.DatasetInfo().max_length,
+                batchnormlp1=args.batchnormlp1,
+                n_classes=dataset_info.num_classes,
+                max_length=dataset_info.max_length,
             )
 
-        elif args.architecture == "RoBERTa":
-            print(f"Using backone: {args.architecture}")
-            torch.cuda.empty_cache()
-            model = ProtoTEx_roberta(
-                num_prototypes=args.num_prototypes,
-                num_pos_prototypes=args.num_pos_prototypes,
-                bias=False,
-                dropout=False,
-                special_classfn=True,  # special_classfn=False, # apply dropout only on bias
-                p=1,  # p=0.75,
-                batchnormlp1=True,
-                n_classes=utils.DatasetInfo().num_classes,
-                max_length=utils.DatasetInfo().max_length,
-            ).cuda()
-        elif args.architecture == "Electra":
-            print(f"Using backone: {args.architecture}")
-            model = ProtoTEx_electra(
-                num_prototypes=args.num_prototypes,
-                num_pos_prototypes=args.num_pos_prototypes,
-                bias=False,
-                dropout=False,
-                special_classfn=True,  # special_classfn=False, # apply dropout only on bias
-                p=1,  # p=0.75,
-                batchnormlp1=True,
-                n_classes=utils.DatasetInfo().num_classes,
-                max_length=utils.DatasetInfo().max_length,
-            ).cuda()
         else:
             print(f"Invalid backbone architecture: {args.architecture}")
 
@@ -112,15 +73,17 @@ def main():
         # model = torch.nn.DataParallel(model)
         model = model.to(device)
 
-        total_loss, mac_prec, mac_recall, mac_f1_score, accuracy = utils.evaluate(
-            test_dl, model_new=model
-        )
-        logs_path = "Logs/" + args.modelname
-        f = open(logs_path, "w")
-        f.writelines([""])
-        f.close()
+        (
+            total_loss,
+            mac_prec,
+            mac_recall,
+            mac_f1_score,
+            accuracy,
+            y_true,
+            y_pred,
+        ) = utils.evaluate(test_dl, model_new=model)
         utils.print_logs(
-            logs_path,
+            None,
             "TEST SCORES",
             0,
             total_loss,
@@ -129,17 +92,58 @@ def main():
             mac_f1_score,
             accuracy,
         )
-        wandb.log(
-            {
-                "Test epoch": 0,
-                "Test loss": total_loss,
-                "Test Precision": mac_prec,
-                "Test Recall": mac_recall,
-                "Test Accuracy": accuracy,
-                "Test F1 score": mac_f1_score,
-            }
+
+        utils.print_predictions(
+            os.path.join("Logs", "test_predictions.csv"), y_pred, y_true
         )
+
+        for file_name, dataloader in adversarial_dataloaders.items():
+            (
+                total_loss,
+                mac_prec,
+                mac_recall,
+                mac_f1_score,
+                accuracy,
+                y_true,
+                y_pred,
+            ) = utils.evaluate(dataloader, model_new=model)
+            utils.print_logs(
+                None,
+                f"{file_name} TEST SCORES",
+                0,
+                total_loss,
+                mac_prec,
+                mac_recall,
+                mac_f1_score,
+                accuracy,
+            )
+            utils.print_predictions(
+                os.path.join("Logs", f"adv_predictions.csv"), y_pred, y_true
+            )
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--tiny_sample", dest="tiny_sample", action="store_true")
+    # parser.add_argument("--nli_dataset", help="check if the dataset is in nli
+    # format that has sentence1, sentence2, label", action="store_true")
+    parser.add_argument("--num_prototypes", type=int, default=50)
+    parser.add_argument("--model", type=str, default="ProtoTEx")
+    parser.add_argument("--batch_size", type=int, default=128)
+    parser.add_argument("--data_dir", type=str)
+    parser.add_argument("--model_checkpoint", type=str, default=None)
+    parser.add_argument("--use_max_length", action="store_true")
+    parser.add_argument("--batchnormlp1", action="store_true")
+
+    # Wandb parameters
+    parser.add_argument("--experiment", type=str)
+    parser.add_argument("--nli_intialization", type=str, default="Yes")
+    parser.add_argument("--none_class", type=str, default="No")
+    parser.add_argument("--curriculum", type=str, default="No")
+    parser.add_argument("--augmentation", type=str, default="No")
+    parser.add_argument("--architecture", type=str, default="BART")
+
+    args = parser.parse_args()
+
+    main(args)

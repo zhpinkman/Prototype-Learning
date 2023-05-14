@@ -50,6 +50,19 @@ def compute_metrics(eval_preds):
     return clf_metrics.compute(predictions=predictions, references=labels)
 
 
+def load_adv_data(data_dir):
+    all_dataframes = []
+    file_names = []
+    for file in os.listdir(data_dir):
+        if file.startswith("adv"):
+            all_dataframes.append(pd.read_csv(os.path.join(data_dir, file)))
+            file_names.append(file)
+    dataset = DatasetDict(
+        {file: Dataset.from_pandas(df) for file, df in zip(file_names, all_dataframes)}
+    )
+    return dataset
+
+
 def main(args):
     if args.mode == "train":
         tokenizer = AutoTokenizer.from_pretrained(args.model_checkpoint)
@@ -77,9 +90,9 @@ def main(args):
         save_strategy="steps",
         save_total_limit=2,
         logging_strategy="steps",
-        save_steps=128,
-        logging_steps=128,
-        eval_steps=128,
+        save_steps=args.logging_steps,
+        logging_steps=args.logging_steps,
+        eval_steps=args.logging_steps,
         load_best_model_at_end=True,
     )
 
@@ -110,14 +123,23 @@ def main(args):
         for label in predicted_labels:
             print(label)
 
-    embed()
+    elif args.mode == "eval_adv":
+        adv_dataset = load_adv_data(args.data_dir)
+        tokenized_adv_dataset = preprocess_data(tokenizer, adv_dataset, args)
+        for file in tokenized_adv_dataset:
+            print("results for Adversarial file: ", file)
+            metrics = trainer.evaluate(tokenized_adv_dataset[file])
+            print(metrics)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--mode", type=str, choices=["train", "test", "eval"], default="train"
+        "--mode",
+        type=str,
+        choices=["train", "test", "eval", "eval_adv"],
+        default="train",
     )
 
     parser.add_argument(
@@ -135,6 +157,8 @@ if __name__ == "__main__":
     parser.add_argument("--log_dir", type=str, default="./logs")
 
     parser.add_argument("--max_length", type=int, default=40)
+    
+    parser.add_argument("--logging_steps", type = int)
 
     args = parser.parse_args()
     main(args)

@@ -1,21 +1,17 @@
 import torch
 from transformers import AutoTokenizer
-from args import args
 import wandb
 import utils
+import argparse
 
 # Custom modules
-from training import (
-    train_ProtoTEx_w_neg,
-    train_ProtoTEx_w_neg_roberta,
-    train_ProtoTEx_w_neg_electra,
-)
+from training import train_ProtoTEx_w_neg, train_simple_ProtoTEx
 
 # Set cuda
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 
-def main():
+def main(args):
     # preprocess the propaganda dataset loaded in the data folder. Original dataset can be found here
     # https://propaganda.math.unipd.it/fine-grained-propaganda-emnlp.html
 
@@ -29,7 +25,12 @@ def main():
         print(f"Invalid backbone architecture: {args.architecture}")
 
     # Load the dataset
-    train_dataset, val_dataset, test_dataset = utils.load_dataset(tokenizer=tokenizer)
+    dataset_info = utils.DatasetInfo(
+        data_dir=args.data_dir, use_max_length=args.use_max_length
+    )
+    train_dataset, val_dataset, test_dataset = utils.load_dataset(
+        dataset_info=dataset_info, data_dir=args.data_dir, tokenizer=tokenizer
+    )
 
     train_dl = torch.utils.data.DataLoader(
         train_dataset,
@@ -59,67 +60,73 @@ def main():
         config={
             "data_dir": args.data_dir,
             "modelname": args.modelname,
-            "num_pos_prototypes": args.num_pos_prototypes,
-            "num_neg_prototypes": args.num_prototypes - args.num_pos_prototypes,
+            "num_prototypes": args.num_prototypes,
             "none_class": args.none_class,
             "augmentation": args.augmentation,
             "nli_intialization": args.nli_intialization,
             "curriculum": args.curriculum,
             "architecture": args.architecture,
+            "batchnormlp1": args.batchnormlp1,
+            "model_checkpoint": args.model_checkpoint,
+            "use_max_length": args.use_max_length,
+            "tiny_sample": args.tiny_sample,
         },
     )
 
     if args.model == "ProtoTEx":
-        print(
-            "ProtoTEx best model: {0}, {1}".format(
-                args.num_prototypes, args.num_pos_prototypes
-            )
-        )
+        print("ProtoTEx best model: {0}".format(args.num_prototypes))
         if args.architecture == "BART":
             print(f"Using backone: {args.architecture}")
             train_ProtoTEx_w_neg(
                 train_dl=train_dl,
                 val_dl=val_dl,
                 test_dl=test_dl,
-                n_classes=utils.DatasetInfo().num_classes,
-                max_length=utils.DatasetInfo().max_length,
+                n_classes=dataset_info.num_classes,
+                max_length=dataset_info.max_length,
                 num_prototypes=args.num_prototypes,
-                num_pos_prototypes=args.num_pos_prototypes,
+                batchnormlp1=args.batchnormlp1,
                 class_weights=class_weight_vect,
                 modelname=args.modelname,
                 model_checkpoint=args.model_checkpoint,
+                learning_rate=args.learning_rate,
             )
-        elif args.architecture == "RoBERTa":
-            print(f"Using backone: {args.architecture}")
-            train_ProtoTEx_w_neg_roberta(
-                train_dl=train_dl,
-                val_dl=val_dl,
-                test_dl=test_dl,
-                n_classes=utils.DatasetInfo().num_classes,
-                max_length=utils.DatasetInfo().max_length,
-                num_prototypes=args.num_prototypes,
-                num_pos_prototypes=args.num_pos_prototypes,
-                class_weights=class_weight_vect,
-                modelname=args.modelname,
-                model_checkpoint=args.model_checkpoint,
-            )
-        elif args.architecture == "Electra":
-            print(f"Using backone: {args.architecture}")
-            train_ProtoTEx_w_neg_electra(
-                train_dl=train_dl,
-                val_dl=val_dl,
-                test_dl=test_dl,
-                n_classes=utils.DatasetInfo().num_classes,
-                max_length=utils.DatasetInfo().max_length,
-                num_prototypes=args.num_prototypes,
-                num_pos_prototypes=args.num_pos_prototypes,
-                class_weights=class_weight_vect,
-                modelname=args.modelname,
-                model_checkpoint=args.model_checkpoint,
-            )
-        else:
-            print(f"Invalid backbone architecture: {args.architecture}")
+    elif args.model == "SimpleProtoTEx":
+        train_simple_ProtoTEx(
+            train_dl,
+            val_dl,
+            test_dl,
+            train_dataset_len=len(train_dataset),
+            modelname="SimpleProtoTEx",
+            num_prototypes=args.num_prototypes,
+        )
+    else:
+        print(f"Invalid backbone architecture: {args.architecture}")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--tiny_sample", dest="tiny_sample", action="store_true")
+    # parser.add_argument("--nli_dataset", help="check if the dataset is in nli
+    # format that has sentence1, sentence2, label", action="store_true")
+    parser.add_argument("--num_prototypes", type=int, default=50)
+    parser.add_argument("--model", type=str, default="ProtoTEx")
+    parser.add_argument("--batch_size", type=int, default=128)
+    parser.add_argument("--modelname", type=str)
+    parser.add_argument("--data_dir", type=str)
+    parser.add_argument("--model_checkpoint", type=str, default=None)
+    parser.add_argument("--use_max_length", action="store_true")
+    parser.add_argument("--batchnormlp1", action="store_true")
+    parser.add_argument("--learning_rate", type=float, default="3e-5")
+
+    # Wandb parameters
+    parser.add_argument("--project", type=str)
+    parser.add_argument("--experiment", type=str)
+    parser.add_argument("--nli_intialization", type=str, default="Yes")
+    parser.add_argument("--none_class", type=str, default="No")
+    parser.add_argument("--curriculum", type=str, default="No")
+    parser.add_argument("--augmentation", type=str, default="No")
+    parser.add_argument("--architecture", type=str, default="BART")
+
+    args = parser.parse_args()
+    main(args)
