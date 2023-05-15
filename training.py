@@ -138,7 +138,6 @@ def train_simple_ProtoTEx(
         total_loss = 0
         model.train()
         model.set_encoder_status(status=True)
-        model.set_decoder_status(status=False)
         model.set_protos_status(status=True)
         model.set_classfn_status(status=True)
         classfn_loss, rc_loss, l_p1, l_p2, l_p3 = [0] * 5
@@ -151,7 +150,6 @@ def train_simple_ProtoTEx(
                 input_ids,
                 attn_mask,
                 y,
-                use_decoder=0,
                 use_classfn=1,
                 use_rc=0,
                 use_p1=1,
@@ -266,7 +264,7 @@ def train_ProtoTEx_w_neg(
     learning_rate,
     batchnormlp1=False,
     class_weights=None,
-    modelname="0408_NegProtoBart_protos_xavier_large_bs20_20_woRat_noReco_g2d_nobias_nodrop_cu1_PosUp_normed",
+    modelname=None,
     model_checkpoint=None,
 ):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -377,7 +375,6 @@ def train_ProtoTEx_w_neg(
         """
         model.train()
         model.set_encoder_status(status=False)
-        model.set_decoder_status(status=False)
         model.set_protos_status(status=True)
         model.set_classfn_status(status=False)
         model.set_shared_status(status=True)
@@ -394,7 +391,6 @@ def train_ProtoTEx_w_neg(
                     input_ids,
                     attn_mask,
                     y,
-                    use_decoder=0,
                     use_classfn=0,
                     use_rc=0,
                     use_p1=1,
@@ -406,7 +402,6 @@ def train_ProtoTEx_w_neg(
                     p3_lamb=p3_lamb,
                     distmask_lp1=1,
                     distmask_lp2=1,
-                    random_mask_for_distanceMat=None,
                 )
                 # total_loss += loss[0].detach().item()
                 optim.zero_grad()
@@ -421,7 +416,6 @@ def train_ProtoTEx_w_neg(
         """
         model.train()
         model.set_encoder_status(status=True)
-        model.set_decoder_status(status=False)
         model.set_protos_status(status=False)
         model.set_classfn_status(status=True)
         model.set_shared_status(status=True)
@@ -429,6 +423,7 @@ def train_ProtoTEx_w_neg(
         #     for n,w in model.named_parameters():
         #         if w.requires_grad: print(n)
         for epoch in range(gamma):
+            print(f"Gamma Epoch: {epoch}")
             train_loader = train_dl
 
             for batch in tqdm(train_loader, leave=False):
@@ -437,7 +432,6 @@ def train_ProtoTEx_w_neg(
                     input_ids,
                     attn_mask,
                     y,
-                    use_decoder=0,
                     use_classfn=1,
                     use_rc=0,
                     use_p1=0,
@@ -451,30 +445,8 @@ def train_ProtoTEx_w_neg(
                 optim.zero_grad()
                 loss[0].backward()
                 optim.step()
-        #     """
-        #     During Kappa, we only want to improve the reconstruction perf.
-        #     Only Decoder is  trainable
-        #     """
-        #     model.train()
-        #     model.set_encoder_status(status=False)
-        #     model.set_decoder_status(status=True)
-        #     model.set_protos_status(status=False)
-        #     model.set_classfn_status(status=False)
-        #     for epoch in range(kappa):
-        #         train_loader = tqdm(train_dl, total=len(train_dl), unit="batches", desc="delta training")
-        #         for batch in train_loader:
-        #             input_ids, attn_mask, y = batch
-        # #             print(y)
-        #             classfn_out, loss = model(input_ids, attn_mask, y, use_decoder=1, use_classfn=0,
-        #                                       use_rc=1, use_p1=0, use_p2=0, use_p3=0,
-        #                                       rc_loss_lamb=1.0, p1_lamb=p1_lamb, p2_lamb=p2_lamb,
-        #                                       p3_lamb=p3_lamb,distmask_lp1=1,distmask_lp2=1,
-        #                                       random_mask_for_distanceMat=None)
-        #             # total_loss += loss[0].detach().item()
-        #             optim.zero_grad()
-        #             loss[0].backward()
-        #             optim.step()
 
+        print("Evaluating on Train Set")
         (
             val_loss,
             mac_val_prec,
