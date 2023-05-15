@@ -25,7 +25,6 @@ class SimpleProtoTex(torch.nn.Module):
         self.loss_fn = torch.nn.CrossEntropyLoss(reduction="mean")
 
         self.set_encoder_status(True)
-        self.set_decoder_status(False)
         self.set_protos_status(False)
         self.set_classfn_status(False)
 
@@ -36,15 +35,6 @@ class SimpleProtoTex(torch.nn.Module):
         for i, x in enumerate(self.bart_model.base_model.encoder.layers):
             requires_grad = False
             if i == self.num_enc_layers - 1:
-                requires_grad = status
-            for y in x.parameters():
-                y.requires_grad = requires_grad
-
-    def set_decoder_status(self, status=True):
-        self.num_dec_layers = len(self.bart_model.base_model.decoder.layers)
-        for i, x in enumerate(self.bart_model.base_model.decoder.layers):
-            requires_grad = False
-            if i == self.num_dec_layers - 1:
                 requires_grad = status
             for y in x.parameters():
                 y.requires_grad = requires_grad
@@ -60,7 +50,6 @@ class SimpleProtoTex(torch.nn.Module):
         input_ids,
         attn_mask,
         y,
-        use_decoder=1,
         use_classfn=0,
         use_rc=0,
         use_p1=0,
@@ -70,28 +59,14 @@ class SimpleProtoTex(torch.nn.Module):
         p2_lamb=0.92,
     ):
         batch_size = input_ids.size(0)
-        if use_decoder:
-            labels = input_ids.cuda() + 0
-            labels[labels == self.bart_model.config.pad_token_id] = -100
-            bart_output = self.bart_model(
-                labels,
-                attn_mask.cuda(),
-                labels=labels,
-                output_attentions=False,
-                output_hidden_states=False,
-            )
-            rc_loss, last_hidden_state = (
-                batch_size * bart_output.loss,
-                bart_output.encoder_last_hidden_state,
-            )
-        else:
-            rc_loss = 0
-            last_hidden_state = self.bart_model.base_model.encoder(
-                input_ids.cuda(),
-                attn_mask.cuda(),
-                output_attentions=False,
-                output_hidden_states=False,
-            ).last_hidden_state
+
+        rc_loss = 0
+        last_hidden_state = self.bart_model.base_model.encoder(
+            input_ids.cuda(),
+            attn_mask.cuda(),
+            output_attentions=False,
+            output_hidden_states=False,
+        ).last_hidden_state
         input_for_classfn, l_p1, l_p2, classfn_out, classfn_loss = None, 0, 0, None, 0
         if use_classfn or use_p1 or use_p2:
             input_for_classfn = torch.cdist(
@@ -162,7 +137,6 @@ class ProtoTEx(torch.nn.Module):
             self.loss_fn = torch.nn.CrossEntropyLoss(reduction="mean")
 
         #         self.set_encoder_status(False)
-        #         self.set_decoder_status(False)
         #         self.set_protos_status(False)
         #         self.set_classfn_status(False)
         self.do_dropout = dropout
@@ -172,10 +146,12 @@ class ProtoTEx(torch.nn.Module):
         self.dobatchnorm = (
             batchnormlp1  # This flag is actually for instance normalization
         )
-        self.distance_grounder = torch.zeros(self.n_classes, self.num_protos).cuda()
-        for i in range(self.n_classes):
-            # self.distance_grounder[i][np.random.randint(0, self.num_protos, int(self.num_protos / 2))] = 1e7
-            self.distance_grounder[i][self.num_protos :] = 1e7
+        # self.distance_grounder = (
+        # torch.ones(self.n_classes, self.num_protos).cuda() * 1e7
+        # )
+        # for i in range(self.n_classes):
+        # self.distance_grounder[i][np.random.randint(0, self.num_protos, int(self.num_protos / 2))] = 1e7
+        # self.distance_grounder[i][i] = 0
 
     def set_prototypes(self, input_ids_rdm, attn_mask_rdm, do_random=False):
         if do_random:
@@ -211,15 +187,6 @@ class ProtoTEx(torch.nn.Module):
         ].requires_grad_(status)
         return
 
-    def set_decoder_status(self, status=True):
-        self.num_dec_layers = len(self.bart_model.base_model.decoder.layers)
-        for i in range(self.num_dec_layers):
-            self.bart_model.base_model.decoder.layers[i].requires_grad_(False)
-        self.bart_model.base_model.decoder.layers[
-            self.num_dec_layers - 1
-        ].requires_grad_(status)
-        return
-
     def set_classfn_status(self, status=True):
         self.classfn_model.requires_grad_(status)
 
@@ -231,7 +198,6 @@ class ProtoTEx(torch.nn.Module):
         input_ids,
         attn_mask,
         y,
-        use_decoder=1,
         use_classfn=0,
         use_rc=0,
         use_p1=0,
@@ -244,7 +210,6 @@ class ProtoTEx(torch.nn.Module):
         p3_lamb=1.0,
         distmask_lp1=0,
         distmask_lp2=0,
-        random_mask_for_distanceMat=None,
     ):
         """
         1. p3_loss is the prototype-distance-maximising loss. See the set of lines after the line "if use_p3:"
@@ -254,30 +219,14 @@ class ProtoTEx(torch.nn.Module):
         examples.
         """
         batch_size = input_ids.size(0)
-        if (
-            use_decoder
-        ):  ## Decoder is being trained in this loop -- Only when the model has the RC loss
-            labels = input_ids.cuda() + 0
-            labels[labels == self.bart_model.config.pad_token_id] = -100
-            bart_output = self.bart_model(
-                input_ids.cuda(),
-                attn_mask.cuda(),
-                labels=labels,
-                output_attentions=False,
-                output_hidden_states=False,
-            )
-            rc_loss, last_hidden_state = (
-                bart_output.loss,
-                bart_output.encoder_last_hidden_state,
-            )
-        else:
-            rc_loss = torch.tensor(0)
-            last_hidden_state = self.bart_model.base_model.encoder(
-                input_ids.cuda(),
-                attn_mask.cuda(),
-                output_attentions=False,
-                output_hidden_states=False,
-            ).last_hidden_state
+
+        rc_loss = torch.tensor(0)
+        last_hidden_state = self.bart_model.base_model.encoder(
+            input_ids.cuda(),
+            attn_mask.cuda(),
+            output_attentions=False,
+            output_hidden_states=False,
+        ).last_hidden_state
 
         # Lp3 is minimize the negative of inter-prototype distances (maximize the distance)
         input_for_classfn, l_p1, l_p2, l_p3, _, classfn_out, classfn_loss = (
@@ -307,28 +256,28 @@ class ProtoTEx(torch.nn.Module):
                     input_for_classfn = torch.nn.functional.instance_norm(
                         input_for_classfn.view(batch_size, 1, self.num_protos)
                     ).view(batch_size, self.num_protos)
-            if use_p1 or use_p2:
-                ## This part is for seggregating training of negative and positive prototypes
-                distance_mask = self.distance_grounder[y.cuda()]
-                input_for_classfn_masked = input_for_classfn + distance_mask
-                if random_mask_for_distanceMat:
-                    random_mask = torch.bernoulli(
-                        torch.ones_like(input_for_classfn_masked)
-                        * random_mask_for_distanceMat
-                    ).bool()
-                    input_for_classfn_masked[random_mask] = 1e7
+            # if use_p1 or use_p2:
+            ## This part is for seggregating training of negative and positive prototypes
+            # distance_mask = self.distance_grounder[y.cuda()]
+            # input_for_classfn_masked = input_for_classfn + distance_mask
+            # if random_mask_for_distanceMat:
+            #     random_mask = torch.bernoulli(
+            #         torch.ones_like(input_for_classfn_masked)
+            #         * random_mask_for_distanceMat
+            #     ).bool()
+            #     input_for_classfn_masked[random_mask] = 1e7
         #                     print(input_for_classfn_masked)
         if use_p1:
             l_p1 = torch.mean(
                 torch.min(
-                    input_for_classfn_masked if distmask_lp1 else input_for_classfn,
+                    input_for_classfn,
                     dim=0,
                 )[0]
             )
         if use_p2:
             l_p2 = torch.mean(
                 torch.min(
-                    input_for_classfn_masked if distmask_lp2 else input_for_classfn,
+                    input_for_classfn,
                     dim=1,
                 )[0]
             )
