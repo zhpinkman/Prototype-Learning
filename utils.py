@@ -304,9 +304,7 @@ def evaluate(dl, model_new=None):
             input_ids = input_ids.to(device)
             attn_mask = attn_mask.to(device)
             y = y.to(device)
-            classfn_out, loss = model_new(
-                input_ids, attn_mask, y, use_decoder=False, use_classfn=1
-            )
+            classfn_out, loss = model_new(input_ids, attn_mask, y, use_classfn=1)
             #             print(classfn_out.detach().cpu())
             if classfn_out.ndim == 1:
                 predict = torch.zeros_like(y)
