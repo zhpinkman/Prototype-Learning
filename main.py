@@ -3,6 +3,10 @@ from transformers import AutoTokenizer
 import wandb
 import utils
 import argparse
+import sys
+
+sys.path.append("datasets")
+import configs
 
 # Custom modules
 from training import train_ProtoTEx_w_neg, train_simple_ProtoTEx
@@ -17,6 +21,7 @@ def main(args):
 
     if args.architecture == "BART":
         tokenizer = AutoTokenizer.from_pretrained("ModelTC/bart-base-mnli")
+        # tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-mnli")
     elif args.architecture == "RoBERTa":
         tokenizer = AutoTokenizer.from_pretrained("cross-encoder/nli-roberta-base")
     elif args.architecture == "Electra":
@@ -25,53 +30,61 @@ def main(args):
         print(f"Invalid backbone architecture: {args.architecture}")
 
     # Load the dataset
-    dataset_info = utils.DatasetInfo(
-        data_dir=args.data_dir, use_max_length=args.use_max_length
-    )
-    train_dataset, val_dataset, test_dataset = utils.load_dataset(
-        dataset_info=dataset_info, data_dir=args.data_dir, tokenizer=tokenizer
+    all_datasets = utils.load_dataset(
+        data_dir=args.data_dir,
+        tokenizer=tokenizer,
+        max_length=configs.dataset_to_max_length[args.dataset],
     )
 
     train_dl = torch.utils.data.DataLoader(
-        train_dataset,
+        all_datasets["train"],
         batch_size=args.batch_size,
         shuffle=True,
-        collate_fn=train_dataset.collate_fn,
+        collate_fn=lambda batch: {
+            "input_ids": torch.LongTensor([i["input_ids"] for i in batch]),
+            "attention_mask": torch.Tensor([i["attention_mask"] for i in batch]),
+            "label": torch.LongTensor([i["label"] for i in batch]),
+        },
     )
-    val_dl = torch.utils.data.DataLoader(
-        val_dataset, batch_size=128, shuffle=False, collate_fn=val_dataset.collate_fn
-    )
+
     test_dl = torch.utils.data.DataLoader(
-        test_dataset, batch_size=128, shuffle=False, collate_fn=test_dataset.collate_fn
+        all_datasets["test"],
+        batch_size=args.batch_size,
+        shuffle=False,
+        collate_fn=lambda batch: {
+            "input_ids": torch.LongTensor([i["input_ids"] for i in batch]),
+            "attention_mask": torch.Tensor([i["attention_mask"] for i in batch]),
+            "label": torch.LongTensor([i["label"] for i in batch]),
+        },
     )
     # train_dl_eval=torch.utils.data.DataLoader(train_dataset_eval,batch_size=20,shuffle=False,
     #                                  collate_fn=train_dataset_eval.collate_fn)
 
     # Compute class weights
-    class_weight_vect = utils.get_class_weights(train_dataset.y)
+
+    class_weight_vect = utils.get_class_weights(all_datasets["train"]["label"])
 
     # Initialize wandb
-    wandb.init(
-        # Set the project where this run will be logged
-        project=args.project,
-        # We pass a run name (otherwise it’ll be randomly assigned, like sunshine-lollypop-10)
-        name=args.experiment,
-        # Track hyperparameters and run metadata
-        config={
-            "data_dir": args.data_dir,
-            "modelname": args.modelname,
-            "num_prototypes": args.num_prototypes,
-            "none_class": args.none_class,
-            "augmentation": args.augmentation,
-            "nli_intialization": args.nli_intialization,
-            "curriculum": args.curriculum,
-            "architecture": args.architecture,
-            "batchnormlp1": args.batchnormlp1,
-            "model_checkpoint": args.model_checkpoint,
-            "use_max_length": args.use_max_length,
-            "tiny_sample": args.tiny_sample,
-        },
-    )
+    # wandb.init(
+    #     # Set the project where this run will be logged
+    #     project=args.project,
+    #     # We pass a run name (otherwise it’ll be randomly assigned, like sunshine-lollypop-10)
+    #     name=args.experiment,
+    #     # Track hyperparameters and run metadata
+    #     config={
+    #         "data_dir": args.data_dir,
+    #         "modelname": args.modelname,
+    #         "num_prototypes": args.num_prototypes,
+    #         "none_class": args.none_class,
+    #         "augmentation": args.augmentation,
+    #         "nli_intialization": args.nli_intialization,
+    #         "curriculum": args.curriculum,
+    #         "architecture": args.architecture,
+    #         "model_checkpoint": args.model_checkpoint,
+    #         "use_max_length": args.use_max_length,
+    #         "tiny_sample": args.tiny_sample,
+    #     },
+    # )
 
     if args.model == "ProtoTEx":
         print("ProtoTEx best model: {0}".format(args.num_prototypes))
@@ -79,23 +92,21 @@ def main(args):
             print(f"Using backone: {args.architecture}")
             train_ProtoTEx_w_neg(
                 train_dl=train_dl,
-                val_dl=val_dl,
+                val_dl=test_dl,
                 test_dl=test_dl,
-                n_classes=dataset_info.num_classes,
-                max_length=dataset_info.max_length,
+                n_classes=configs.dataset_to_num_labels[args.dataset],
+                max_length=configs.dataset_to_max_length[args.dataset],
                 num_prototypes=args.num_prototypes,
-                batchnormlp1=args.batchnormlp1,
                 class_weights=class_weight_vect,
                 modelname=args.modelname,
-                model_checkpoint=args.model_checkpoint,
                 learning_rate=args.learning_rate,
             )
     elif args.model == "SimpleProtoTEx":
         train_simple_ProtoTEx(
             train_dl,
-            val_dl,
             test_dl,
-            train_dataset_len=len(train_dataset),
+            test_dl,
+            train_dataset_len=len(all_datasets["train"]),
             modelname="SimpleProtoTEx",
             num_prototypes=args.num_prototypes,
         )
@@ -109,15 +120,13 @@ if __name__ == "__main__":
     parser.add_argument("--tiny_sample", dest="tiny_sample", action="store_true")
     # parser.add_argument("--nli_dataset", help="check if the dataset is in nli
     # format that has sentence1, sentence2, label", action="store_true")
-    parser.add_argument("--num_prototypes", type=int, default=50)
+    parser.add_argument("--num_prototypes", type=int, default=16)
     parser.add_argument("--model", type=str, default="ProtoTEx")
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--modelname", type=str)
+    parser.add_argument("--dataset", type=str)
     parser.add_argument("--data_dir", type=str)
-    parser.add_argument("--model_checkpoint", type=str, default=None)
-    parser.add_argument("--use_max_length", action="store_true")
-    parser.add_argument("--batchnormlp1", action="store_true")
-    parser.add_argument("--learning_rate", type=float, default="3e-5")
+    parser.add_argument("--learning_rate", type=float, default="5e-5")
 
     # Wandb parameters
     parser.add_argument("--project", type=str)

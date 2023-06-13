@@ -15,6 +15,9 @@ class SimpleProtoTex(torch.nn.Module):
         self.bart_model = BartForConditionalGeneration.from_pretrained(
             "ModelTC/bart-base-mnli"
         )
+        # self.bart_model = BartForConditionalGeneration.from_pretrained(
+        #     "facebook/bart-large-mnli"
+        # )
         self.bart_out_dim = self.bart_model.config.d_model
         self.max_position_embeddings = 128
         self.num_protos = num_prototypes
@@ -131,13 +134,17 @@ class ProtoTEx(torch.nn.Module):
         dropout=False,
         special_classfn=False,
         p=0.5,
-        batchnormlp1=False,
+        batchnormlp1=True,
     ):
         super().__init__()
 
         self.bart_model = BartForConditionalGeneration.from_pretrained(
             "ModelTC/bart-base-mnli"
         )
+
+        # self.bart_model = BartForConditionalGeneration.from_pretrained(
+        #     "facebook/bart-large-mnli"
+        # )
         self.n_classes = n_classes
         self.bart_out_dim = self.bart_model.config.d_model
         self.one_by_sqrt_bartoutdim = 1 / torch.sqrt(

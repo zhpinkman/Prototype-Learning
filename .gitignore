@@ -15,3 +15,4 @@ wandb/*
 data/glue_data/*
 !data/glue_data/sst2
 data/glue_data.zip
+datasets/dbpedia_dataset/train.csv

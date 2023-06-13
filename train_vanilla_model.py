@@ -85,7 +85,7 @@ def main(args):
         per_device_eval_batch_size=args.batch_size,
         weight_decay=0.01,
         logging_dir=args.log_dir,
-        report_to="wandb",
+        report_to=None,
         evaluation_strategy="steps",
         save_strategy="steps",
         save_total_limit=2,
@@ -157,8 +157,8 @@ if __name__ == "__main__":
     parser.add_argument("--log_dir", type=str, default="./logs")
 
     parser.add_argument("--max_length", type=int, default=40)
-    
-    parser.add_argument("--logging_steps", type = int)
+
+    parser.add_argument("--logging_steps", type=int)
 
     args = parser.parse_args()
     main(args)

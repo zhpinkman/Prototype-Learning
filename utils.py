@@ -8,6 +8,8 @@ from sklearn.metrics import (
     accuracy_score,
     classification_report,
 )
+import datasets
+from sklearn.model_selection import train_test_split
 import torch.nn as nn
 from sklearn.utils.class_weight import compute_class_weight
 import torch
@@ -50,45 +52,6 @@ def regularization(features, centers, labels):
     return distance
 
 
-class DatasetInfo:
-    @property
-    def data(self):
-        return self.dataset_info
-
-    def __init__(self, data_dir, use_max_length) -> None:
-        self.use_max_length = use_max_length
-        self.load_dataset_info(data_dir)
-
-    def load_dataset_info(self, data_dir):
-        with open(os.path.join(data_dir, "info.json"), "r") as f:
-            self.dataset_info = json.load(f)
-
-    @property
-    def batch_size(self):
-        return self.data["batch_size"]
-
-    @property
-    def dataset_type(self):
-        return self.data["dataset_type"]
-
-    @property
-    def dataset_classes_dict(self):
-        classes = self.dataset_info["features"]["label"]["names"]
-        return dict(zip(classes, range(len(classes))))
-
-    @property
-    def max_length(self):
-        return (
-            self.dataset_info["sentence_max_length"]
-            if ("sentence_max_length" in self.dataset_info and self.use_max_length)
-            else 128
-        )
-
-    @property
-    def num_classes(self):
-        return len(self.dataset_info["features"]["label"]["names"])
-
-
 # Compute class weights
 def get_class_weights(train_labels):
     class_weight_vect = compute_class_weight(
@@ -111,60 +74,76 @@ def load_adv_data(dataset_info, data_dir, tokenizer):
     }
 
 
-def load_dataset(dataset_info, data_dir, tokenizer):
+def load_dataset(data_dir, tokenizer, max_length):
     train_df = pd.read_csv(os.path.join(data_dir, "train.csv"))
-    val_df = pd.read_csv(os.path.join(data_dir, "val.csv"))
-    test_df = pd.read_csv(os.path.join(data_dir, "test.csv"))
 
-    # shuffle train dataframe
-    # train_df = train_df.sample(frac=1, random_state=42).reset_index(drop=True)
+    if train_df.shape[0] > 80000:
+        train_text = train_df["text"].tolist()
+        train_labels = train_df["label"].tolist()
+        train_text, _, train_labels, _ = train_test_split(
+            train_text, train_labels, test_size=0.8, stratify=train_labels
+        )
+        train_df = pd.DataFrame({"text": train_text, "label": train_labels})
 
-    if dataset_info.dataset_type == "classification":
-        return [
-            load_classification_dataset(dataset_info, df, tokenizer)
-            for df in [train_df, val_df, test_df]
-        ]
-    elif dataset_info.dataset_type == "nli":
-        return [
-            load_nli_dataset(dataset_info, df, tokenizer)
-            for df in [train_df, val_df, test_df]
-        ]
+    print("Train data shape: ", train_df.shape)
 
-    else:
-        raise Exception("Dataset type not supported")
+    test_files = {
+        file[: file.find(".")]: os.path.join(data_dir, file)
+        for file in os.listdir(data_dir)
+        if (file.startswith("test") or file.startswith("adv"))
+    }
+
+    test_dfs = {
+        file_name: pd.read_csv(file_path) for file_name, file_path in test_files.items()
+    }
+
+    return {
+        "train": load_classification_dataset(train_df, tokenizer, max_length),
+        **{
+            file_name: load_classification_dataset(df, tokenizer, max_length)
+            for file_name, df in test_dfs.items()
+        },
+    }
 
 
-def load_nli_dataset(dataset_info, df, tokenizer):
-    sentences1 = df["sentence1"].tolist()
-    sentences2 = df["sentence2"].tolist()
-    labels = df["label"].tolist()
+# def load_nli_dataset(dataset_info, df, tokenizer):
+#     sentences1 = df["sentence1"].tolist()
+#     sentences2 = df["sentence2"].tolist()
+#     labels = df["label"].tolist()
 
-    sentences = (sentences1, sentences2)
+#     sentences = (sentences1, sentences2)
 
-    dataset = CustomNonBinaryClassDataset(
-        sentences=sentences,
-        labels=labels,
-        tokenizer=tokenizer,
-        max_length=dataset_info.max_length,
-        dataset_type=dataset_info.dataset_type,
+#     dataset = CustomNonBinaryClassDataset(
+#         sentences=sentences,
+#         labels=labels,
+#         tokenizer=tokenizer,
+#         max_length=dataset_info.max_length,
+#     )
+
+#     return dataset
+
+
+def preprocess_data(tokenizer, dataset, max_length):
+    def tokenize_function(examples):
+        return tokenizer(
+            examples["text"],
+            padding="max_length",
+            truncation=True,
+            max_length=max_length,
+            return_tensors="pt",
+        )
+
+    tokenized_dataset = dataset.map(
+        tokenize_function, batched=True, remove_columns=["text"]
     )
+    return tokenized_dataset
 
-    return dataset
 
+def load_classification_dataset(df, tokenizer, max_length):
+    dataset = datasets.Dataset.from_pandas(df)
+    tokenized_dataset = preprocess_data(tokenizer, dataset, max_length)
 
-def load_classification_dataset(dataset_info, df, tokenizer):
-    sentences = df["sentence"].tolist()
-    labels = df["label"].tolist()
-
-    dataset = CustomNonBinaryClassDataset(
-        sentences=sentences,
-        labels=labels,
-        tokenizer=tokenizer,
-        max_length=dataset_info.max_length,
-        dataset_type=dataset_info.dataset_type,
-    )
-
-    return dataset
+    return tokenized_dataset
 
 
 def print_predictions(file, predictions, labels):
@@ -300,7 +279,9 @@ def evaluate(dl, model_new=None):
         y_pred = []
         y_true = []
         for batch in loader:
-            input_ids, attn_mask, y = batch
+            input_ids = batch["input_ids"]
+            attn_mask = batch["attention_mask"]
+            y = batch["label"]
             input_ids = input_ids.to(device)
             attn_mask = attn_mask.to(device)
             y = y.to(device)
@@ -327,7 +308,7 @@ def evaluate(dl, model_new=None):
         accuracy = accuracy_score(np.concatenate(y_true), np.concatenate(y_pred))
         print(f"LABELS: {np.unique(np.concatenate(y_true))}")
         print(
-            f"classification_report:\n{classification_report(np.concatenate(y_true),np.concatenate(y_pred), labels=np.unique(np.concatenate(y_true)))}"
+            f"classification_report:\n{classification_report(np.concatenate(y_true),np.concatenate(y_pred), labels=np.unique(np.concatenate(y_true)), digits = 3)}"
         )
 
     return (
@@ -360,7 +341,14 @@ def get_best_k_protos_for_batch(
     """
     assert (model_new is not None) ^ (model_path is not None)
     dl = torch.utils.data.DataLoader(
-        dataset, batch_size=128, shuffle=False, collate_fn=dataset.collate_fn
+        dataset,
+        batch_size=128,
+        shuffle=False,
+        collate_fn=lambda batch: {
+            "input_ids": torch.LongTensor([i["input_ids"] for i in batch]),
+            "attention_mask": torch.Tensor([i["attention_mask"] for i in batch]),
+            "label": torch.LongTensor([i["label"] for i in batch]),
+        },
     )
     loader = tqdm(dl, total=len(dl), unit="batches")
     model_new.eval()
@@ -372,7 +360,9 @@ def get_best_k_protos_for_batch(
         best_protos = []
         best_protos_dists = []
         for batch in loader:
-            input_ids, attn_mask, y = batch
+            input_ids = batch["input_ids"]
+            attn_mask = batch["attention_mask"]
+            y = batch["label"]
             batch_size = input_ids.size(0)
             last_hidden_state = model_new.bart_model.base_model.encoder(
                 input_ids.cuda(),
@@ -427,7 +417,11 @@ def get_bestk_train_data_for_every_proto(
         train_dataset_eval,
         batch_size=batch_size,
         shuffle=False,
-        collate_fn=train_dataset_eval.collate_fn,
+        collate_fn=lambda batch: {
+            "input_ids": torch.LongTensor([i["input_ids"] for i in batch]),
+            "attention_mask": torch.Tensor([i["attention_mask"] for i in batch]),
+            "label": torch.LongTensor([i["label"] for i in batch]),
+        },
     )
     #     dl=torch.utils.data.DataLoader(test_dataset,batch_size=batch_size,shuffle=False,
     #                                      collate_fn=test_dataset.collate_fn)
@@ -444,7 +438,9 @@ def get_bestk_train_data_for_every_proto(
 
         all_protos = model_new.prototypes
         for batch_index, batch in enumerate(loader):
-            input_ids, attn_mask, y = batch
+            input_ids = batch["input_ids"]
+            attn_mask = batch["attention_mask"]
+            y = batch["label"]
             batch_size = input_ids.size(0)
             last_hidden_state = model_new.bart_model.base_model.encoder(
                 input_ids.cuda(),
@@ -513,11 +509,18 @@ def best_protos_for_test(test_dataset, model_new=None, top_k=5):
         test_dataset,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=test_dataset.collate_fn,
+        collate_fn=lambda batch: {
+            "input_ids": torch.LongTensor([i["input_ids"] for i in batch]),
+            "attention_mask": torch.Tensor([i["attention_mask"] for i in batch]),
+            "label": torch.LongTensor([i["label"] for i in batch]),
+        },
     )
     #     loader = tqdm(dl, total=len(dl), unit="batches")
     all_protos = model_new.prototypes
-    input_ids, attn_mask, y = next(iter(dl))
+    batch = next(iter(dl))
+    input_ids = batch["input_ids"]
+    attn_mask = batch["attention_mask"]
+    y = batch["label"]
     with torch.no_grad():
         last_hidden_state = model_new.bart_model.base_model.encoder(
             input_ids.cuda(),

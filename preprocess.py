@@ -9,29 +9,16 @@ def create_labels(dataset):
 
 
 class CustomNonBinaryClassDataset(torch.utils.data.Dataset):
-    def __init__(
-        self, sentences, labels, tokenizer, max_length: int, dataset_type: str
-    ):
+    def __init__(self, sentences, labels, tokenizer, max_length: int):
         try:
-            if dataset_type == "classification":
-                sentences = [str(i) for i in sentences]
-                inputs = tokenizer(
-                    sentences,
-                    truncation=True,
-                    padding="max_length",
-                    max_length=max_length,
-                )
-            elif dataset_type == "nli":
-                sentences1 = [str(i) for i in sentences[0]]
-                sentences2 = [str(i) for i in sentences[1]]
+            sentences = [str(i) for i in sentences]
+            inputs = tokenizer(
+                sentences,
+                truncation=True,
+                padding="max_length",
+                max_length=max_length,
+            )
 
-                inputs = tokenizer(
-                    sentences1,
-                    sentences2,
-                    truncation=True,
-                    padding="max_length",
-                    max_length=max_length,
-                )
         except Exception as e:
             print(e)
             from IPython import embed
