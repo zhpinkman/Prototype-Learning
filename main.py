@@ -9,7 +9,7 @@ sys.path.append("datasets")
 import configs
 
 # Custom modules
-from training import train_ProtoTEx_w_neg, train_simple_ProtoTEx
+from training import train_ProtoTEx_w_neg
 
 # Set cuda
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -48,7 +48,7 @@ def main(args):
     )
 
     test_dl = torch.utils.data.DataLoader(
-        all_datasets["test"],
+        all_datasets["test_paraphrased"],
         batch_size=args.batch_size,
         shuffle=False,
         collate_fn=lambda batch: {
@@ -100,16 +100,11 @@ def main(args):
                 class_weights=class_weight_vect,
                 modelname=args.modelname,
                 learning_rate=args.learning_rate,
+                not_use_p1=args.not_use_p1,
+                not_use_p2=args.not_use_p2,
+                use_p3=args.use_p3,
             )
-    elif args.model == "SimpleProtoTEx":
-        train_simple_ProtoTEx(
-            train_dl,
-            test_dl,
-            test_dl,
-            train_dataset_len=len(all_datasets["train"]),
-            modelname="SimpleProtoTEx",
-            num_prototypes=args.num_prototypes,
-        )
+
     else:
         print(f"Invalid backbone architecture: {args.architecture}")
 
@@ -136,6 +131,10 @@ if __name__ == "__main__":
     parser.add_argument("--curriculum", type=str, default="No")
     parser.add_argument("--augmentation", type=str, default="No")
     parser.add_argument("--architecture", type=str, default="BART")
+
+    parser.add_argument("--not_use_p1", dest="not_use_p1", action="store_true")
+    parser.add_argument("--not_use_p2", dest="not_use_p2", action="store_true")
+    parser.add_argument("--use_p3", dest="use_p3", action="store_true")
 
     args = parser.parse_args()
     main(args)

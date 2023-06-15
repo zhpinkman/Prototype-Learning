@@ -9,7 +9,8 @@ if [ "$1" = "train" ]; then
         --batch_size $4 \
         --dataset $dataset \
         --data_dir "datasets/${dataset}_dataset" \
-        --modelname "${dataset}_model"
+        --not_use_p1 \
+        --modelname "${dataset}_model_not_use_p1"
 
 # elif [ "$1" = "inference" ]; then
 
