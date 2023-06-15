@@ -5,7 +5,8 @@ import csv
 import argparse
 from time import sleep
 
-openai.api_key = os.environ["OPEN_AI_KEY"]
+# openai.api_key = os.environ["OPEN_AI_KEY"]
+openai.api_key = "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"
 
 def sample_paraphrase(text):
     response = openai.ChatCompletion.create(
@@ -37,6 +38,8 @@ if __name__=="__main__":
         type=str,
         required=True,
     )
+    parser.add_argument("--start_from", required=False, default=0, type=int)
+    parser.add_argument("--write_header", default=False, action=argparse.BooleanOptionalAction)
 
     args = parser.parse_args()
 
@@ -50,11 +53,14 @@ if __name__=="__main__":
             for index, row in enumerate(tqdm(csv_reader)):
                 text, label = row
 
-                if index == 0:
+                if index < args.start_from:
+                    continue
+
+                if index == 0 and args.write_header:
                     csv_writer.writerow(["original_text", "perturbed_text", "label"])
                 
-                elif count == 300:
-                    print("Finished paraphrasing 300 samples. Exiting")
+                elif count == 700:
+                    print("Finished paraphrasing samples. Exiting")
                     break
 
                 else:

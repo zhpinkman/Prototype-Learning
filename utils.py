@@ -125,17 +125,19 @@ def load_dataset(data_dir, tokenizer, max_length):
 
 def preprocess_data(tokenizer, dataset, max_length):
     def tokenize_function(examples):
-        return tokenizer(
+        x = tokenizer(
             examples["text"],
             padding="max_length",
             truncation=True,
             max_length=max_length,
-            return_tensors="pt",
         )
+        return x
 
-    tokenized_dataset = dataset.map(
-        tokenize_function, batched=True, remove_columns=["text"]
-    )
+    try:
+        tokenized_dataset = dataset.map(tokenize_function, batched=True)
+    except Exception as e:
+        embed()
+        exit()
     return tokenized_dataset
 
 

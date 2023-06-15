@@ -12,7 +12,7 @@ for dataset in ["imdb", "ag_news", "dbpedia"]:
         files = [
             os.path.join(dataset_dir, file)
             for file in os.listdir(dataset_dir)
-            if file.startswith(f"adv_{attack}_")
+            if (file.startswith(f"adv_{attack}_") and "protocnn" not in file)
         ]
         print("Number of files:", len(files))
         print(files)
