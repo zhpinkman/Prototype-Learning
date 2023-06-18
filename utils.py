@@ -77,11 +77,11 @@ def load_adv_data(dataset_info, data_dir, tokenizer):
 def load_dataset(data_dir, tokenizer, max_length):
     train_df = pd.read_csv(os.path.join(data_dir, "train.csv"))
 
-    if train_df.shape[0] > 80000:
+    if train_df.shape[0] > 20000:
         train_text = train_df["text"].tolist()
         train_labels = train_df["label"].tolist()
         train_text, _, train_labels, _ = train_test_split(
-            train_text, train_labels, test_size=0.8, stratify=train_labels
+            train_text, train_labels, test_size=0.9, stratify=train_labels
         )
         train_df = pd.DataFrame({"text": train_text, "label": train_labels})
 

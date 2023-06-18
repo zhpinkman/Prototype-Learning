@@ -100,9 +100,9 @@ def main(args):
                 class_weights=class_weight_vect,
                 modelname=args.modelname,
                 learning_rate=args.learning_rate,
-                not_use_p1=args.not_use_p1,
-                not_use_p2=args.not_use_p2,
-                use_p3=args.use_p3,
+                p1_lamb=args.p1_lamb,
+                p2_lamb=args.p2_lamb,
+                p3_lamb=args.p3_lamb,
             )
 
     else:
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     parser.add_argument("--modelname", type=str)
     parser.add_argument("--dataset", type=str)
     parser.add_argument("--data_dir", type=str)
-    parser.add_argument("--learning_rate", type=float, default="5e-5")
+    parser.add_argument("--learning_rate", type=float, default="1e-4")
 
     # Wandb parameters
     parser.add_argument("--project", type=str)
@@ -132,9 +132,9 @@ if __name__ == "__main__":
     parser.add_argument("--augmentation", type=str, default="No")
     parser.add_argument("--architecture", type=str, default="BART")
 
-    parser.add_argument("--not_use_p1", dest="not_use_p1", action="store_true")
-    parser.add_argument("--not_use_p2", dest="not_use_p2", action="store_true")
-    parser.add_argument("--use_p3", dest="use_p3", action="store_true")
+    parser.add_argument("--p1_lamb", type=float, default=0.9)
+    parser.add_argument("--p2_lamb", type=float, default=0.9)
+    parser.add_argument("--p3_lamb", type=float, default=0.9)
 
     args = parser.parse_args()
     main(args)

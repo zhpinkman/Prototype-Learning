@@ -80,11 +80,11 @@ def train_ProtoTEx_w_neg(
     max_length,
     num_prototypes,
     learning_rate,
-    not_use_p1,
-    not_use_p2,
-    use_p3,
     class_weights=None,
     modelname=None,
+    p1_lamb=0.9,
+    p2_lamb=0.9,
+    p3_lamb=0.9,
 ):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -183,9 +183,6 @@ def train_ProtoTEx_w_neg(
     gamma = 2
     delta = 1
     # kappa = 1
-    p1_lamb = 0.9
-    p2_lamb = 0.9
-    p3_lamb = 0.9
     for iter_ in range(n_iters):
         # wandb.log({"epoch": iter_})
         print(f"Epoch: {iter_}")
@@ -210,30 +207,29 @@ def train_ProtoTEx_w_neg(
         for epoch in range(delta):
             print(f"Delta Epoch: {epoch}")
             train_loader = train_dl
-            if not not_use_p1:
-                for i_batch, batch in enumerate(tqdm(train_loader, leave=False)):
-                    classfn_out, loss = model(
-                        batch["input_ids"],
-                        batch["attention_mask"],
-                        batch["label"],
-                        use_decoder=0,
-                        use_classfn=0,
-                        use_rc=0,
-                        use_p1=1,
-                        use_p2=0,
-                        use_p3=use_p3,
-                        rc_loss_lamb=1.0,
-                        p1_lamb=p1_lamb,
-                        p2_lamb=p2_lamb,
-                        p3_lamb=p3_lamb,
-                        distmask_lp1=1,
-                        distmask_lp2=1,
-                        random_mask_for_distanceMat=None,
-                    )
-                    # total_loss += loss[0].detach().item()
-                    optim.zero_grad()
-                    loss[0].backward()
-                    optim.step()
+            for i_batch, batch in enumerate(tqdm(train_loader, leave=False)):
+                classfn_out, loss = model(
+                    batch["input_ids"],
+                    batch["attention_mask"],
+                    batch["label"],
+                    use_decoder=0,
+                    use_classfn=0,
+                    use_rc=0,
+                    use_p1=1,
+                    use_p2=0,
+                    use_p3=1,
+                    rc_loss_lamb=1.0,
+                    p1_lamb=p1_lamb,
+                    p2_lamb=p2_lamb,
+                    p3_lamb=p3_lamb,
+                    distmask_lp1=1,
+                    distmask_lp2=1,
+                    random_mask_for_distanceMat=None,
+                )
+                # total_loss += loss[0].detach().item()
+                optim.zero_grad()
+                loss[0].backward()
+                optim.step()
         """
         During gamma, we only want to improve the classification performance. Therefore we will
         improve encoder to become closer to the prototypes, at the same time also improving
@@ -252,27 +248,27 @@ def train_ProtoTEx_w_neg(
         #         if w.requires_grad: print(n)
         for epoch in range(gamma):
             train_loader = train_dl
-            if not not_use_p2:
-                for batch in tqdm(train_loader, leave=False):
-                    classfn_out, loss = model(
-                        batch["input_ids"],
-                        batch["attention_mask"],
-                        batch["label"],
-                        use_decoder=0,
-                        use_classfn=1,
-                        use_rc=0,
-                        use_p1=0,
-                        use_p2=1,
-                        use_p3=use_p3,
-                        rc_loss_lamb=1.0,
-                        p1_lamb=p1_lamb,
-                        p2_lamb=p2_lamb,
-                        distmask_lp1=1,
-                        distmask_lp2=1,
-                    )
-                    optim.zero_grad()
-                    loss[0].backward()
-                    optim.step()
+            for batch in tqdm(train_loader, leave=False):
+                classfn_out, loss = model(
+                    batch["input_ids"],
+                    batch["attention_mask"],
+                    batch["label"],
+                    use_decoder=0,
+                    use_classfn=1,
+                    use_rc=0,
+                    use_p1=0,
+                    use_p2=1,
+                    use_p3=1,
+                    rc_loss_lamb=1.0,
+                    p1_lamb=p1_lamb,
+                    p2_lamb=p2_lamb,
+                    p3_lamb=p3_lamb,
+                    distmask_lp1=1,
+                    distmask_lp2=1,
+                )
+                optim.zero_grad()
+                loss[0].backward()
+                optim.step()
 
         (
             val_loss,
