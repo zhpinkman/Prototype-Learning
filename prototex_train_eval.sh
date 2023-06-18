@@ -5,11 +5,21 @@ echo "Mode" $1
 
 if [ "$1" = "train" ]; then
 
-    WANDB_MODE="offline" CUDA_VISIBLE_DEVICES=$3 python main.py \
-        --batch_size $4 \
-        --dataset $dataset \
-        --data_dir "datasets/${dataset}_dataset" \
-        --modelname "${dataset}_model"
+    for p1_lamb in 0.9; do
+        for p2_lamb in 0.9; do
+            for p3_lamb in 2.0 4.0; do
+
+                WANDB_MODE="offline" CUDA_VISIBLE_DEVICES=$3 python main.py \
+                    --batch_size $4 \
+                    --dataset $dataset \
+                    --data_dir "datasets/${dataset}_dataset" \
+                    --p1_lamb $p1_lamb \
+                    --p2_lamb $p2_lamb \
+                    --p3_lamb $p3_lamb \
+                    --modelname "${dataset}_model_${p1_lamb}_${p2_lamb}_${p3_lamb}"
+            done
+        done
+    done
 
 # elif [ "$1" = "inference" ]; then
 
@@ -22,11 +32,14 @@ if [ "$1" = "train" ]; then
 
 elif [ "$1" = "test" ]; then
 
-    WANDB_MODE="offline" CUDA_VISIBLE_DEVICES=6 python evaluate_model.py \
+    p1_lamb=0.9
+    p2_lamb=0.9
+    p3_lamb=4.0
+    WANDB_MODE="offline" CUDA_VISIBLE_DEVICES=2 python evaluate_model.py \
         --batch_size 128 \
         --dataset $dataset \
         --data_dir "datasets/${dataset}_dataset" \
-        --modelname "${dataset}_model"
+        --modelname "${dataset}_model_${p1_lamb}_${p2_lamb}_${p3_lamb}"
 
 else
 

@@ -9,7 +9,7 @@ sys.path.append("datasets")
 import configs
 
 # Custom modules
-from training import train_ProtoTEx_w_neg, train_simple_ProtoTEx
+from training import train_ProtoTEx_w_neg
 
 # Set cuda
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -48,7 +48,7 @@ def main(args):
     )
 
     test_dl = torch.utils.data.DataLoader(
-        all_datasets["test"],
+        all_datasets["test_paraphrased"],
         batch_size=args.batch_size,
         shuffle=False,
         collate_fn=lambda batch: {
@@ -100,16 +100,11 @@ def main(args):
                 class_weights=class_weight_vect,
                 modelname=args.modelname,
                 learning_rate=args.learning_rate,
+                p1_lamb=args.p1_lamb,
+                p2_lamb=args.p2_lamb,
+                p3_lamb=args.p3_lamb,
             )
-    elif args.model == "SimpleProtoTEx":
-        train_simple_ProtoTEx(
-            train_dl,
-            test_dl,
-            test_dl,
-            train_dataset_len=len(all_datasets["train"]),
-            modelname="SimpleProtoTEx",
-            num_prototypes=args.num_prototypes,
-        )
+
     else:
         print(f"Invalid backbone architecture: {args.architecture}")
 
@@ -126,7 +121,7 @@ if __name__ == "__main__":
     parser.add_argument("--modelname", type=str)
     parser.add_argument("--dataset", type=str)
     parser.add_argument("--data_dir", type=str)
-    parser.add_argument("--learning_rate", type=float, default="5e-5")
+    parser.add_argument("--learning_rate", type=float, default="1e-4")
 
     # Wandb parameters
     parser.add_argument("--project", type=str)
@@ -136,6 +131,10 @@ if __name__ == "__main__":
     parser.add_argument("--curriculum", type=str, default="No")
     parser.add_argument("--augmentation", type=str, default="No")
     parser.add_argument("--architecture", type=str, default="BART")
+
+    parser.add_argument("--p1_lamb", type=float, default=0.9)
+    parser.add_argument("--p2_lamb", type=float, default=0.9)
+    parser.add_argument("--p3_lamb", type=float, default=0.9)
 
     args = parser.parse_args()
     main(args)
