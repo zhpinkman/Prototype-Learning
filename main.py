@@ -24,8 +24,8 @@ def main(args):
         # tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-mnli")
     elif args.architecture == "RoBERTa":
         tokenizer = AutoTokenizer.from_pretrained("cross-encoder/nli-roberta-base")
-    elif args.architecture == "Electra":
-        tokenizer = AutoTokenizer.from_pretrained("howey/electra-base-mnli")
+    elif args.architecture == "ELECTRA":
+        tokenizer = AutoTokenizer.from_pretrained("google/electra-base-discriminator")
     else:
         print(f"Invalid backbone architecture: {args.architecture}")
 
@@ -88,22 +88,23 @@ def main(args):
 
     if args.model == "ProtoTEx":
         print("ProtoTEx best model: {0}".format(args.num_prototypes))
-        if args.architecture == "BART":
-            print(f"Using backone: {args.architecture}")
-            train_ProtoTEx_w_neg(
-                train_dl=train_dl,
-                val_dl=test_dl,
-                test_dl=test_dl,
-                n_classes=configs.dataset_to_num_labels[args.dataset],
-                max_length=configs.dataset_to_max_length[args.dataset],
-                num_prototypes=args.num_prototypes,
-                class_weights=class_weight_vect,
-                modelname=args.modelname,
-                learning_rate=args.learning_rate,
-                p1_lamb=args.p1_lamb,
-                p2_lamb=args.p2_lamb,
-                p3_lamb=args.p3_lamb,
-            )
+
+        print(f"Using backone: {args.architecture}")
+        train_ProtoTEx_w_neg(
+            architecture=args.architecture,
+            train_dl=train_dl,
+            val_dl=test_dl,
+            test_dl=test_dl,
+            n_classes=configs.dataset_to_num_labels[args.dataset],
+            max_length=configs.dataset_to_max_length[args.dataset],
+            num_prototypes=args.num_prototypes,
+            class_weights=class_weight_vect,
+            modelname=args.modelname,
+            learning_rate=args.learning_rate,
+            p1_lamb=args.p1_lamb,
+            p2_lamb=args.p2_lamb,
+            p3_lamb=args.p3_lamb,
+        )
 
     else:
         print(f"Invalid backbone architecture: {args.architecture}")

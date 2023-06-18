@@ -7,7 +7,7 @@ if [ "$1" = "train" ]; then
 
     for p1_lamb in 0.9; do
         for p2_lamb in 0.9; do
-            for p3_lamb in 2.0 4.0; do
+            for p3_lamb in 10.0 20.0; do
 
                 WANDB_MODE="offline" CUDA_VISIBLE_DEVICES=$3 python main.py \
                     --batch_size $4 \

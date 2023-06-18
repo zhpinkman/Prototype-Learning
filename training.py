@@ -8,6 +8,7 @@ import torch as th
 # Custom modules
 from utils import EarlyStopping, print_logs, evaluate
 from models import ProtoTEx
+from models_electra import ProtoTEx_Electra
 
 # Save paths
 MODELPATH = "Models/"
@@ -73,6 +74,7 @@ class StratifiedSampler(Sampler):
 
 
 def train_ProtoTEx_w_neg(
+    architecture,
     train_dl,
     val_dl,
     test_dl,
@@ -89,17 +91,31 @@ def train_ProtoTEx_w_neg(
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     torch.cuda.empty_cache()
-    model = ProtoTEx(
-        num_prototypes=num_prototypes,
-        class_weights=class_weights,
-        n_classes=n_classes,
-        max_length=max_length,
-        bias=False,
-        dropout=False,
-        special_classfn=True,  # special_classfn=False, # apply dropout only on bias
-        p=1,  # p=0.75,
-        batchnormlp1=True,
-    )
+
+    if architecture == "BART":
+        model = ProtoTEx(
+            num_prototypes=num_prototypes,
+            class_weights=class_weights,
+            n_classes=n_classes,
+            max_length=max_length,
+            bias=False,
+            dropout=False,
+            special_classfn=True,  # special_classfn=False, # apply dropout only on bias
+            p=1,  # p=0.75,
+            batchnormlp1=True,
+        )
+    elif architecture == "ELECTRA":
+        model = ProtoTEx_Electra(
+            num_prototypes=num_prototypes,
+            class_weights=class_weights,
+            n_classes=n_classes,
+            max_length=max_length,
+            bias=False,
+            dropout=False,
+            special_classfn=True,  # special_classfn=False, # apply dropout only on bias
+            p=1,  # p=0.75,
+            batchnormlp1=True,
+        )
 
     # model = torch.nn.DataParallel(model)
     model = model.to(device)

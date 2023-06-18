@@ -18,6 +18,8 @@ def main(args):
     if args.architecture == "BART":
         tokenizer = AutoTokenizer.from_pretrained("ModelTC/bart-base-mnli")
         # tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-mnli")
+    elif args.architecture == "ELECTRA":
+        tokenizer = AutoTokenizer.from_pretrained("google/electra-base-discriminator")
     else:
         print(f"Invalid backbone architecture: {args.architecture}")
 
