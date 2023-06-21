@@ -7,7 +7,7 @@ if [ "$1" = "train" ]; then
 
     for p1_lamb in 0.9; do
         for p2_lamb in 0.9; do
-            for p3_lamb in 10.0 20.0; do
+            for p3_lamb in 0.9; do
 
                 WANDB_MODE="offline" CUDA_VISIBLE_DEVICES=$3 python main.py \
                     --batch_size $4 \
@@ -16,7 +16,8 @@ if [ "$1" = "train" ]; then
                     --p1_lamb $p1_lamb \
                     --p2_lamb $p2_lamb \
                     --p3_lamb $p3_lamb \
-                    --modelname "${dataset}_model_${p1_lamb}_${p2_lamb}_${p3_lamb}"
+                    --architecture "ELECTRA" \
+                    --modelname "${dataset}_model_${p1_lamb}_${p2_lamb}_${p3_lamb}_ELECTRA"
             done
         done
     done
@@ -34,12 +35,13 @@ elif [ "$1" = "test" ]; then
 
     p1_lamb=0.9
     p2_lamb=0.9
-    p3_lamb=4.0
-    WANDB_MODE="offline" CUDA_VISIBLE_DEVICES=2 python evaluate_model.py \
-        --batch_size 128 \
+    p3_lamb=0.9
+    WANDB_MODE="offline" CUDA_VISIBLE_DEVICES=$3 python evaluate_model.py \
+        --batch_size 512 \
         --dataset $dataset \
         --data_dir "datasets/${dataset}_dataset" \
-        --modelname "${dataset}_model_${p1_lamb}_${p2_lamb}_${p3_lamb}"
+        --architecture "ELECTRA" \
+        --modelname "${dataset}_model_${p1_lamb}_${p2_lamb}_${p3_lamb}_ELECTRA"
 
 else
 

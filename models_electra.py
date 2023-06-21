@@ -1,5 +1,5 @@
 import torch
-from transformers import AutoTokenizer, AutoModelForPreTraining
+from transformers import ElectraModel
 
 # torch.manual_seed(0)
 # import random
@@ -22,19 +22,21 @@ class ProtoTEx_Electra(torch.nn.Module):
     ):
         super().__init__()
 
-        self.electra_model = AutoModelForPreTraining.from_pretrained(
+        self.electra_model = ElectraModel.from_pretrained(
             "google/electra-base-discriminator"
         )
 
         self.n_classes = n_classes
-        self.bart_out_dim = self.electra_model.config.hidden_size
-        self.one_by_sqrt_bartoutdim = 1 / torch.sqrt(
-            torch.tensor(self.bart_out_dim).float()
+        self.electra_out_dim = self.electra_model.config.hidden_size
+        self.one_by_sqrt_electraoutdim = 1 / torch.sqrt(
+            torch.tensor(self.electra_out_dim).float()
         )
         self.max_position_embeddings = max_length
         self.num_protos = num_prototypes
         self.prototypes = torch.nn.Parameter(
-            torch.rand(self.num_protos, self.max_position_embeddings, self.bart_out_dim)
+            torch.rand(
+                self.num_protos, self.max_position_embeddings, self.electra_out_dim
+            )
         )
 
         # TODO: Try setting bias to True
@@ -75,7 +77,7 @@ class ProtoTEx_Electra(torch.nn.Module):
             self.eval()
             with torch.no_grad():
                 self.prototypes = torch.nn.Parameter(
-                    self.electra_model.base_model.encoder(
+                    self.electra_model(
                         input_ids_rdm.cuda(),
                         attn_mask_rdm.cuda(),
                         output_attentions=False,
@@ -138,7 +140,7 @@ class ProtoTEx_Electra(torch.nn.Module):
         ):  ## Decoder is being trained in this loop -- Only when the model has the RC loss
             labels = input_ids.cuda() + 0
             labels[labels == self.electra_model.config.pad_token_id] = -100
-            bart_output = self.electra_model(
+            electra_output = self.electra_model(
                 input_ids.cuda(),
                 attn_mask.cuda(),
                 labels=labels,
@@ -146,17 +148,21 @@ class ProtoTEx_Electra(torch.nn.Module):
                 output_hidden_states=False,
             )
             rc_loss, last_hidden_state = (
-                bart_output.loss,
-                bart_output.encoder_last_hidden_state,
+                electra_output.loss,
+                electra_output.encoder_last_hidden_state,
             )
         else:
             rc_loss = torch.tensor(0)
-            last_hidden_state = self.electra_model.base_model.encoder(
-                input_ids.cuda(),
-                attn_mask.cuda(),
-                output_attentions=False,
-                output_hidden_states=False,
-            ).last_hidden_state
+            try:
+                last_hidden_state = self.electra_model(
+                    input_ids.cuda(), attn_mask.cuda()
+                ).last_hidden_state
+            except Exception as e:
+                from IPython import embed
+
+                print(e)
+                embed()
+                exit()
 
         # Lp3 is minimize the negative of inter-prototype distances (maximize the distance)
         input_for_classfn, l_p1, l_p2, l_p3, _, classfn_out, classfn_loss = (
@@ -213,8 +219,8 @@ class ProtoTEx_Electra(torch.nn.Module):
             )
         if use_p3:
             ## Used for Inter-prototype distance
-            #             l_p3 = self.one_by_sqrt_bartoutdim * torch.mean(torch.pdist(all_protos.view(self.num_protos,-1)))
-            l_p3 = self.one_by_sqrt_bartoutdim * torch.mean(
+            #             l_p3 = self.one_by_sqrt_electraoutdim * torch.mean(torch.pdist(all_protos.view(self.num_protos,-1)))
+            l_p3 = self.one_by_sqrt_electraoutdim * torch.mean(
                 torch.pdist(self.prototypes.view(self.num_protos, -1))
             )
         if use_classfn:
