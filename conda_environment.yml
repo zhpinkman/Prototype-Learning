@@ -148,7 +148,7 @@ dependencies:
     - cachetools==5.3.1
     - certifi==2021.10.8
     - cffi==1.15.0
-    - charset-normalizer==3.1.0
+    - charset-normalizer
     - click==8.0.4
     - cloudpickle==2.2.1
     - commonmark==0.9.1

@@ -5,6 +5,7 @@ import argparse
 from IPython import embed
 import utils
 from models import ProtoTEx
+from models_electra import ProtoTEx_Electra
 import sys
 
 sys.path.append("datasets")
@@ -49,6 +50,18 @@ def main(args):
             print(f"Using backone: {args.architecture}")
             torch.cuda.empty_cache()
             model = ProtoTEx(
+                num_prototypes=args.num_prototypes,
+                class_weights=None,
+                n_classes=configs.dataset_to_num_labels[args.dataset],
+                max_length=configs.dataset_to_max_length[args.dataset],
+                bias=False,
+                dropout=False,
+                special_classfn=True,  # special_classfn=False, # apply dropout only on bias
+                p=1,  # p=0.75,
+                batchnormlp1=True,
+            )
+        elif args.architecture == "ELECTRA":
+            model = ProtoTEx_Electra(
                 num_prototypes=args.num_prototypes,
                 class_weights=None,
                 n_classes=configs.dataset_to_num_labels[args.dataset],
