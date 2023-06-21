@@ -48,7 +48,7 @@ def main(args):
     )
 
     test_dl = torch.utils.data.DataLoader(
-        all_datasets["test_paraphrased"],
+        all_datasets["test"],
         batch_size=args.batch_size,
         shuffle=False,
         collate_fn=lambda batch: {

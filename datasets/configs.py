@@ -14,14 +14,6 @@ logical_fallacy_labels_to_ids = {
     "fallacy of extension": 12,
 }
 
-dataset_to_max_length = {
-    "imdb": 512,
-    "dbpedia": 512,
-    "ag_news": 64,
-}
+dataset_to_max_length = {"imdb": 512, "dbpedia": 512, "ag_news": 64, "sst2": 64}
 
-dataset_to_num_labels = {
-    "imdb": 2,
-    "dbpedia": 9,
-    "ag_news": 4,
-}
+dataset_to_num_labels = {"imdb": 2, "dbpedia": 9, "ag_news": 4, "sst2": 2}
